@@ -13,6 +13,6 @@ class Pago extends Model
     }
 
     public function nomina(){
-    	return $this->belongsTo('App\Nomina');
+    	return $this->belongsTo('App\Nomina', 'id_nomina');
     }
 }

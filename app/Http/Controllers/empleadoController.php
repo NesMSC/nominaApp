@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\DB;
 use App\Persona;
 use App\Empleado;
 use App\Salario;
+use App\Hijo;
 
 class empleadoController extends Controller
 {
@@ -21,13 +22,19 @@ class empleadoController extends Controller
 
         if (!$request->busqueda && $request->criterio) {
           //Busqueda con solo el criterio
-          $empleados = Persona::join('empleados', 'personas.id' ,'=', 'empleados.persona_id')
+          if($request->criterio == 'trashed'){
+            $empleados = Persona::join('empleados', 'personas.id' ,'=', 'empleados.persona_id')
+                                ->onlyTrashed()
+                                ->where('empleados.tipoPersonal', $request->tipo)
+                                ->paginate(10);
+          }else{
+            $empleados = Persona::join('empleados', 'personas.id' ,'=', 'empleados.persona_id')
                               ->select('personas.id as id', 'nombres', 'apellidos', 'grado', 'nivel', 'departamento')
                               ->where('empleados.estado', $request->criterio)
                               ->where('empleados.tipoPersonal', $request->tipo)
                               ->orderBy('personas.id', 'desc')
-                              ->paginate(5);
-
+                              ->paginate(10);
+          }
           
         }elseif ($request->busqueda && !$request->criterio) {
           //Busqueda sin criterio
@@ -38,11 +45,24 @@ class empleadoController extends Controller
                               ->orWhere('apellidos', 'like', "%$request->busqueda%")
                               ->orWhere('departamento', 'like', "%$request->busqueda%")
                               ->orderBy('personas.id', 'desc')
-                              ->paginate(5);
+                              ->paginate(10);
           
         }elseif ($request->busqueda && $request->criterio) {
           //Busqueda con dato buscado y criterio
-          $empleados = Persona::join('empleados', 'personas.id' ,'=', 'empleados.persona_id')
+          if($request->criterio == 'trashed'){
+            $empleados = Persona::join('empleados', 'personas.id' ,'=', 'empleados.persona_id')
+                                ->onlyTrashed()
+                                ->where('empleados.tipoPersonal', $request->tipo)
+                                ->where(function($query){
+                                  global $request;
+                                  $query->where('nombres', 'like', "%$request->busqueda%")
+                                        ->orWhere('apellidos', 'like', "%$request->busqueda%")
+                                        ->orWhere('departamento', 'like', "%$request->busqueda%")
+                                        ->orderBy('personas.id', 'desc');
+                                })
+                                ->paginate(10);
+          }else{
+            $empleados = Persona::join('empleados', 'personas.id' ,'=', 'empleados.persona_id')
                               ->select('personas.id as id', 'nombres', 'apellidos', 'grado', 'nivel', 'departamento')
                               ->where('empleados.tipoPersonal', $request->tipo)
                               ->where('empleados.estado', $request->criterio)
@@ -53,14 +73,16 @@ class empleadoController extends Controller
                                       ->orWhere('departamento', 'like', "%$request->busqueda%")
                                       ->orderBy('personas.id', 'desc');
                               })
-                              ->paginate(5);
+                              ->paginate(10);
+          }
+          
         }else{
           //Todos los datos
           $empleados = Persona::join('empleados', 'personas.id' ,'=', 'empleados.persona_id')
                               ->select('personas.id as id', 'nombres', 'apellidos', 'grado', 'nivel', 'departamento')
                               ->where('empleados.tipoPersonal', $request->tipo)
                               ->orderBy('personas.id', 'desc')
-                              ->paginate(5);
+                              ->paginate(10);
 
         };
 
@@ -90,7 +112,8 @@ class empleadoController extends Controller
      */    
     public function store(Request $request)
     {
-        if (!$request->ajax()) return redirect('/');
+      if (!$request->ajax()) return redirect('/');
+
         $cedula = $request->cedula;
         $busquedaRegistro = DB::table('personas')->where('cedula', '=', "$cedula")->first();
 
@@ -112,9 +135,11 @@ class empleadoController extends Controller
             $persona->sexo = $request->sexo;
             $persona->save();
 
+            $this->updateOrInsertBanco($persona->id, $request->banco);
+
             $empleado = new Empleado;
             $empleado->persona_id = $persona->id;
-            $empleado->salario_id = 1;
+            $empleado->salario_id = $request->id_salario;
             $empleado->grado = $request->grado;
             $empleado->nivel = $request->nivel;
             $empleado->fechaIngreso = $request->fecha_ingreso;
@@ -124,6 +149,12 @@ class empleadoController extends Controller
             $empleado->tipoPersonal = $request->tipo;
             $empleado->save();
 
+            
+            
+            if(!empty($request->hijos)){
+              //Registrar hijos
+              $this->registrarHijos($request->hijos, $empleado->id);
+            }
             //agregar beneficios
             $beneficios = $request->beneficios;
             for ($i=0; $i < count($beneficios); $i++) { 
@@ -142,9 +173,31 @@ class empleadoController extends Controller
             return $e;
         }
 
-        return ["respuesta"=>false];
+        return ["respuesta"=>false]; 
         
     }
+
+    private function updateOrInsertBanco($id, $banco)
+    {
+      
+      $datosBancarios = $banco;
+      $banco = DB::table('bancos')
+              ->select('id')
+              ->where('codigo', $banco['banco'])
+              ->first();
+
+      DB::table('cuentas_bancarias')->updateOrinsert(
+        ['persona_id' => $id],
+        [
+          'tipo_cuenta'=>$datosBancarios['tipo_cuenta'], 
+          'numero_cuenta'=>$datosBancarios['numero_cuenta'],
+          'banco_id'=>$banco->id,
+          'persona_id' => $id
+        ]
+      );
+
+    }
+
 
 
     /**
@@ -158,13 +211,24 @@ class empleadoController extends Controller
 
         $empleado = Persona::join('empleados', 'personas.id' ,'=', 'empleados.persona_id')
                             ->join('salarios', 'empleados.salario_id', '=', 'salarios.id')
-                            ->select('personas.id as id_persona', 'empleados.id as id_empleado', 'nombres', 'apellidos', 'cedula', 'correo', 'telefono', 'nacimiento', 'grado', 'nivel', 'fechaIngreso', 'departamento', 'instruccion', 'estado', 'sexo')
+                            ->select('personas.id as id_persona', 'empleados.id as id_empleado', 'nombres', 
+                            'apellidos', 'cedula', 'correo', 'telefono', 'nacimiento', 'grado', 'nivel', 
+                            'fechaIngreso', 'departamento', 'instruccion', 'estado', 'sexo')
                             ->where('personas.id', '=', $id)
                             ->get();
         
-        
+        $banco = Persona::find($id)->cuentaBancaria;
 
-        return ["empleado"=>$empleado];
+        $hijos = Hijo::join('personas', 'hijos.persona_id', 'personas.id')
+                      ->join('empleado_hijo', 'hijos.id', 'empleado_hijo.hijo_id')
+                      ->select('personas.nombres as nombre', 'personas.apellidos as apellido', 
+                      'personas.nacimiento', 'personas.id as persona_id', 'hijos.id as hijo_id', 
+                      'hijos.nivel', 'hijos.discapacidad')
+                      ->where('empleado_hijo.empleado_id', '=', $empleado[0]->id_empleado)
+                      ->get();
+                      
+
+        return ["empleado"=>$empleado, "banco" => $banco, "hijos" => $hijos];
 
     }
 
@@ -198,10 +262,13 @@ class empleadoController extends Controller
 
     public function update(Request $request)
     {
+      
       DB::table('personas')
         ->where('id', $request->id_persona)
         ->update(['nombres' => $request->nombres, 'apellidos' => $request->apellidos, 'cedula' => $request->cedula, 'correo' => $request->correo, 'telefono' => $request->telefono, 'nacimiento'=>$request->nacimiento, 'sexo' => $request->sexo]);
-
+      
+      $this->updateOrInsertBanco($request->id_persona, $request->banco);
+      
       DB::table('empleados')
         ->where('id', $request->id_empleado)
         ->update(['grado' => $request->grado, 'nivel' => $request->nivel, 'fechaIngreso' => $request->fecha_ingreso, 'departamento' => $request->departamento, 'instruccion' => $request->grado_instruccion, 'estado' => $request->estado]);
@@ -224,7 +291,35 @@ class empleadoController extends Controller
           $empleado->descuento()->attach($descuentos[$i]);
         };
 
+      //Actualizar hijos
+      $this->actualizarHijos($request->hijos, $request->id_empleado);
+      
+
       return true; 
+    }
+
+    public function destroy($id, Request $request)
+    {
+      if (!$request->ajax()) return redirect('/');
+
+      $persona = Persona::find($id);
+      $empleado_id = $persona->empleado->id;
+
+      $persona->delete();
+      Empleado::find($empleado_id)->delete();
+    }
+
+    public function restore($id, Request $request)
+    {
+      if (!$request->ajax()) return redirect('/');
+
+      $empleado = Empleado::onlyTrashed()
+                        ->where('id', $id)
+                        ->first();   
+      $persona = Persona::onlyTrashed()
+                        ->where('id', $empleado->persona_id)
+                        ->restore();
+      $empleado->restore();
     }
 
     public function salarioTabla(Request $request)
@@ -233,11 +328,17 @@ class empleadoController extends Controller
 
         $id_salario = $request->id_salario;
 
-        $salario = Salario::join("ind_economicos", "salarios.indicador_id", "=", "ind_economicos.id")->select('tabulador', 'UnTributaria')
+        $salario = Salario::join("ind_economicos", "salarios.indicador_id", "=", "ind_economicos.id")
+                          ->select('tabulador', 'UnTributaria', 'salarioMin', 'cestaTicket')
                           ->where('salarios.id', '=', $id_salario)
                           ->get();
 
-        return ["tabulador"=>$salario[0]->tabulador, "UT"=>$salario[0]->UnTributaria];
+        return [
+              "tabulador"=>$salario[0]->tabulador, 
+              "UT"=>$salario[0]->UnTributaria,
+              "salarioMin"=>$salario[0]->salarioMin,
+              "cestaTicket"=>$salario[0]->cestaTicket,
+            ];
     }
 
     public function beneficios(Request $request)
@@ -297,7 +398,8 @@ class empleadoController extends Controller
         return ["deducciones" => $deducciones];
     }
 
-    public function contar(Request $request){
+    public function contar(Request $request)
+    {
 
       if (!$request->ajax()) return redirect('/');
 
@@ -314,5 +416,53 @@ class empleadoController extends Controller
                 ->count();
 
       return ["admin" => $admin, "docente" => $docente, "obrero" => $obrero];
+    }
+
+    public function cuentaBancaria($id, Request $request)
+    {
+      //if (!$request->ajax()) return redirect('/');
+
+      $cuenta = Persona::find($id)->cuentaBancaria;
+      
+      return ["cuenta" => $cuenta, "banco" => $cuenta->banco];
+    }
+
+    public function registrarHijos($data, $empleado_id)
+    {
+      $hijos = $data;
+
+      for ($i=0; $i < count($hijos); $i++) { 
+        $hijo = new Persona;
+        $hijo->nombres = $hijos[$i]["nombre"];
+        $hijo->apellidos = $hijos[$i]["apellido"];
+        $hijo->nacimiento = $hijos[$i]["nacimiento"];
+        $hijo->save();
+
+        $datos_hijos = new Hijo;
+        $datos_hijos->persona_id = $hijo->id;
+        $datos_hijos->nivel = $hijos[$i]["nivel"];
+        $datos_hijos->discapacidad = $hijos[$i]["discapacidad"];
+        $datos_hijos->save();
+
+        DB::table('empleado_hijo')->insert([
+          "empleado_id" => $empleado_id,
+          "hijo_id" => $datos_hijos->id,
+        ]);
+      };
+    }
+
+    public function actualizarHijos($hijos, $empleado)
+    {
+
+      $empleado_hijos = Empleado::find($empleado)->hijo;
+
+
+      for ($i=0; $i < count($empleado_hijos) ; $i++) { 
+        DB::table('hijos')->where('id', $empleado_hijos[$i]->id)->delete();
+        DB::table('personas')->where('id', $empleado_hijos[$i]->persona_id)->delete();
+      };
+
+      $this->registrarHijos($hijos, $empleado);
+
     }
 }

@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class NombreNomina extends Migration
+class CestaTicket extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,8 @@ class NombreNomina extends Migration
      */
     public function up()
     {
-        Schema::table('nominas', function (Blueprint $table) {
-            $table->string('nombre');
+        Schema::table('ind_economicos', function (Blueprint $table) {
+            $table->float('cestaTicket', 25, 2)->default(1.00);
         });
     }
 
@@ -25,8 +25,8 @@ class NombreNomina extends Migration
      */
     public function down()
     {
-        Schema::table('nominas', function (Blueprint $table) {
-            $table->dropColumn('nombre');
+        Schema::table('ind_economicos', function (Blueprint $table) {
+            //
         });
     }
 }

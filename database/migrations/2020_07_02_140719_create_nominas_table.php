@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddCodigo extends Migration
+class CreateNominasTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,13 @@ class AddCodigo extends Migration
      */
     public function up()
     {
-        Schema::table('pagos', function (Blueprint $table) {
-            $table->string('codigo');
+        Schema::create('nominas', function (Blueprint $table) {
+            $table->id();
+            $table->string('codigo')->unique();
+            $table->string('tipo');
+            $table->string('descripcion');
+            $table->date('fecha');
+            $table->timestamps();
         });
     }
 
@@ -25,8 +30,6 @@ class AddCodigo extends Migration
      */
     public function down()
     {
-        Schema::table('pagos', function (Blueprint $table) {
-            $table->dropColumn('pagos');
-        });
+        Schema::dropIfExists('nominas');
     }
 }

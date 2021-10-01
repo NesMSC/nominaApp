@@ -3,9 +3,12 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Empleado extends Model
 {
+    use SoftDeletes;
+    
     protected $fillable = [
         'persona_id',
         'salario_id',
@@ -35,5 +38,9 @@ class Empleado extends Model
 
     public function descuento(){
         return $this->belongsToMany('App\Descuento');
+    }
+
+    public function hijo(){
+        return $this->belongsToMany('App\Hijo');
     }
 }

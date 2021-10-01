@@ -84,6 +84,7 @@
                   <thead>
                   <tr>
                     <th>Salario minimo</th>
+                    <th>Cesta ticket</th>
                     <th>Unidad Tributaria</th>
                     <th>Gaceta</th>
                     <th>Fecha</th>
@@ -97,6 +98,13 @@
                           <div class="form-group row" style="margin:0;">
                             <div class="col-sm-8">
                               <input v-model="salarioMin" type="text" class="form-control form-control-sm">
+                            </div>
+                          </div>
+                        </td>
+                        <td>
+                          <div class="form-group row" style="margin:0;">
+                            <div class="col-sm-8">
+                              <input v-model.number="cestaTicket" type="text" class="form-control form-control-sm">
                             </div>
                           </div>
                         </td>
@@ -119,6 +127,7 @@
                       </template>
                       <template v-else>
                         <td v-text="formato(indicador.salarioMin)"></td>
+                        <td v-text="formato(indicador.cestaTicket)"></td>
                         <td v-text="formato(indicador.UnTributaria)"></td>
                         <td v-text="indicador.gaceta"></td>
                         <td>{{indicador.fecha}}<strong>-</strong> <span class="text-success">Actual</span></td>
@@ -158,6 +167,7 @@
             numDoc: 0,
             indicadores: [],
             salarioMin: 0,
+            cestaTicket: 0,
             ut: 0,
             gaceta: '',
             fecha: ''
@@ -190,6 +200,7 @@
             let fecha = new Date;
             axios.put(url, {
                 salarioMin: this.salarioMin,
+                cestaTicket: this.cestaTicket,
                 ut: this.ut,
                 gaceta: this.gaceta,
                 fecha: `${fecha.getFullYear()}-${(fecha.getMonth()+1)}-${fecha.getDate()}`,

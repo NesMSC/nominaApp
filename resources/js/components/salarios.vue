@@ -139,20 +139,34 @@
 	                      </thead>
 	                      <tbody>
 	                        <tr v-for="beneficio in arrayBeneficios" :key="beneficio.id">
-	                          <td v-text="beneficio.concepto"></td>
-	                          <td v-text="beneficio.valor+beneficio.tipo_valor"></td>
-	                          <td>
-	                            <template v-if="exist(beneficio.id, 'bene')">
-	                              <a href="#" @click.prevent="retirarBeneficio(beneficio.id)">
-	                                <i class="fa fa-check text-success"></i>
-	                              </a>
-	                            </template>
-	                            <template v-else>
-	                              <a href="#" @click.prevent="agregarBeneficio({id:beneficio.id,concepto:beneficio.concepto, tipo_valor:beneficio.tipo_valor, valor:beneficio.valor})">
-	                                <i class="fa fa-plus text-dark"></i>
-	                              </a>
-	                            </template>
-	                          </td>
+								<td v-text="beneficio.concepto"></td>
+								<td v-if="beneficio.tipo_valor == 'especifico'">{{beneficio.valor}}</td>
+								<td v-else v-text="beneficio.valor+' '+ beneficio.tipo_valor"></td>
+								<td>
+									<template v-if="exist(beneficio.id, 'bene')">
+									<a href="#" @click.prevent="retirarBeneficio(beneficio.id)">
+										<i class="fa fa-check text-success"></i>
+									</a>
+									</template>
+									<template v-else>
+										<span 
+										v-if="(personal == 'Obrero') && (beneficio.concepto == 'Prima de Profesionalización' || beneficio.concepto == 'Prima Apoyo a la actividad Docente')" 
+										class="text-danger">
+											No disponible
+										</span>
+										<span v-else-if="(anos == 0) && (beneficio.concepto == 'Prima de Antiguedad')" class="text-danger">
+											No disponible
+										</span>
+										<a v-else href="#" 
+										@click.prevent="agregarBeneficio({
+																			id:beneficio.id,concepto:beneficio.concepto, 
+																			tipo_valor:beneficio.tipo_valor, valor:beneficio.valor, 
+																			tipo_valor_por:beneficio.tipo_valor_por
+																		})">
+											<i class="fa fa-plus text-dark"></i>
+										</a>
+									</template>
+	                          	</td>
 	                        </tr>
 	                      </tbody>
 	                    </table> 
@@ -269,7 +283,6 @@
 	    </div>
 	    <!-- /.Modal -->
 	</fragment>	
-		
 </template>
 <script>
 
@@ -286,7 +299,8 @@ export default{
 		avisar: "",
 		personal: "",
 		idSalario: Number,
-		instruccion: ""
+		instruccion: "",
+		hijos: Array,
 	},
 	data(){
 		return {
@@ -294,6 +308,7 @@ export default{
             arrayDescuentos: [],
             arrayDeducciones: [],
             salarioTabla: 0,
+			salarioMinimoMensual: 0,
             beneficiosEmpleado: [],
             descuentosEmpleado: [],
             deduccionesEmpleado: [],
@@ -305,6 +320,9 @@ export default{
             totalDesc: Number,
             totalDeduc: Number,
             UT: 0,
+            primAntiguedadPorcentaje: Number,
+			primAntiguedadId: Number,
+            primAntiguedadIndice: -1
 		}
 	},
 	methods: {
@@ -372,7 +390,8 @@ export default{
 		      	};
 			      					    
 			      me.salarioTabla = salario;
-			      me.UT = response.data.UT;		    
+			      me.UT = response.data.UT;
+				  me.salarioMinimoMensual = response.data.salarioMin + response.data.cestaTicket;
 			    }).catch(function(error){
 			      console.log(error);
 			    });
@@ -388,21 +407,37 @@ export default{
             axios.get(url).then(function(response){
 
 
-              let beneficios = response.data.beneficios;
-              let descuentos = response.data.descuentos;
-              let deducciones = response.data.deducciones;
-              
-              for (var i = 0; i < beneficios.length; i++) {
-                    me.agregarBeneficio({id:beneficios[i].id,concepto:beneficios[i].concepto, tipo_valor:beneficios[i].tipo_valor, valor:beneficios[i].valor})
-                  };
+            	let beneficios = response.data.beneficios;
+              	let descuentos = response.data.descuentos;
+              	let deducciones = response.data.deducciones;
 
-              for (var i = 0; i < descuentos.length; i++) {
-                    me.agregarDescuento({id:descuentos[i].id,concepto:descuentos[i].concepto, valor:0, tipo:descuentos[i].tipo, porcentaje:descuentos[i].porcentaje})
-                  };
-              for (var i = 0; i < deducciones.length; i++) {
-                    me.agregarDeduccion({id:deducciones[i].id, concepto:deducciones[i].concepto, valor:0, tipo:deducciones[i].tipo, porcentaje:deducciones[i].porcentaje})
-                  };
+              	for (var i = 0; i < beneficios.length; i++) {
+
+              		me.agregarBeneficio({
+						  id:beneficios[i].id,
+						  concepto:beneficios[i].concepto, 
+						  tipo_valor:beneficios[i].tipo_valor, 
+						  valor:beneficios[i].valor, 
+						  tipo_valor_por:beneficios[i].tipo_valor_por})
+                };
+
+              	for (var i = 0; i < descuentos.length; i++) {
+                    me.agregarDescuento({
+						id:descuentos[i].id,
+						concepto:descuentos[i].concepto, valor:0, 
+						tipo:descuentos[i].tipo, 
+						porcentaje:descuentos[i].porcentaje})
+                };
+
+             	for (var i = 0; i < deducciones.length; i++) {
+                    me.agregarDeduccion({
+						id:deducciones[i].id, 
+						concepto:deducciones[i].concepto, 
+						valor:0, tipo:deducciones[i].tipo, 
+						porcentaje:deducciones[i].porcentaje})
+                };
               
+
             }).catch(function(error){
               console.log(error);
             });
@@ -418,19 +453,43 @@ export default{
 					this.avisar(true, data);
 				}
 			}else{
-				this.avisar(false, false); 
+				this.avisar(false, false);
 			};
 		},
 		agregarBeneficio(dato){
 			if (dato.concepto == "Prima de Profesionalización") {
 				this.primaProfesional(dato);
+
 			}else if(dato.concepto == "Prima de Antiguedad"){
 				this.primaAntiguedad(dato);
+			}else if(dato.concepto  == "Prima por hijos e hijas"){
+					if(!this.hijos.length){
+						Vue.toasted.error( 'Sin hijos registrados no aplica', 
+						{duration:2000, className:['alert', 'alert-danger']});
+					}else{
+						let validos = this.primaHijos();
+
+						dato.valor = (((dato.valor*this.salarioMinimoMensual)/100)*validos).toFixed(2);
+						dato.concepto += ` (${validos})`;
+						this.beneficiosEmpleado.push(dato);
+			 			this.id_beneficiosAgregados.push(dato.id);
+						this.listarBeneficios();
+			 			this.calcularTotalAsig();
+					}
 			}else{
+
 				if(dato.tipo_valor == 'U.T') {
                     dato.valor = (dato.valor*this.UT).toFixed(2);
                 }else if(dato.tipo_valor == '%'){
-                    dato.valor= ((dato.valor*this.salarioTabla)/100).toFixed(2);
+
+					if(dato.tipo_valor_por == 'salario_tabla'){
+						dato.valor = ((dato.valor*this.salarioTabla)/100).toFixed(2);
+					}else if(dato.tipo_valor_por == 'salario_min_mensual'){
+						dato.valor = ((dato.valor*this.salarioMinimoMensual)/100).toFixed(2);
+					}else{
+						dato.valor = ((dato.tipo_valor_por*dato.valor)/100).toFixed(2);
+					};
+                    
                 };
 
                 this.beneficiosEmpleado.push(dato);
@@ -438,7 +497,9 @@ export default{
 			 	this.listarBeneficios();
 			 	this.calcularTotalAsig();
 			}
-
+			if (this.primAntiguedadIndice != -1) {
+			 		this.cambiarPrimaAntiguedad();
+			}
 			this.validarDatosSalario();
 		},
 		agregarDescuento(dato){
@@ -453,9 +514,12 @@ export default{
 				dato.valor = this.sso_rpe(dato)
 			}else if(dato.concepto == 'V.H' || dato.concepto == 'F.J'){
 				dato.valor = ((this.salarioNormal*dato.porcentaje)/100).toFixed(2);
+			}else if(dato.concepto == 'C.A'){
+				dato.valor = ((this.salarioTabla*dato.porcentaje)/100).toFixed(2);
 			}else{
 				dato.valor = ((this.salarioNormal*dato.porcentaje)/100).toFixed(2);
 			}
+			
 			this.deduccionesEmpleado.push(dato);
 			this.id_deduccionesAgregados.push(dato.id);
 			this.listarDeducciones();
@@ -463,22 +527,32 @@ export default{
 		},
 		retirarBeneficio(id){
 			let beneficio_index = this.id_beneficiosAgregados.indexOf(id);
+			if (this.beneficiosEmpleado[beneficio_index].concepto == 'Prima de Antiguedad') {
+				this.primAntiguedadIndice = -1;
+			}
             this.id_beneficiosAgregados.splice(beneficio_index, 1);
             this.beneficiosEmpleado.splice(beneficio_index, 1);
             this.listarBeneficios();
             this.calcularTotalAsig();
+			if (this.primAntiguedadIndice != -1) {
+					const ide = this.primAntiguedadId;
+					this.primAntiguedadIndice = this.id_beneficiosAgregados.indexOf(ide);
+			 		this.cambiarPrimaAntiguedad();
+			};
 		},
 		retirarDescuento(id){
 			let descuento_index = this.id_descuentosAgregados.indexOf(id);
             this.id_descuentosAgregados.splice(descuento_index, 1);
             this.descuentosEmpleado.splice(descuento_index, 1);
             this.listarDescuentos();
+			this.calcularTotalDesc();
 		},
 		retirarDeduccion(id){
 			let deduccion_index = this.id_deduccionesAgregados.indexOf(id);
             this.id_deduccionesAgregados.splice(deduccion_index, 1);
             this.deduccionesEmpleado.splice(deduccion_index, 1);
             this.listarDeducciones();
+			this.calcularTotalDeduc();
 		},
 		exist(id, busqueda){
 			switch(busqueda){
@@ -504,19 +578,33 @@ export default{
 			    this.id_beneficiosAgregados.push(dato.id);
 			    this.listarBeneficios();
 			    this.calcularTotalAsig();
+			    if (this.primAntiguedadIndice != -1) {
+			 		this.cambiarPrimaAntiguedad();
+			 	};
+
 
 			}).catch((error)=>{
 				console.log(error);
 			})
 		},
 		primaAntiguedad(dato){
-			let prima_valor = 0;
-
-			prima_valor = ((this.salarioNormal*dato.valor)/100)*this.anos;
-			dato.valor = prima_valor.toFixed(2);
+			let primaValor = ((this.salarioNormal*dato.valor)/100)*this.anos;
+			this.primAntiguedadPorcentaje = dato.valor;
+			this.primAntiguedadId = dato.id;
+			dato.valor = primaValor.toFixed(2);
 			this.beneficiosEmpleado.push(dato);
-			this.id_beneficiosAgregados.push(dato.id);
-			this.calcularTotalAsig();		
+		 	this.id_beneficiosAgregados.push(dato.id);
+		 	this.primAntiguedadIndice = this.id_beneficiosAgregados.indexOf(dato.id);
+			this.calcularTotalAsig();
+		},
+		cambiarPrimaAntiguedad(){
+			const indice = this.primAntiguedadIndice;
+			const porcentaje = this.primAntiguedadPorcentaje;
+			const valorAnterior = this.beneficiosEmpleado[indice].valor;
+			let valorActual = (((this.salarioNormal-valorAnterior)*porcentaje)/100)*this.anos;
+			this.beneficiosEmpleado[indice].valor = valorActual.toFixed(2);
+			this.calcularTotalAsig();
+			
 		},
 		calcularTotalAsig(){
 			let total = parseFloat(this.salarioTabla);
@@ -527,6 +615,15 @@ export default{
 
 			this.salarioNormal = total;
 			this.totalAsig = this.salarioNormal - (this.salarioTabla/2);
+			
+			//Recalcular deducciones
+			let deducciones = this.deduccionesEmpleado;
+			this.deduccionesEmpleado = [];
+			this.id_deduccionesAgregados = [];
+
+			for(var i = 0; i < deducciones.length; i++){
+				this.agregarDeduccion(deducciones[i]);
+			}
 		},
 		calcularTotalDesc(){
 			let total = 0;
@@ -550,7 +647,49 @@ export default{
 		sso_rpe(dato){
 			let valor = ((((this.salarioNormal) * 12)/52)*dato.porcentaje/100)*4;
 			return valor.toFixed(2);
-		}
+		},
+		primaHijos(){
+			let validos = 0;
+
+			const arrayHijos = this.hijos;
+
+			for(var i = 0; i < arrayHijos.length; i++){
+
+				let edad = this.calculaEdadHijos(arrayHijos[i].nacimiento);
+				
+				if(edad > 21){
+					if(arrayHijos[i].nivel == 'Universidad' && edad < 25){
+						//console.log(`${arrayHijos[i].nombre} si aplica`)
+						validos++
+					}else if(arrayHijos[i].discapacidad != 'Ninguna'){
+						//console.log(`${arrayHijos[i].nombre} si aplica`)
+						validos++
+					}
+				}else{
+					//console.log(`${arrayHijos[i].nombre} si aplica`)
+					validos++
+				}
+			}
+
+			return validos;
+		},
+		calculaEdadHijos(fecha){
+            //Calcula la edad del hijo del trabajador
+
+            fecha = new Date(fecha);
+            let actual = new Date();
+
+            let año = fecha.getFullYear();
+            let mes = fecha.getMonth(); 
+
+            let edad = actual.getFullYear()-año;
+
+            if (mes >= actual.getMonth()  && edad != 0) {
+              edad--;
+            };
+
+            return edad;
+          },
 	},
 	mounted() {
 		this.datoSalario();

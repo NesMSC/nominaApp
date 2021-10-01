@@ -14,7 +14,7 @@ class AddSexoPersonasTable extends Migration
     public function up()
     {
         Schema::table('personas', function (Blueprint $table) {
-            $table->string('sexo');
+            $table->string('sexo')->nullable();
         });
     }
 

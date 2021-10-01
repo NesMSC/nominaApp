@@ -121,42 +121,42 @@
                       <td colspan="2" align="right">{{number_format($datosEmpleado->sueldo/2, 2)}}</td>
                     </tr>
                     @if($datosEmpleado->quincena%2 == 0)
-                    @foreach($asignaciones["arrayAsignaciones"] as $value)
+                    @foreach($asignaciones as $value)
 	                    <tr>
-	                      <td colspan="4">{{$value["concepto"]}}</td>
-	                      <td colspan="2" align="right">{{number_format($value["valor"], 2)}}</td>
+	                      <td colspan="4">{{$value->concepto}}</td>
+	                      <td colspan="2" align="right">{{number_format($value->valor, 2)}}</td>
 	                    </tr>
                     @endforeach 
                     @endif
                     <tr>
                     	<td colspan="6"><hr></td>
                     </tr>
-                    <tr>
+                    <!-- <tr>
                       <td colspan="4"><strong>Total de Beneficios:</strong></td>
                       <td colspan="2" align="right">{{number_format($datosEmpleado->sueldo/2, 2)}}</td>
-                    </tr>
+                    </tr> -->
                   </tbody>
     		</table>
-    		<table width="100%">
+    	 	<table width="100%">
     			<tbody>
                     <tr style="background-color: #343a40">
                       <td colspan="6" align="center" style="color: #fff;">DEDUCCIONES</td>
                     </tr>
                     @if($datosEmpleado->quincena%2 == 0)
-                    @foreach($deducciones["arrayDeducciones"] as $value)
+                    @foreach($deducciones as $value)
 	                    <tr>
-	                      <td colspan="4">{{$value["concepto"]}}</td>
-	                      <td colspan="2" align="right">{{number_format($value["valor"], 2)}}</td>
+	                      <td colspan="4">{{$value->concepto}}</td>
+	                      <td colspan="2" align="right">{{number_format($value->valor, 2)}}</td>
 	                    </tr>
 	                @endforeach
                     @endif
                     <tr>
                     	<td colspan="6"><hr></td>
                     </tr>
-                    <tr>
+                    <!-- <tr>
                       <td colspan="4"><strong>Total de deducciones:</strong></td>
                       <td colspan="2" align="right"></td>
-                    </tr>
+                    </tr> -->
                   </tbody>
     		</table>
     		<table width="100%">
@@ -165,20 +165,20 @@
                       <td colspan="6" align="center" style="color: #fff;">DESCUENTOS</td>
                     </tr>
                     @if($datosEmpleado->quincena%2 == 0)
-                    @foreach($descuentos["arrayDescuentos"] as $value)
+                    @foreach($descuentos as $value)
 	                    <tr>
-	                      <td colspan="4">{{$value["concepto"]}}</td>
-	                      <td colspan="2" align="right">{{number_format($value["valor"], 2)}}</td>
+	                      <td colspan="4">{{$value->concepto}}</td>
+	                      <td colspan="2" align="right">{{number_format($value->valor, 2)}}</td>
 	                    </tr>
 	                @endforeach
                     @endif
                     <tr>
                     	<td colspan="6"><hr></td>
                     </tr>
-                    <tr>
+                    <!-- <tr>
                       <td colspan="4"><strong>Total de descuentos:</strong></td>
                       <td colspan="2" align="right"></td>
-                    </tr>
+                    </tr> -->
                   </tbody>
     		</table>
     		<table width="100%">
@@ -186,10 +186,10 @@
 	    			<tr>
 	                    <td colspan="6"><hr></td>
 	                </tr>
-	                <tr>
+	                <!-- <tr>
 	                	<td colspan="4"><strong>Total a pagar: </strong></td>
 	                	<td colspan="2" align="right"><strong>{{number_format($datosEmpleado->sueldo/2, 2)}}</strong></td>
-	                </tr>
+	                </tr> -->
     			</tbody>
     		</table>
     	</section>

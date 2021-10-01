@@ -74,7 +74,8 @@
                   <tbody>
                     <tr v-for="beneficio in arrayBeneficios" :key="beneficio.id">
                       <td v-text="beneficio.concepto"></td>
-                      <td v-text="beneficio.valor+' '+beneficio.tipo_valor"></td>
+                      <td v-if="beneficio.tipo_valor == 'especifico'">{{beneficio.valor}}</td>
+                      <td v-else v-text="beneficio.valor+' '+ beneficio.tipo_valor"></td>
                       <td>
                         <a href="#" style="color:#000;" @click.prevent="accion='ver'; consultarBeneficio(beneficio.id)"><i class="far fa-eye" ></i></a>
                         <template v-if="beneficio.concepto=='Prima de Profesionalización'">
@@ -195,9 +196,38 @@
                     <option disabled selected>Seleccionar</option>
                     <option value="U.T">U.T</option>
                     <option value="%">%</option>
+                    <option value="especifico">Específico</option>
                   </select>
                   <div class="invalid-feedback">
                         *Este campo es requerido
+                  </div>
+                </div>
+              </div>
+              <div v-if="tipo_valor == '%'" class="row">
+                <div class="col-auto">
+                  <div class="form-check form-check-inline">
+                    <input v-model="tipo_valor_por" class="form-check-input" type="radio" name="optionValue" id="salario_min_mensual" value="salario_min_mensual">
+                    <label class="form-check-label" for="salario_min_mensual">Salario minimo</label>
+                  </div>
+                </div>
+                <div class="col-auto">
+                  <div class="form-check form-check-inline">
+                    <input v-model="tipo_valor_por" class="form-check-input" type="radio" name="optionValue" id="salario_tabla" value="salario_tabla">
+                    <label class="form-check-label" for="salario_tabla">Salario tabla</label>
+                  </div>
+                </div>
+                <div class="col-auto">
+                  <div class="form-check form-check-inline">
+                    <input v-model="tipo_valor_por" class="form-check-input" type="radio" name="optionValue" id="especifico" value="especifico">
+                    <label class="form-check-label" for="especifico">Específico</label>
+                  </div>
+                </div>
+              </div>
+              <div v-if="tipo_valor_por == 'especifico'" class="row">
+                <div class="col-md-3 mb-2 form-group">
+                  <input v-model="tipo_valor_esp" type="number" class="form-control" id="tipo_especifico" value="0" required>
+                  <div class="invalid-feedback">
+                          *Este campo es requerido
                   </div>
                 </div>
               </div>
@@ -253,7 +283,9 @@
           return {
             concepto: "",
             valor: 0.0,
-            tipo_valor: "Seleccionar",    
+            tipo_valor: "Seleccionar",
+            tipo_valor_por: "salario_tabla",
+            tipo_valor_esp: 0,   
             arrayBeneficios: [],
             pagination: {
                 "total": 0,
@@ -332,7 +364,8 @@
               axios.post(url, {
                 concepto: me.concepto,
                 valor: me.valor,
-                tipo_valor: me.tipo_valor
+                tipo_valor: me.tipo_valor,
+                tipo_valor_por:(me.tipo_valor_por == 'especifico')? me.tipo_valor_esp: me.tipo_valor_por,
               }).then(function (response){
                 swal.fire(
                         'Beneficio agregado exitosamente',
@@ -362,12 +395,20 @@
           editarBeneficio(id){
             let me = this;
             let url = '/beneficios/editar/'+id;
+            
 
             axios.get(url).then(function(response){
               let beneficio = response.data.beneficio;
               me.concepto = beneficio.concepto;
               me.valor = beneficio.valor;
               me.tipo_valor = beneficio.tipo_valor;
+              if(beneficio.tipo_valor_por == 'salario_min_mensual' || beneficio.tipo_valor_por == 'salario_tabla' || beneficio.tipo_valor == 'especifico'){
+                me.tipo_valor_por = beneficio.tipo_valor_por;
+              }else{
+                me.tipo_valor_por = 'especifico';
+                me.tipo_valor_esp = beneficio.tipo_valor_por;
+              }
+              
               me.id_beneficio = beneficio.id;
             }).catch(function(error){
               console.log(error);
@@ -381,7 +422,8 @@
                 concepto:me.concepto,
                 valor:me.valor,
                 tipo_valor:me.tipo_valor,
-                id:me.id_beneficio
+                tipo_valor_por:(me.tipo_valor == '%')?me.tipo_valor_por:null,
+                id:me.id_beneficio,
               }).then(function(response){
                 swal.fire(
                         'Actualizado exitosamente',
@@ -501,6 +543,7 @@
             this.concepto = "";
             this.valor = 0;
             this.tipo_valor = "Seleccionar";
+            this.tipo_valor_por = "salario_tabla";
           },
           cambioPagina(page){
             this.pagination.current_page = page;

@@ -28,6 +28,7 @@
         "sweetalert2": "^9.17.1",
         "vue-fragment": "^1.5.1",
         "vue-select": "^3.10.8",
+        "vue-spinner": "^1.0.4",
         "vue-toasted": "^1.1.28"
     }
 }

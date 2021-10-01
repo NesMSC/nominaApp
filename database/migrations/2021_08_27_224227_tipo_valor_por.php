@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateBeneficiosTable extends Migration
+class TipoValorPor extends Migration
 {
     /**
      * Run the migrations.
@@ -13,12 +13,8 @@ class CreateBeneficiosTable extends Migration
      */
     public function up()
     {
-        Schema::create('beneficios', function (Blueprint $table) {
-            $table->id('id');
-            $table->string('concepto');
-            $table->string('tipo_valor');
-            $table->float('valor', 25, 1)->null();
-            $table->timestamps();
+        Schema::table('beneficios', function (Blueprint $table) {
+            $table->string('tipo_valor_por')->nullable();
         });
     }
 
@@ -29,6 +25,8 @@ class CreateBeneficiosTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('beneficios');
+        Schema::table('beneficios', function (Blueprint $table) {
+            //
+        });
     }
 }

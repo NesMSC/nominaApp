@@ -7,9 +7,10 @@
       <!-- Sidebar user panel -->
       <div class="user-panel mt-3 pb-3 mb-3 d-flex">
         <div class="image">
+          <img src="img/upteb.ico" alt="">
         </div>
         <div class="info">
-          <a href="#" class="d-block">{{$persona->nombres}}</a>
+          <span href="#" class="d-block text-light">{{$persona->nombres.' '.$persona->apellidos}}</span>
         </div>
       </div>
 
@@ -81,6 +82,12 @@
                 <a href="#" @click.prevent="menu=6" class="nav-link" :class="menu==6?'active':''">
                   <i class="far fa-circle nav-icon"></i>
                   <p>Descuentos</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="#" @click.prevent="menu='bc'" class="nav-link" :class="menu=='bc'?'active':''">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>Bancos</p>
                 </a>
               </li>
             </ul>

@@ -23,7 +23,8 @@
               <ol class="breadcrumb">
                 <li class="breadcrumb-item active"><a href="#" @click.prevent="accion='listar'; resetearInputs()">Administrativo</a></li>
                 <li v-if="id_empleado==''" class="breadcrumb-item" ><a href="#" @click.prevent="accion='registrar';">Registrar</a></li>
-                <li v-else class="breadcrumb-item" ><a href="#" @click.prevent="accion='editar';">Editar</a></li>
+                <li v-else class="breadcrumb-item" ><a href="#" 
+                @click.prevent="accion='editar';">Editar</a></li>
                 <li class="breadcrumb-item">Agregar datos salariales</li>
 
               </ol>
@@ -79,7 +80,7 @@
                         <option value="Contratado">Contratados</option>
                         <option value="Pensionado">Pensionados</option>
                         <option value="Jubilado">Jubilados</option>
-                        <option value="Inactivo">Inactivos</option>
+                        <option value="trashed">Papelera</option>
                       </select>
                     </div>
                   </div>
@@ -100,9 +101,14 @@
                       <td v-text="empleado.apellidos"></td>
                       <td v-text="empleado.grado+' '+empleado.nivel"></td>
                       <td v-text="empleado.departamento"></td>
-                      <td>
+
+                      <td v-if="criterio != 'trashed'">
                         <a href="#" style="color:#fff;" class="btn btn-info btn-sm" @click.prevent="accion='ver'; editarEmpleado(empleado.id)"><i class="far fa-eye" ></i></a>
                         <a href="#" style="color:#fff;" class="btn btn-success btn-sm" @click.prevent="accion='editar'; editarEmpleado(empleado.id)"><i class="fas fa-edit"></i></a>
+                        <a href="#" class="btn btn-danger btn-sm text-light" @click.prevent="eliminarEmpleado(empleado.id, `${empleado.nombres} ${empleado.apellidos}`)"><i class="fas fa-trash"></i></a>
+                      </td>
+                      <td v-else>
+                        <a href="#" class="btn btn-success btn-sm text-light" @click.prevent="restaurar(empleado.id)"><i class="fas fa-trash-restore"></i></a>
                       </td>
                     </tr>
                   </tbody>
@@ -142,21 +148,21 @@
               <div class="row">
                 <div class="col-md-4 mb-2 form-group">
                   <label for="name">Nombres</label>
-                  <input v-model="nombres" @change="validarCampo(nombres, 'name')" type="text" class="form-control" id="name" required>
+                  <input v-model="nombres" @change="validarCampo(nombres, 'name')" type="text" class="form-control datoEmpleado" id="name" required>
                   <div class="invalid-feedback">
                           *Este campo es requerido
                   </div>
                 </div>
                 <div class="col-md-4 mb-2 form-group">
                   <label for="lastname">Apellidos</label>
-                  <input v-model="apellidos" @change="validarCampo(apellidos, 'lastname')" type="text" class="form-control" id="lastname" required>
+                  <input v-model="apellidos" @change="validarCampo(apellidos, 'lastname')" type="text" class="form-control datoEmpleado" id="lastname" required>
                   <div class="invalid-feedback">
                           *Este campo es requerido
                   </div>
                 </div>
                 <div class="col-md-4 mb-2 form-group">
                   <label for="sexo">Sexo</label>
-                  <select v-model="sexo" @change="validarCampo(sexo, 'sexo')" id="sexo" name="sexo" class="form-control" required>
+                  <select v-model="sexo" @change="validarCampo(sexo, 'sexo')" id="sexo" name="sexo" class="form-control datoEmpleado" required>
                     <option disabled selected>Seleccionar</option>
                     <option value="Femenino">Femenino</option>
                     <option value="Masculino">Masculino</option>
@@ -173,7 +179,7 @@
                         </select>
                       </div>
                     </div>
-                    <input v-model="cedula" @keyup="validarCampo(cedula, 'cedula')" id="cedula" type="number" name="cedula" class="form-control" min="4000000" required>
+                    <input v-model="cedula" @keyup="validarCampo(cedula, 'cedula')" id="cedula" type="number" name="cedula" class="form-control datoEmpleado" min="4000000" required>
                   </div>
                   <div class="invalid-feedback">
                           *Este campo es requerido
@@ -181,7 +187,7 @@
                 </div>
                 <div class="col-md-4 mb-2 form-group">
                   <label for="nacimiento">Fecha de nacimiento</label>
-                  <input v-model="fecha_nacimiento" @change="validarCampo(fecha_nacimiento, 'nacimiento')" type="date" min="1930-01-01" max="2000-01-01" class="form-control" id="nacimiento" name="fecha_na" required>
+                  <input v-model="fecha_nacimiento" @change="validarCampo(fecha_nacimiento, 'nacimiento')" type="date" min="1930-01-01" max="2000-01-01" class="form-control datoEmpleado" id="nacimiento" name="fecha_na" required>
                   <div class="invalid-feedback">
                           *Fecha invalida
                   </div>
@@ -190,7 +196,7 @@
               <div class="row">
                 <div class="col-md-4 mb-2 form-group">
                   <label for="correo">Correo electrónico</label>
-                  <input v-model="correo" @change="validarCampo(correo, 'correo')" type="email" class="form-control" id="correo" required>
+                  <input v-model="correo" @change="validarCampo(correo, 'correo')" type="email" class="form-control datoEmpleado" id="correo" required>
                   <div class="invalid-feedback">
                           *Este campo es requerido
                   </div>
@@ -210,7 +216,7 @@
                         </select>
                       </div>
                     </div>
-                    <input v-model="telefono" @keyup="validarCampo(telefono, 'telefono')" id="telefono" type="number" class="form-control" required>
+                    <input v-model="telefono" @keyup="validarCampo(telefono, 'telefono')" id="telefono" type="number" class="form-control datoEmpleado" required>
                   </div>
                   <div class="invalid-feedback">
                           *Este campo es requerido
@@ -219,10 +225,94 @@
               </div> 
             </div>
             <!-- /.card-body -->
-            <div class="card-footer">
-            </div>
           </div>
-          <!-- /.card --> 
+          <!-- /.card -->
+          <!-- card registro de hijos -->
+          <div class="card card-default collapsed-card">
+              <div class="card-header">
+                  <h3 class="card-title">Hijos</h3>
+                  <div class="card-tools">
+                    <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                      <i class="fas fa-plus"></i>
+                    </button>
+                  </div>
+              </div> 
+              <!-- /.card-header -->
+              <div class="card-body" style="display: none;">  
+                  <form>
+                    <div class="form-row mt-2 border-bottom border-primary">
+                      <div class="form-group col-md-4">
+                        <label for="nombre_hijo">Nombre</label>
+                        <input v-model="hijo.nombre" type="text" class="form-control" id="nombre_hijo" placeholder="Nombre">
+                      </div>
+                      <div class="form-group col-md-4">
+                        <label for="apellido_hijo">Apellido</label>
+                        <input v-model="hijo.apellido" type="text" class="form-control" id="apellido_hijo" placeholder="Apellido">
+                      </div>
+                      <div class="form-group col-md-4">
+                        <label for="nacimiento_hijo">Fecha de nacimiento</label>
+                        <input v-model="hijo.nacimiento" type="date" class="form-control" id="nacimiento_hijo">
+                      </div>
+                      <div class="col-md-4 form-group">
+                        <label for="nivel_hijo">Nivel educativo</label>
+                        <select v-model="hijo.nivel" id="nivel_hijo" name="nivel_hijo" class="form-control">
+                          <option value="0" selected>Ninguno</option>
+                          <option value="Inicial">Inicial</option>
+                          <option value="Primaria">Primaria</option>
+                          <option value="Bachillerato">Bachillerato</option>
+                          <option value="Universidad">Universitario</option>
+                        </select>
+                      </div>
+                      <div class="col-md-4 form-group">
+                        <label for="discapacidad_hijo">Discapacidad</label>
+                        <select v-model="hijo.discapacidad" id="discapacidad_hijo" name="discapacidad_hijo" class="form-control">
+                          <option value="Ninguna" selected>Ninguna</option>
+                          <option value="Visual">Visual</option>
+                          <option value="Motora">Motora</option>
+                          <option value="Intelectual">Intelectual</option>
+                          <option value="Otra">Otra</option>
+                        </select>
+                      </div>
+                      <div class="col-md-12 mb-4">
+                        <button @click.prevent="agregarhijos()" class="btn btn-primary">Añadir</button>
+                      </div>
+                    </div>
+                  </form>
+                  <div class="border-bottom border-primary"></div>
+                  <div class="table-responsive">
+                    <table class="table table-sm">
+                      <thead>
+                        <tr>
+                          <th scope="col">#</th>
+                          <th scope="col">Nombre</th>
+                          <th scope="col">Apellido</th>
+                          <th scope="col">Edad</th>
+                          <th scope="col">Educación</th>
+                          <th scope="col">Discapacidad</th>
+                          <th scope="col">Acción</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr v-for="(dato, index) in arrayHijos" :key="index">
+                          <th scope="row" v-text="index+1"></th>
+                          <td v-text="dato.nombre"></td>
+                          <td v-text="dato.apellido"></td>
+                          <td v-text="edadHijo(dato.nacimiento)"></td>
+                          <td v-text="(dato.nivel!='0')?dato.nivel:'Ninguno'"></td>
+                          <td v-text="dato.discapacidad"></td>
+                          <td>
+                            <button @click="editarHijos(dato, index)" class="btn btn-success btn-sm"><i class="fas fa-edit"></i></button>
+                            <button @click="eliminarHijos(index)" class="btn btn-danger btn-sm text-light"><i class="fas fa-trash" ></i></button>
+                          </td>
+                        </tr>
+                      </tbody>
+                      <caption v-if="!arrayHijos.length">No tiene hijos registrados</caption>
+                    </table>
+                  </div>
+              </div>
+              <!-- /.card-body -->
+          </div>
+          <!-- /.card -->
           <!-- card datos laborales -->
           <div class="card card-default">
             <div class="card-header">
@@ -236,7 +326,7 @@
               <div class="row">
                 <div class="col-md-4 mb-2 form-group">
                   <label for="grado">Grado</label>
-                  <select v-model="grado" @change="validarCampo(grado, 'grado')" id="grado" class="form-control" required>
+                  <select v-model="grado" @change="validarCampo(grado, 'grado')" id="grado" class="form-control datoEmpleado" required>
                     <option disabled selected>Seleccionar</option>
                     <option value="Profesional">Profesional</option>
                     <option value="Técnico">Técnico</option>
@@ -245,7 +335,7 @@
                 </div>
                 <div class="col-md-2 mb-2 form-group">
                   <label for="nivel">Nivel</label>
-                  <select v-model="nivel" @change="validarCampo(nivel, 'nivel')" id="nivel" class="form-control" required>
+                  <select v-model="nivel" @change="validarCampo(nivel, 'nivel')" id="nivel" class="form-control datoEmpleado" required>
                     <option disabled selected>Seleccionar</option>
                     <option value="1">1</option>
                     <option value="2">2</option>
@@ -256,14 +346,14 @@
                 </div>
                 <div class="col-md-4 mb-2 form-group">
                   <label for="fecha_ingreso">Fecha de ingreso</label>
-                  <input v-model="fecha_ingreso" @change="validarCampo(fecha_ingreso, 'fecha_ingreso'); calculaAñosServicio()" type="date" min="2004-01-01" max="2021-01-01" class="form-control" id="fecha_ingreso" name="fecha_na" required>
+                  <input v-model="fecha_ingreso" @change="validarCampo(fecha_ingreso, 'fecha_ingreso'); calculaAñosServicio()" type="date" min="2000-01-01" max="2022-01-01" class="form-control datoEmpleado" id="fecha_ingreso" name="fecha_na" required>
                   <div class="invalid-feedback">
                           *Fecha invalida
                   </div>
                 </div>
                 <div class="col-md-4 mb-2 form-group">
                   <label for="departamento">Departamento</label>
-                  <select v-model="departamento" @change="validarCampo(departamento, 'departamento')" id="departamento" class="form-control" required>
+                  <select v-model="departamento" @change="validarCampo(departamento, 'departamento')" id="departamento" class="form-control datoEmpleado" required>
                     <option disabled selected>Seleccionar</option>
                     <option value="RR.HH">Recursos Humanos</option>
                     <option value="Informática">Informática</option>
@@ -273,7 +363,7 @@
                 </div>
                 <div class="col-md-4 mb-2 form-group">
                   <label for="grado">Grado de Instrucción</label>	
-                  <select v-model="grado_instruccion" @change="validarCampo(grado_instruccion, 'grado_ins')" id="grado_ins" class="form-control" required>
+                  <select v-model="grado_instruccion" @change="validarCampo(grado_instruccion, 'grado_ins')" id="grado_ins" class="form-control datoEmpleado" required>
                     <option disabled selected>Seleccionar</option>
                     <option value="T.S.U">T.S.U</option>
                     <option value="Profesional">Profesional</option>
@@ -287,7 +377,7 @@
                 </div>
                 <div class="col-md-4 mb-2 form-group">
                   <label for="estadoEmpleado">Estado</label> 
-                  <select v-model="estadoEmpleado" id="estadoEmpleado" class="form-control" required>
+                  <select v-model="estadoEmpleado" id="estadoEmpleado" class="form-control datoEmpleado" required>
                     <option value="Fijo">Fijo</option>
                     <option value="Contratado">Contratado</option>
                     <option value="Pensionado">Pensionado</option>
@@ -298,10 +388,15 @@
               </div>  
             </div>
             <!-- /.card-body -->
-            <div class="card-footer">
-            </div>
           </div>
           <!-- /.card -->
+
+          <!--  Registro de datos bancarios -->
+          <banco
+            :datosBancarios='datosBancarios'
+            :id='id_persona'
+            ref="banco"
+          ></banco>
           <template v-if="accion=='registrar'">
             <button @click="registrar()" type="button" class="btn btn-primary btn-lg">Registrar</button>
           </template>
@@ -320,6 +415,8 @@
             :personal="tipoPersonal"
             :idSalario="id_salario"
             :instruccion="grado_instruccion"
+            :hijos="arrayHijos"
+            ref="salario"
         >
           
         </salarios>  
@@ -330,7 +427,6 @@
         <template v-else>
           <button @click.prevent="registrar()" type="button" class="btn btn-primary btn-lg">Registrar</button>
         </template>
-          
       </template>
       <div class="container-fluid" v-if="accion=='ver'">
         <div class="row">
@@ -377,70 +473,87 @@
                     </tr>
                   </tbody>
                 </table>
+                <table class="table">
+                  <thead>
+                    <tr >
+                      <td><strong>Cuenta bancaria</strong></td>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr >
+                      <td v-text="`Banco: ${(banco.banco=='0102-')?'Banco de Venezuela':''}`"></td>
+                      <td v-text="`Tipo de cuenta ${(banco.tipo_cuenta)?'Corriente':'Ahorro'}`"></td>
+                    </tr>
+                    <tr>
+                      <td v-text="`Número de cuenta: ${banco.numero_cuenta}`"></td>
+                      <td></td>
+                    </tr>
+                  </tbody>
+                </table>
               </div>
               <!-- /.card-body -->
             </div>
             <!-- /.card -->
             <div class="col-12">
               <!-- card del listado de pagos-->
-            <div class="card">
-              <div class="card-header">
-                <h2><i>Historial de pagos</i></h2>
-              </div>
-              <!-- /.card-header -->
-              <div class="card-body">
-                <div class="form-group row">
-                  <div class="col-md-4">
-                    <div class="input-group">
-                      <div class="input-group-prepend">
-                        <div class="input-group-text">
-                          <a href="#" ><i aria-hidden="true" class='fa fa-search'></i></a>
+              <div class="card">
+                <div class="card-header">
+                  <h2><i>Historial de pagos</i></h2>
+                </div>
+                <!-- /.card-header -->
+                <div class="card-body">
+                  <div class="form-group row">
+                    <div class="col-md-4">
+                      <div class="input-group">
+                        <div class="input-group-prepend">
+                          <div class="input-group-text">
+                            <a href="#" ><i aria-hidden="true" class='fa fa-search'></i></a>
+                          </div>
                         </div>
+                        <input id="searchPago" type="text" class="form-control" placeholder="Busqueda">
                       </div>
-                      <input id="searchPago" type="text" class="form-control" placeholder="Busqueda">
                     </div>
                   </div>
-                </div>
-                <table id="example1" class="table table-bordered table-striped">
-                  <thead>
-                  <tr>
-                    <th>Código</th>
-                    <th>Sueldo</th>
-                    <th>Pago</th>
-                    <th>Fecha</th>
-                    <th>Acción</th>
-                  </tr>
-                  </thead>
-                  <tbody>
-                    <tr v-for="pago in arrayPagos" :key="pago.id">
-                      <td v-text="pago.codigo"></td>
-                      <td v-text="formatoDivisa(pago.sueldo)"></td>
-                      <td v-text="formatoDivisa(pago.pago)"></td>
-                      <td v-text="pago.fecha"></td>
-                      <td>
-                        <a href="#" @click.prevent="pagoPDF(pago.id, id_empleado)" style="color:#fff;" class="btn btn-danger btn-sm">PDF</a>
-                      </td>
+                  <table id="example1" class="table table-bordered table-striped">
+                    <thead>
+                    <tr>
+                      <th>Código</th>
+                      <th>Sueldo</th>
+                      <th>Pago</th>
+                      <th>Fecha</th>
+                      <th>Acción</th>
                     </tr>
-                  </tbody>
-                </table>
-                
-                  <ul class="pagination btn-group mr-2 mt-4" role="group" aria-label="First group">
-                    <li v-if="pagination.current_page > 1">
-                      <button type="button" class="btn btn-light" @click.prevent="cambioPaginaPagos(pagination.current_page - 1)">Atras</button>
-                    </li>
-                    <li v-for="page in pageNumber" :key="page" :class="[page == 1 ? 'active' : '']">
-                      <button @click.prevent="cambioPaginaPagos(page)" :class="[page == isActive ? 'btn-primary' : 'btn-light']" v-text="page" type="button" class="btn"></button>
-                    </li>
-                    <li v-if="pagination.current_page < pagination.last_page">
-                      <button type="button" class="btn btn-light" @click.prevent="cambioPaginaPagos(pagination.current_page + 1)">Siguiente</button>
-                    </li>
-                  </ul>
-                
+                    </thead>
+                    <tbody>
+                      <tr v-for="pago in arrayPagos" :key="pago.id">
+                        <td v-text="pago.codigo"></td>
+                        <td v-text="formatoDivisa(pago.sueldo)"></td>
+                        <td v-text="formatoDivisa(pago.pago)"></td>
+                        <td v-text="pago.fecha"></td>
+                        <td>
+                          <a href="#" @click.prevent="pagoPDF(pago.id, id_empleado)" style="color:#fff;" class="btn btn-danger btn-sm">PDF</a>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  
+                    <ul class="pagination btn-group mr-2 mt-4" role="group" aria-label="First group">
+                      <li v-if="pagination.current_page > 1">
+                        <button type="button" class="btn btn-light" @click.prevent="cambioPaginaPagos(pagination.current_page - 1)">Atras</button>
+                      </li>
+                      <li v-for="page in pageNumber" :key="page" :class="[page == 1 ? 'active' : '']">
+                        <button @click.prevent="cambioPaginaPagos(page)" :class="[page == isActive ? 'btn-primary' : 'btn-light']" v-text="page" type="button" class="btn"></button>
+                      </li>
+                      <li v-if="pagination.current_page < pagination.last_page">
+                        <button type="button" class="btn btn-light" @click.prevent="cambioPaginaPagos(pagination.current_page + 1)">Siguiente</button>
+                      </li>
+                    </ul>
+                  
+                </div>
+                <!-- /.card-body -->
               </div>
-              <!-- /.card-body -->
-            </div>
             <!-- /.card -->
-          </div>
+            </div>
           </div>
         </div>
       </div>
@@ -461,6 +574,14 @@
             correo: "",
             pre_telefono: "0414-",
             telefono: "",
+            arrayHijos: [],
+            hijo: {
+              nombre:'',
+              apellido:'',
+              nacimiento:'',
+              nivel:'0',
+              discapacidad: 'Ninguna',
+            },
             fecha_nacimiento: "",
             grado: "Seleccionar",
             nivel: "Seleccionar",
@@ -477,7 +598,7 @@
                 "last_page": 0,
                 "from": 0,
                 "to": 0
-              },
+            },
             accion: 'listar',
             id_salario: 1,
             datosSalario: false,
@@ -492,6 +613,8 @@
             id_descuentosAgregados: [],
             añosServicio: 0,
             TotalprimaAntiguedad:0,
+            banco: {},
+            validBanco: false,
             error: [],
             id_empleado: "",
             id_persona: "",
@@ -532,7 +655,7 @@
             };
 
             return pagesArray;
-          }
+          },
         },
         methods: {
           listarEmpleado(page, busqueda, criterio){
@@ -578,12 +701,17 @@
                     departamento: me.departamento,
                     grado_instruccion: me.grado_instruccion,
                     estado: me.estadoEmpleado,
+                    id_salario: me.id_salario,
                     beneficios: me.id_beneficiosAgregados,
                     descuentos: me.id_descuentosAgregados,
-                    tipo: me.tipoPersonal
+                    tipo: me.tipoPersonal,
+                    banco:me.banco,
+                    hijos:me.arrayHijos
                   }).then(function(response){
                     if(response.data.respuesta){
-                      Vue.toasted.error( 'Empleado existente, verifique los datos ingresados', {duration:2000, className:['alert', 'alert-danger']})
+                      Vue.toasted.error( 'Empleado existente, verifique los datos ingresados', 
+                      {duration:2000, className:['alert', 'alert-danger']});
+                      me.datosSalario = false;
                     }else{
                       swal.fire(
                         'Empleado agregado exitosamente',
@@ -605,11 +733,13 @@
           },
           editarEmpleado(id){
             let me = this;
+
             let url = '/empleados/editarEmpleado/'+id;
             axios.get(url).then(function(response){
               let empleado = response.data.empleado[0];   
+              let banco = response.data.banco;
+              let hijos = response.data.hijos;
 
-              let cedula = empleado.cedula;
               me.nombres= empleado.nombres;
               me.apellidos= empleado.apellidos;
               me.sexo= empleado.sexo;
@@ -627,15 +757,24 @@
               me.estadoEmpleado= empleado.estado;
               me.id_empleado= empleado.id_empleado;
               me.id_persona= empleado.id_persona;
+              me.arrayHijos= hijos;
+              me.banco= {
+                banco:banco.banco, 
+                tipo_cuenta:banco.tipo_cuenta, 
+                numero_cuenta:banco.numero_cuenta
+              };
               me.calculaAñosServicio();
 
               if (me.accion=='ver') {
                 me.arrayPagos = me.historialPagos(1, empleado.id_empleado);
               }
               
+              //Hace referencia a la funcion editarBanco del componente hijo
+              me.$refs.banco.editarBanco(empleado.id_persona);
             }).catch(function(error){
               console.log(error);
             });
+            
           },
           historialPagos(page, id){
             let me = this;
@@ -673,7 +812,9 @@
                   beneficios: me.id_beneficiosAgregados,
                   descuentos: me.id_descuentosAgregados,
                   id_persona: me.id_persona,
-                  id_empleado: me.id_empleado 
+                  id_empleado: me.id_empleado,
+                  banco:me.banco,
+                  hijos:me.arrayHijos
                 }).then(function(response){
                   
                   swal.fire(
@@ -691,7 +832,7 @@
             };
           },
           validarForm(){
-            const inputs = document.getElementsByClassName('form-control');
+            const inputs = document.getElementsByClassName('datoEmpleado');
             //Validar todos los campos vacios
               for (let i = 0; i < inputs.length; i++) {               
                 const element = inputs[i];
@@ -699,8 +840,7 @@
                   if (this.error.indexOf(element.id)) {
                       element.classList.add('is-invalid');
                       this.error.push(element.id);
-                    };
-                  this.error.push(element.id);
+                  };
                 }else{
                   element.classList.remove('is-invalid');
                   element.classList.add('is-valid');
@@ -713,6 +853,11 @@
                 this.validarCampo(element.value, element.id);                
               };
 
+            if(!this.validBanco){
+              Vue.toasted.error( 'Verifica los datos bancarios', {duration:2000});
+              return false;
+            }
+
            //console.log(this.error);
             if(!this.error.length){
               this.plegarCard();
@@ -720,11 +865,12 @@
                 return true;
               };
               
+            }else{
+              Vue.toasted.error( 'Verifica los datos del empleado', {duration:2000});
             }
+
           },
           checked(status, data){
-            console.log(status);
-            console.log(data);
             if (status && !data) {
               Vue.toasted.error( 'Agregue los datos del salario', {duration:2000});
             }else if (status && data) {
@@ -734,6 +880,17 @@
             }else{
               this.datosSalario = false;
             }
+          },
+          datosBancarios(status, data){
+            const num = data.numero_cuenta;
+            if(!status && (num.length != 20 || num.length != 23)){
+              this.validBanco = false;
+            }else{
+              this.validBanco = true;
+              data.numero_cuenta = num.replaceAll('-', '');
+              this.banco = data;
+            }
+            
           },
           validarCampo(campo, id){
             //Validar campos al escribir o cambiar
@@ -861,9 +1018,12 @@
             me.totalBene = 0;
             me.id_beneficiosAgregados= [];
             me.id_descuentosAgregados= [];
+            me.id_persona = "";
+            me.id_empleado = "";
             me.beneficiosEmpleado= [];
             me.descuentosEmpleado= [];
             me.datosSalario=false;
+            me.banco = {};
           },
           formatoDivisa(number){
            let monto = new Intl.NumberFormat('en-US').format(number);
@@ -876,11 +1036,92 @@
           cambioPaginaPagos(page){
             this.pagination.current_page = page;
             this.historialPagos(page, this.id_empleado);
-          }   
+          },
+          agregarhijos(){
+            if(this.hijo.nombre && this.hijo.apellido && this.hijo.nacimiento){
+              this.arrayHijos.push(this.hijo);
+              this.hijo = {
+                nombre:'',
+                apellido:'',
+                nacimiento:'',
+                nivel:'0',
+                discapacidad: 'Ninguna',
+              };
+            }else{
+              Vue.toasted.error( 'Campos requeridos', {duration:2000});
+            }
+            
+          },
+          edadHijo(fecha){
+            //Calcula la edad del hijo del trabajador
+
+            fecha = new Date(fecha);
+            let actual = new Date();
+
+            let año = fecha.getFullYear();
+            let mes = fecha.getMonth(); 
+
+            let edad = actual.getFullYear()-año;
+
+            if (mes >= actual.getMonth()  && edad != 0) {
+              edad--;
+            };
+
+            return edad;
+          },
+          editarHijos(dato, index){
+            this.hijo = dato;
+            this.eliminarHijos(index);
+          },
+          eliminarHijos(index){
+            this.arrayHijos.splice(index, 1);
+          },
+          eliminarEmpleado(id, nombre){
+            let me = this;
+            let url = '/empleados/delete/'+id;
+            swal.fire({
+              title: `¿Seguro que desea eliminar a ${nombre}?`,
+              text: "Los datos del trabajador se mantendran en la papelera",
+              icon: 'warning',
+              showCancelButton: true,
+              confirmButtonColor: '#3085d6',
+              cancelButtonColor: '#d33',
+              confirmButtonText: 'Continuar',
+              cancelButtonText: 'Cancelar'
+            }).then((result)=>{
+              if (result.value) {
+                axios.delete(url).then(function(response){
+                  swal.fire(
+                        'Empleado eliminado',
+                        '',
+                        'success');
+                  me.accion = "listar";
+                  me.listarEmpleado(1, me.busqueda, me.criterio);
+                  me.resetearInputs();
+                }).catch(function(error){
+                  console.error(error);
+                });
+              }else return;
+            });   
+          },
+          restaurar(id){
+            let url = 'empleados/restore/'+id;
+            let me = this;
+            axios.get(url).then((response)=>{
+              swal.fire(
+                        'Empleado restaurado',
+                        '',
+                        'success');
+                  me.accion = "listar";
+                  me.listarEmpleado(1, me.busqueda, me.criterio);
+                  me.resetearInputs();
+            }).catch((error)=>{
+              console.error(error);
+            })
+          }
         }, 
         mounted() {
           this.listarEmpleado(1, this.busqueda, this.criterio);
-
         }
     };
 </script>

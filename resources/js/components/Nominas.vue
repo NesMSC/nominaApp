@@ -6,8 +6,12 @@
       <div class="container-fluid">
         <div class="row mb-2">
           <div class="col-sm-6">
-            <ol class="breadcrumb">
-              <li class="breadcrumb-item"><a href="#">Nominas</a></li>
+            <ol v-if="accion=='listar'" class="breadcrumb">
+              <li class="breadcrumb-item"><a href="#">Nóminas</a></li>
+            </ol>
+            <ol v-if="accion=='consultar'" class="breadcrumb">
+              <li class="breadcrumb-item"><a @click.prevent="accion = 'listar'" href="#">Nóminas</a></li>
+              <li class="breadcrumb-item active">Consultar</li>
             </ol>
           </div>
         </div>
@@ -16,12 +20,12 @@
 
     <!-- Main content -->
     <section class="content">
-      <div class="container-fluid">
+      <div v-if="accion == 'listar'" class="container-fluid">
         <div class="row">
           <div class="col-12">
             <div class="card">
               <div class="card-header">
-                <button @click="registrar()" type="button" class="btn btn-light">
+                <button data-toggle="modal" data-target="#Modal" type="button" class="btn btn-light">
                   <i class="fa fa-plus"></i>&nbsp;Nuevo
                 </button>
               </div>
@@ -30,10 +34,12 @@
                 <div class="form-group row">
                   <div class="col-md-3">
                     <div class="input-group">
-                      <select @change="listarNominas(1, criterio)" class="form-control" v-model="criterio">
-                        <option value="Administrativo">Administrativo</option>
-                        <option value="Docente">Docente</option>
-                        <option value="Obrero">Obrero</option>
+                      <select @change="filtrarNominas(criterio)" class="form-control" v-model="criterio">
+                        <option value="">Todas</option>       
+                        <option value="NA-">Administrativo</option>
+                        <option value="ND-">Docente</option>
+                        <option value="NO-">Obrero</option>
+                        <option value="NV-">Vigilantes</option>
                       </select>
                     </div>
                   </div>
@@ -41,19 +47,24 @@
                 <table class="table table-bordered table-striped">
                   <thead>
                   <tr>
-                    <th>n°</th>
-                    <th>Quincena</th>
+                    <th>Código</th>
+                    <th>Tipo</th>
+                    <th>Descripción</th>
                     <th>Fecha</th>
+                    <th>Acción</th>
                   </tr>
                   </thead>
                   <tbody>
-                    <tr v-for="nomina in arrayNominas" :key="nomina.id">
-                      <td v-text="nomina.id"></td>
-                      <td v-text="nomina.quincena"></td>
+
+                    <tr v-for="nomina in nominas" :key="nomina.id">
+                      <td v-text="nomina.codigo"></td>
+                      <td v-text="nomina.tipo"></td>
+                      <td v-text="nomina.descripcion"></td>
                       <td v-text="nomina.fecha"></td>
-                      <!-- <td>
-                        <a href="#" style="color:#fff;" class="btn btn-success btn-sm" click.prevent=""><i class="fa fa-table" aria-hidden="true"></i></a>
-                      </td> --> 
+                      <td>
+                        <a href="#" class="btn btn-success btn-sm" @click.prevent="consultar(nomina.id)"><i class="fa fa-table" aria-hidden="true"></i></a>
+                        <a href="#" class="btn btn-danger btn-sm text-light" @click.prevent="eliminar(nomina.id, nomina.codigo)"><i class="fas fa-trash"></i></a>
+                      </td>
                     </tr>
                   </tbody>
                 </table>
@@ -77,27 +88,86 @@
           </div>
         </div>
       </div>
+      <div v-if="accion == 'consultar'" class="container-fluid">
+        <infoNomina :id="id_nomina"></infoNomina>
+      </div>
     </section>
     <!-- /.content -->
+
+    <!-- Modal nueva nomina -->
+    <div class="modal fade" id="Modal" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="ModalLabel">Nueva nómina</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <form>
+              <div class="form-group">
+                <label for="tipo" class="col-form-label">Personal</label>
+                <select @change="validarinput('personal', personal)" v-model="personal" id="personal" name="personal" :class="['form-control', validPersonal]" required>
+                  <option disabled selected>Seleccionar</option>
+                  <option value="Administrativo">Administrativo</option>
+                  <option value="Docente">Docente</option>
+                  <option value="Obrero">Obrero</option>
+                  <option value="Vigilante">Vigilante</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="tipo" class="col-form-label">Tipo de nómina</label>
+                <select @change="validarinput('tipo_nomina', tipo_nomina)" v-model="tipo_nomina" id="tipo_nomina" name="tipo_nomina" :class="['form-control', validType]" required>
+                  <option disabled selected>Seleccionar</option>
+                  <option value="Sueldo y salario">Sueldo y salario</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="descripcion" class="col-form-label">Descripción</label>
+                <textarea @change="validarinput('descripcion', descripcion)" v-model="descripcion" :class="['form-control', validText]" id="descripcion"></textarea>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <clip-loader :color="'#007bff'" :loading="loader" :size="'25px'"></clip-loader>
+            <button v-show="!loader" @click="registrar()" type="button" :class="['btn', 'btn-primary']">Crear</button>
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- /.Modal nueva nomina -->
   </div>
-  <!-- /.content-wrapper -->
+<!-- /.content-wrapper -->
+
+
 </template>
 <script>
     export default {
         data() {
-          return {    
+          return {
+            accion: 'listar',
+            id_nomina: 1,
             arrayNominas: [],
-            tipoRegistro: "Administrativo",
+            nominas: [],
+            tipo_nomina: 'Seleccionar',
+            personal: 'Seleccionar',
+            descripcion: '',
             pagination: {
                 "total": 0,
-                "current_page": 0,
+                "current_page": 1,
                 "per_page": 0,
                 "last_page": 0,
                 "from": 0,
                 "to": 0
               },
-            criterio:"Administrativo",
-            fecha: new Date()
+            criterio: '',
+            fecha: new Date(),
+            validType: '',
+            validText: '',
+            validPersonal: '',
+            loader:false,
           }
         },
         computed:{
@@ -136,19 +206,31 @@
           }
         },
         methods: {
-          listarNominas(page, criterio){
+          listarNominas(page = 1){
             let me = this;
-            var url= '/nominas?page='+page+'&nomina='+criterio;
+            var url= '/nominas?page='+page;
             axios.get(url).then(function (response) {
                 var respuesta= response.data.nominas.data;
                 me.arrayNominas = respuesta;
+                me.nominas = me.arrayNominas;
                 me.pagination = response.data.pagination;
             }).catch(function (error) {
                 console.log(error);
             });
           },
+          filtrarNominas(criterio){
+            if(criterio){              
+              this.nominas = this.arrayNominas.filter(data => data.codigo.includes(criterio));
+            }else{
+              this.listarNominas();
+            }
+          },
           registrar(){
+            if(!this.validarForm()){
+              return;
+            }
             let me = this;
+            me.loader = true;
             swal.fire({
                 title: 'Se registrarán las nóminas correspondientes a la '+me.numNomina('mes'),
                 text: "",
@@ -162,23 +244,37 @@
                 if (result.value) {
                   let url = '/nominas/registrar';
                   axios.post(url, {
+                    tipo_nomina:me.tipo_nomina,
+                    descripcion:me.descripcion,
+                    personal:me.personal,
                     quincena:me.numNomina('año')
-                  }).then(function(response){
-                    swal.fire(
-                        'Nominas generadas',
-                        '',
-                        'success'
-                      )
-                    me.listarNominas(1, me.criterio);
+                  }).then(function(resp){
+                      if(resp.data.status == 'success'){
+                        swal.fire(
+                          resp.data.msg,
+                          '',
+                          'success'
+                        )
+                        $('#Modal').modal('hide');
+                        me.loader = false;
+                        me.resetearInputs();
+                        me.listarNominas();
+                    }else{
+                      Vue.toasted.error(resp.data.msg, {duration:2000});
+                      me.loader = false;
+                    }
                   }).catch(function(error){
+                    me.loader = false;
                     console.log(error)
                   });
-                }else return;
+                }else{
+                  me.loader = false;
+                };
               })
           },
           cambioPagina(page){
             this.pagination.current_page = page;
-            this.listarNominas(page, this.criterio);
+            this.listarNominas();
           },
           numNomina(tipo){
             let me = this;
@@ -196,10 +292,75 @@
                 return num;
               break;
             }
-          }   
+          },
+          validarinput(input, value){
+
+            switch(input){
+              case 'personal':
+                  this.validPersonal = (value != 'Seleccionar')? 'is-valid' : 'is-invalid';
+                break;
+              case 'tipo_nomina':
+                this.validType = (value != 'Seleccionar')? 'is-valid' : 'is-invalid';
+                break;
+              case 'descripcion':
+                this.validText = (value != '')? 'is-valid' : 'is-invalid';
+                break;
+            }
+
+          },
+          validarForm(){
+            
+            this.validarinput('personal', this.personal);
+            this.validarinput('tipo_nomina', this.tipo_nomina);
+            this.validarinput('descripcion', this.descripcion);
+
+            if(this.validText == 'is-valid' && this.validType == 'is-valid' && this.validPersonal == 'is-valid'){
+              return true;
+            };
+          },
+          resetearInputs(){
+            this.personal = 'Seleccionar';
+            this.tipo_nomina = 'Seleccionar';
+            this.descripcion = '';
+            this.validPersonal = '';
+            this.validText = '';
+            this.validType = '';
+
+          },
+          consultar(id){
+            this.id_nomina = id;
+            this.accion = 'consultar'
+          },
+          eliminar(id, code){
+            let me = this;
+            let url = '/nominas/delete/'+id;
+            swal.fire({
+              title: `¿Seguro que desea eliminar ${code}?`,
+              text: "Se eliminarán todos los pagos relacionados a esta nómina",
+              icon: 'warning',
+              showCancelButton: true,
+              confirmButtonColor: '#3085d6',
+              cancelButtonColor: '#d33',
+              confirmButtonText: 'Continuar',
+              cancelButtonText: 'Cancelar'
+            }).then((result)=>{
+              if (result.value) {
+                axios.delete(url).then(function(response){
+                  swal.fire(
+                        'Nomina eliminada',
+                        '',
+                        'success');
+                  me.listarNominas();
+                }).catch(function(error){
+                  Vue.toasted.error('Error inesperado', {duration:2000});
+                  console.log(error);
+                });
+              }
+            });   
+          }
         }, 
         mounted() {
-          this.listarNominas(1, this.criterio);
+          this.listarNominas();
         }
     }
 </script>

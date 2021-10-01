@@ -21,6 +21,10 @@ Route::group(['middleware'=>['guest']], function () {
     Route::get('/reset', 'Auth\LoginController@getReset')->name('reset');
     Route::get('/passwordReset', 'Auth\LoginController@passwordReset')->name('passwordReset');
     Route::post('/updateNewPassword', 'Auth\LoginController@updateNewPassword')->name('updateNewPassword');
+
+
+	//Rutas de prueba
+
 });
 
 Route::group(['middleware'=>['auth']], function(){
@@ -39,6 +43,9 @@ Route::group(['middleware'=>['auth']], function(){
 	Route::get('/empleados/editarSalarios/{id}', 'empleadoController@editarSalarios');
 	Route::put('/empleados/actualizarEmpleado', 'empleadoController@update');
 	Route::get('/empleados/contar', 'empleadoController@contar');
+	Route::get('empleado/banco/{id}', 'empleadoController@cuentaBancaria');
+	Route::delete('/empleados/delete/{id}', 'empleadoController@destroy');
+	Route::get('empleados/restore/{id}', 'empleadoController@restore');
 
 	Route::get('/docentes', 'docenteController@index');
 	Route::post('/docentes/agregarNuevo', 'docenteController@store');
@@ -52,7 +59,7 @@ Route::group(['middleware'=>['auth']], function(){
 	//Pagos
 	Route::get('/empleados/historialPagos/{id}', 'pagosController@historialPagos');
 	Route::get('/pagos/pdf/{id_empleado}/{id}', 'pagosController@pdf');
-	Route::get('/pagos/primaProfesional/{id}/{sueldo}', 'pagosController@primaProfesional');
+	Route::get('/pagos/primaProfesional/{id}/{sueldo}', 'nominaController@primaProfesional');
 
 	//Indicadores
 	Route::get('/indicadores', 'tabuladorController@indicadores');
@@ -76,6 +83,13 @@ Route::group(['middleware'=>['auth']], function(){
 		Route::get('/descuentos/editar/{id}', 'descuentoController@edit');
 		Route::put('/descuentos/actualizar', 'descuentoController@update');
 
+		//Bancos
+		Route::get('/bancos', 'bancoController@index');
+		Route::get('/banco/{id}', 'bancoController@show');
+		Route::post('/bancos', 'bancoController@store');
+		Route::put('/bancos', 'bancoController@update');
+		Route::delete('/banco/{id}', 'bancoController@destroy');
+		
 		//Tabuladores
 		Route::get('/tabuladores', 'tabuladorController@index');
 		Route::put('/tabuladores/update/{tab}', 'tabuladorController@update');
@@ -94,6 +108,11 @@ Route::group(['middleware'=>['auth']], function(){
 		//Nominas
 		Route::get('/nominas', 'nominaController@index');
 		Route::post('/nominas/registrar', 'nominaController@registrarNominas');
+		Route::delete('/nominas/delete/{id}', 'nominaController@destroyNomina');
+		Route::get('/nominas/{id}', 'nominaController@consultarNomina');
+		Route::get('/nominas/txt/{id}', 'nominaController@generarTxt');
+
+		
 		
 	});
 

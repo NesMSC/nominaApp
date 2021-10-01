@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateNominasTable extends Migration
+class CreateHijosTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,11 +13,12 @@ class CreateNominasTable extends Migration
      */
     public function up()
     {
-        Schema::create('nominas', function (Blueprint $table) {
+        Schema::create('hijos', function (Blueprint $table) {
             $table->id();
-            $table->string('quincena');
-            $table->date('fecha');
-            $table->timestamps();
+            $table->unsignedBigInteger('persona_id');
+            $table->foreign('persona_id')->references('id')->on('personas');
+            $table->string('nivel');
+            $table->string('discapacidad')->default('Ninguna');
         });
     }
 
@@ -28,6 +29,6 @@ class CreateNominasTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('nominas');
+        Schema::dropIfExists('hijos');
     }
 }

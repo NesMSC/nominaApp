@@ -59,6 +59,9 @@ class beneficioController extends Controller
         $beneficio->concepto = $request->concepto;
         $beneficio->valor = $request->valor;
         $beneficio->tipo_valor = $request->tipo_valor;
+        if($request->tipo_valor == '%'){
+            $beneficio->tipo_valor_por = $request->tipo_valor_por;
+        }
         $beneficio->save();
     }
 
@@ -103,7 +106,12 @@ class beneficioController extends Controller
     {
         if (!$request->ajax()) return redirect('/');
 
-        DB::table('beneficios')->where('id', $request->id)->update(["concepto"=>$request->concepto, "valor"=>$request->valor, "tipo_valor"=>$request->tipo_valor]);
+        DB::table('beneficios')->where('id', $request->id)->update([
+            "concepto"=>$request->concepto, 
+            "valor"=>$request->valor, 
+            "tipo_valor"=>$request->tipo_valor,
+            "tipo_valor_por"=>$request->tipo_valor_por,
+        ]);
 
         return $request;
     }

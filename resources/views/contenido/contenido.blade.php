@@ -20,6 +20,9 @@
 <template v-if="menu==6">
 	<Descuentos></Descuentos>	
 </template>
+<template v-if="menu=='bc'">
+	<Bancos></Bancos>	
+</template>
 <template v-if="menu==7">
 	<Nominas></Nominas>	
 </template>

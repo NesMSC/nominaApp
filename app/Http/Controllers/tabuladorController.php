@@ -41,7 +41,7 @@ class tabuladorController extends Controller
         if (!$request->ajax()) return redirect('/');
 
         $indicadores = DB::table('ind_economicos')
-                        ->select('id', 'salarioMin', 'UnTributaria', 'gaceta', 'fecha')
+                        ->select('id', 'salarioMin', 'UnTributaria', 'gaceta', 'fecha', 'cestaTicket')
                         ->get();
         return ["indicadores" => $indicadores];
 
@@ -51,7 +51,7 @@ class tabuladorController extends Controller
     {
         if (!$request->ajax()) return redirect('/');
 
-        DB::table('ind_economicos')->where('id', $request->id_ind)->update(["salarioMin"=>$request->salarioMin, "UnTributaria" => $request->ut, "gaceta" => $request->gaceta, "fecha" => $request->fecha]);
+        DB::table('ind_economicos')->where('id', $request->id_ind)->update(["salarioMin"=>$request->salarioMin, "cestaTicket"=>$request->cestaTicket, "UnTributaria" => $request->ut, "gaceta" => $request->gaceta, "fecha" => $request->fecha]);
 
     }
 

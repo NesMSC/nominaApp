@@ -4,14 +4,10 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Descuento extends Model
+class Hijo extends Model
 {
-    protected $fillable= [
-        'concepto',
-        'tipo',
-        'porcentaje'
-    ];
-    
+    public $timestamps = false;
+
     function empleado(){
         return $this->belongsToMany('App\Empleado');
     }

@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Nomina extends Model
 {
-    public function pago(){
-    	return $this->hasMany('App\Pago');
+    public function pagos(){
+    	return $this->hasMany('App\Pago', 'id_nomina');
     }
 }

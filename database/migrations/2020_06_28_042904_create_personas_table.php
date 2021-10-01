@@ -17,9 +17,9 @@ class CreatePersonasTable extends Migration
             $table->id('id');
             $table->string('nombres');
             $table->string('apellidos');
-            $table->string('cedula');
-            $table->string('correo');
-            $table->string('telefono');
+            $table->string('cedula')->nullable();
+            $table->string('correo')->nullable();
+            $table->string('telefono')->nullable();
             $table->date('nacimiento');
             $table->unsignedBigInteger('user_id');
             $table->foreign('user_id')->references('id')->on('users');

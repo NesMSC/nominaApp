@@ -12,6 +12,7 @@ window.Vue = require('vue');
 import Toasted from 'vue-toasted';
 import 'vue-select/dist/vue-select.css';
 import vSelect from 'vue-select';
+import ClipLoader from 'vue-spinner/src/ClipLoader.vue';
 
 import Fragment from 'vue-fragment';
 
@@ -20,7 +21,7 @@ Vue.use(Fragment.Plugin);
 Vue.use(Toasted);
 
 Vue.component('v-select', vSelect);
-
+Vue.component('clip-loader', ClipLoader);
 
 /**
  * The following block of code may be used to automatically register your
@@ -33,6 +34,7 @@ Vue.component('v-select', vSelect);
 // const files = require.context('./', true, /\.vue$/i)
 // files.keys().map(key => Vue.component(key.split('/').pop().split('.')[0], files(key).default))
 
+
 Vue.component('Padministrativo', require('./components/Padministrativo.vue').default);
 Vue.component('Pobrero', require('./components/Pobrero.vue').default);
 Vue.component('Escritorio', require('./components/Escritorio.vue').default);
@@ -43,7 +45,10 @@ Vue.component('Tabuladores', require('./components/Tabuladores.vue').default);
 Vue.component('Roles', require('./components/Roles.vue').default);
 Vue.component('Usuarios', require('./components/Usuarios.vue').default);
 Vue.component('Nominas', require('./components/Nominas.vue').default);
+    Vue.component('InfoNomina', require('./components/InfoNomina.vue').default);
 Vue.component('salarios', require('./components/salarios.vue').default);
+Vue.component('banco', require('./components/Rbanco.vue').default);
+Vue.component('Bancos', require('./components/Banco.vue').default);
 
 
 
