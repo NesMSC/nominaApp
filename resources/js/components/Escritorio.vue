@@ -85,7 +85,7 @@
                   <tr>
                     <th>Salario minimo</th>
                     <th>Cesta ticket</th>
-                    <th>Unidad Tributaria</th>
+                    <th>U.T</th>
                     <th>Gaceta</th>
                     <th>Fecha</th>
                     <th>Acción</th>
