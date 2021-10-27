@@ -355,10 +355,9 @@
                   <label for="departamento">Departamento</label>
                   <select v-model="departamento" @change="validarCampo(departamento, 'departamento')" id="departamento" class="form-control datoEmpleado" required>
                     <option disabled selected>Seleccionar</option>
-                    <option value="RR.HH">Recursos Humanos</option>
-                    <option value="Informática">Informática</option>
-                    <option value="Control de estudios">Control de estudios</option>
-                    <option value="Desarrollo Estudiantil">Desarrollo Estudiantil</option>
+                    <template v-for="(depa, index) in arrayDep">
+                      <option :value="depa" :key="index">{{depa}}</option>
+                    </template>
                   </select>
                 </div>
                 <div class="col-md-4 mb-2 form-group">
@@ -582,6 +581,36 @@
               nivel:'0',
               discapacidad: 'Ninguna',
             },
+            arrayDep: [
+              "Secretaria",
+              "Vice rectorado académico",
+              "Vice rectorado Territorial",
+              "Cultura",
+              "Gestión del desarrollo Estratégico productivo",
+              "Despacho",
+              "Desarrollo de Política Estudiantil",
+              "Planificación y presupuesto",
+              "Planta Física",
+              "Oficina de Gestión Administrativa",
+              "Oficina de Gestión Humana",
+              "Registro y Control Académico",
+              "Oficina de Atención Ciudadana",
+              "Grado y Certificación",
+              "Vinculación con la Seguridad y Defensa de la Nación",
+              "Programa Nacional De Formación Avanzada",
+              "Universalizacion de la Educación",
+              "Oficina de gestión Administrativa y Finanza de proyecto",
+              "Gaceta Universitaria y Archivo Central",
+              "Creación Intelectual y Desarrollo Socio Productivo",
+              "Oficina de Tecnología de Información y la Comunicación",
+              "Bienes Público",
+              "Dpt. De Compra",
+              "Dpt. Servicio General",
+              "Dpt. De Contabilidad",
+              "Dpt. De Caja",
+              "Dpt. De Control de Gestión y Estadística",
+              "Dpt. De Almacén."
+            ],
             fecha_nacimiento: "",
             grado: "Seleccionar",
             nivel: "Seleccionar",
