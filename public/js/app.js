@@ -5981,6 +5981,11 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
@@ -9974,7 +9979,7 @@ __webpack_require__.r(__webpack_exports__);
       this.totalDeduc = total;
     },
     sso_rpe: function sso_rpe(dato) {
-      var valor = this.salarioNormal * 12 / 52 * dato.porcentaje / 100 * 4;
+      var valor = this.salarioNormal * 12 / 52 * dato.porcentaje / 100 * this.contarLunes();
       return valor.toFixed(2);
     },
     primaHijos: function primaHijos() {
@@ -10014,6 +10019,35 @@ __webpack_require__.r(__webpack_exports__);
 
       ;
       return edad;
+    },
+    contarLunes: function contarLunes() {
+      var fecha = new Date();
+      var currentYear = fecha.getFullYear();
+      var currentMonth = fecha.getMonth(); //La variable cont corresponde al primer dia del mes
+
+      var cont = 1;
+      var lunes = 0;
+
+      while (true) {
+        var fecha2 = new Date(currentYear, currentMonth, cont); //Verificar si el mes actual coincide con el de fecha2
+
+        if (fecha2.getMonth() == currentMonth) {
+          //Verifica si el dia de la semana de fecha2 coincide con lunes (1)
+          //Si es true, acumula +1 a la variable contadora lunes
+          //Imprime las fechas que corresponden a esos lunes del mes
+          if (fecha2.getDay() == 1) {
+            lunes++;
+            console.log("Fechas = ".concat(fecha2.getDate()));
+          } //Suma uno a la fecha de fecha2
+
+
+          cont++;
+        } else {
+          //Si es false, retorna el numero de lunes que se acumularon
+          console.log(fecha2);
+          return lunes;
+        }
+      }
     }
   },
   mounted: function mounted() {
@@ -58408,8 +58442,48 @@ var render = function() {
                               ),
                               _vm._v(" "),
                               _c("option", { attrs: { value: "Geología" } }, [
-                                _vm._v("Geología")
-                              ])
+                                _vm._v("Geociencias")
+                              ]),
+                              _vm._v(" "),
+                              _c(
+                                "option",
+                                { attrs: { value: "Calidad y Ambiente" } },
+                                [_vm._v("Calidad y Ambiente")]
+                              ),
+                              _vm._v(" "),
+                              _c(
+                                "option",
+                                {
+                                  attrs: {
+                                    value: "Ingenieria de Mantenimiento"
+                                  }
+                                },
+                                [_vm._v("Ingenieria de Mantenimiento")]
+                              ),
+                              _vm._v(" "),
+                              _c("option", { attrs: { value: "Orfebrería" } }, [
+                                _vm._v("Orfebrería")
+                              ]),
+                              _vm._v(" "),
+                              _c(
+                                "option",
+                                {
+                                  attrs: {
+                                    value: "Ingenieria de los Materiales"
+                                  }
+                                },
+                                [_vm._v("Ingenieria de los Materiales")]
+                              ),
+                              _vm._v(" "),
+                              _c(
+                                "option",
+                                {
+                                  attrs: {
+                                    value: "Higiene y Seguridad Laboral"
+                                  }
+                                },
+                                [_vm._v("Higiene y Seguridad Laboral")]
+                              )
                             ]
                           )
                         ])

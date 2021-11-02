@@ -645,7 +645,8 @@ export default{
 			this.totalDeduc = total;
 		},
 		sso_rpe(dato){
-			let valor = ((((this.salarioNormal) * 12)/52)*dato.porcentaje/100)*4;
+
+			let valor = ((((this.salarioNormal) * 12)/52)*dato.porcentaje/100)*this.contarLunes();
 			return valor.toFixed(2);
 		},
 		primaHijos(){
@@ -689,7 +690,33 @@ export default{
             };
 
             return edad;
-          },
+        },
+		contarLunes(){
+			let fecha = new Date();
+			let currentYear = fecha.getFullYear();
+			let currentMonth = fecha.getMonth();
+
+			//La variable cont corresponde al primer dia del mes
+			let cont = 1;
+			let lunes = 0;
+			while (true) {
+				
+				let fecha2 = new Date(currentYear, currentMonth, cont);
+				//Verificar si el mes actual coincide con el de fecha2
+				if(fecha2.getMonth() == currentMonth){
+					//Verifica si el dia de la semana de fecha2 coincide con lunes (1)
+					//Si es true, acumula +1 a la variable contadora lunes
+					//Imprime las fechas que corresponden a esos lunes del mes
+					if(fecha2.getDay() == 1){ lunes++; console.log(`Fechas = ${fecha2.getDate()}`)}
+					//Suma uno a la fecha de fecha2
+					cont++;
+				}else{
+					//Si es false, retorna el numero de lunes que se acumularon
+					console.log(fecha2);
+					return lunes;
+				}
+			}
+		}
 	},
 	mounted() {
 		this.datoSalario();
