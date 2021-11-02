@@ -557,7 +557,12 @@
                     <option value="Mecánica">Mecánica</option>
                     <option value="Informática">Informática</option>
                     <option value="Electricidad">Electricidad</option>
-                    <option value="Geología">Geología</option>
+                    <option value="Geología">Geociencias</option>
+                    <option value="Calidad y Ambiente">Calidad y Ambiente</option>
+                    <option value="Ingenieria de Mantenimiento">Ingenieria de Mantenimiento</option>
+                    <option value="Orfebrería">Orfebrería</option>
+                    <option value="Ingenieria de los Materiales">Ingenieria de los Materiales</option>
+                    <option value="Higiene y Seguridad Laboral">Higiene y Seguridad Laboral</option>
                   </select>
                 </div>      
               </div>  
