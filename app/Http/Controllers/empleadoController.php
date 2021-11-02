@@ -225,7 +225,7 @@ class empleadoController extends Controller
                             ->join('salarios', 'empleados.salario_id', '=', 'salarios.id')
                             ->select('personas.id as id_persona', 'empleados.id as id_empleado', 'nombres', 
                             'apellidos', 'cedula', 'correo', 'telefono', 'nacimiento', 'grado', 'nivel', 
-                            'fechaIngreso', 'departamentos.nombre as departamento', 'instruccion', 'estado', 'sexo')
+                            'fechaIngreso', 'departamentos.nombre as departamento', 'departamentos.id as dep_id', 'instruccion', 'estado', 'sexo')
                             ->where('personas.id', '=', $id)
                             ->get();
         
