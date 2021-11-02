@@ -9,7 +9,6 @@ class Departamento extends Model
     protected $fillable = [
         'nombre',
     ];
-    
     function empleado(){
         return $this->hasMany('App\Empleado');
     }

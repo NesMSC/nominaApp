@@ -43,4 +43,8 @@ class Empleado extends Model
     public function hijo(){
         return $this->belongsToMany('App\Hijo');
     }
+
+    public function departamento(){
+        return $this->belongsTo('App\Departamento');
+    }
 }

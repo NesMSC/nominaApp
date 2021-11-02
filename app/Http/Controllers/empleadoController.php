@@ -46,7 +46,7 @@ class empleadoController extends Controller
                               ->where('empleados.tipoPersonal', $request->tipo)
                               ->where('nombres', 'like', "%$request->busqueda%")
                               ->orWhere('apellidos', 'like', "%$request->busqueda%")
-                              ->orWhere('departamento', 'like', "%$request->busqueda%")
+                              ->orWhere('departamentos.nombre', 'like', "%$request->busqueda%")
                               ->orderBy('personas.id', 'desc')
                               ->paginate(10);
           
@@ -75,7 +75,7 @@ class empleadoController extends Controller
                                 global $request;
                                 $query->where('nombres', 'like', "%$request->busqueda%")
                                       ->orWhere('apellidos', 'like', "%$request->busqueda%")
-                                      ->orWhere('departamento', 'like', "%$request->busqueda%")
+                                      ->orWhere('departamentos.nombre', 'like', "%$request->busqueda%")
                                       ->orderBy('personas.id', 'desc');
                               })
                               ->paginate(10);
@@ -291,7 +291,7 @@ class empleadoController extends Controller
       
       DB::table('empleados')
         ->where('id', $request->id_empleado)
-        ->update(['grado' => $request->grado, 'nivel' => $request->nivel, 'fechaIngreso' => $request->fecha_ingreso, 'departamento_id' => $request->departamento, 'instruccion' => $request->grado_instruccion, 'estado' => $request->estado]);
+        ->update(['grado' => $request->grado, 'nivel' => $request->nivel, 'fechaIngreso' => $request->fecha_ingreso, 'departamento_id' => $dep_id, 'instruccion' => $request->grado_instruccion, 'estado' => $request->estado]);
 
       
       DB::table('beneficio_empleado')->where('empleado_id', '=', $request->id_empleado)->delete();
