@@ -352,13 +352,14 @@
                   </div>
                 </div>
                 <div class="col-md-4 mb-2 form-group">
-                  <label for="departamento">Departamento</label>
-                  <select v-model="departamento" @change="validarCampo(departamento, 'departamento')" id="departamento" class="form-control datoEmpleado" required>
-                    <option disabled selected>Seleccionar</option>
-                    <template v-for="(depa, index) in arrayDep">
-                      <option :value="depa" :key="index">{{depa}}</option>
-                    </template>
-                  </select>
+                  <label for="departamento">Departamento
+                    <span v-if="isNewDep" class="badge badge-success">Nuevo</span></label>
+                  <input @change="verificarNuevo(departamento)" v-model="departamento" list="departamentos" class="form-control datoEmpleado" required>
+                  <datalist id="departamentos">
+                    <option v-for="dep in arrayDep" :key="dep.id" :value="dep.nombre">
+                      
+                    </option>
+                  </datalist>
                 </div>
                 <div class="col-md-4 mb-2 form-group">
                   <label for="grado">Grado de Instrucción</label>	
@@ -581,41 +582,16 @@
               nivel:'0',
               discapacidad: 'Ninguna',
             },
+            newDep: null,
+            isNewDep: false,
+            dep_id: null,
             arrayDep: [
-              "Secretaria",
-              "Vice rectorado académico",
-              "Vice rectorado Territorial",
-              "Cultura",
-              "Gestión del desarrollo Estratégico productivo",
-              "Despacho",
-              "Desarrollo de Política Estudiantil",
-              "Planificación y presupuesto",
-              "Planta Física",
-              "Oficina de Gestión Administrativa",
-              "Oficina de Gestión Humana",
-              "Registro y Control Académico",
-              "Oficina de Atención Ciudadana",
-              "Grado y Certificación",
-              "Vinculación con la Seguridad y Defensa de la Nación",
-              "Programa Nacional De Formación Avanzada",
-              "Universalizacion de la Educación",
-              "Oficina de gestión Administrativa y Finanza de proyecto",
-              "Gaceta Universitaria y Archivo Central",
-              "Creación Intelectual y Desarrollo Socio Productivo",
-              "Oficina de Tecnología de Información y la Comunicación",
-              "Bienes Público",
-              "Dpt. De Compra",
-              "Dpt. Servicio General",
-              "Dpt. De Contabilidad",
-              "Dpt. De Caja",
-              "Dpt. De Control de Gestión y Estadística",
-              "Dpt. De Almacén."
             ],
             fecha_nacimiento: "",
             grado: "Seleccionar",
             nivel: "Seleccionar",
             fecha_ingreso: "",
-            departamento: "Seleccionar",
+            departamento: "",
             grado_instruccion: "Seleccionar",
             estadoEmpleado: "Contratado",
             tipoPersonal: "Administrativo",
@@ -727,7 +703,7 @@
                     grado: me.grado,
                     nivel: me.nivel,
                     fecha_ingreso: me.fecha_ingreso,
-                    departamento: me.departamento,
+                    dep_id: me.dep_id,
                     grado_instruccion: me.grado_instruccion,
                     estado: me.estadoEmpleado,
                     id_salario: me.id_salario,
@@ -735,7 +711,8 @@
                     descuentos: me.id_descuentosAgregados,
                     tipo: me.tipoPersonal,
                     banco:me.banco,
-                    hijos:me.arrayHijos
+                    hijos:me.arrayHijos,
+                    newDep:me.newDep,
                   }).then(function(response){
                     if(response.data.respuesta){
                       Vue.toasted.error( 'Empleado existente, verifique los datos ingresados', 
@@ -765,7 +742,7 @@
 
             let url = '/empleados/editarEmpleado/'+id;
             axios.get(url).then(function(response){
-              let empleado = response.data.empleado[0];   
+              let empleado = response.data.empleado[0];
               let banco = response.data.banco;
               let hijos = response.data.hijos;
 
@@ -782,6 +759,7 @@
               me.nivel= empleado.nivel;
               me.fecha_ingreso= empleado.fechaIngreso;
               me.departamento= empleado.departamento;
+              me.dep_id = empleado.dep_id;
               me.grado_instruccion= empleado.instruccion;
               me.estadoEmpleado= empleado.estado;
               me.id_empleado= empleado.id_empleado;
@@ -843,7 +821,9 @@
                   id_persona: me.id_persona,
                   id_empleado: me.id_empleado,
                   banco:me.banco,
-                  hijos:me.arrayHijos
+                  dep_id:me.dep_id,
+                  hijos:me.arrayHijos,
+                  newDep:me.newDep,
                 }).then(function(response){
                   
                   swal.fire(
@@ -1036,7 +1016,7 @@
             me.grado="Seleccionar";
             me.nivel="Seleccionar";
             me.fecha_ingreso="";
-            me.departamento="Seleccionar";
+            me.departamento="";
             me.grado_instruccion="Seleccionar";
             me.sexo= "Seleccionar"
             me.pre_cedula= "V-"
@@ -1053,6 +1033,9 @@
             me.descuentosEmpleado= [];
             me.datosSalario=false;
             me.banco = {};
+            me.newDep = null;
+            me.isNewDep = false;
+            me.dep_id = null;
           },
           formatoDivisa(number){
            let monto = new Intl.NumberFormat('en-US').format(number);
@@ -1147,10 +1130,39 @@
             }).catch((error)=>{
               console.error(error);
             })
+          },
+          verificarNuevo(dep){
+            let array = this.arrayDep;
+
+            for (let i = 0; i < array.length; i++) {
+              if(array[i].nombre == dep){
+                this.isNewDep = false;
+
+                //Busqueda de id, si no es un departamento nuevo
+                let id = array.find(element => element.nombre == dep);
+                this.dep_id = id.id;
+                this.newDep = null;
+                return;
+              };
+            }
+
+            this.isNewDep = true;
+            this.newDep = dep;
+          },
+          listarDep(){
+            const url = '/empleados/departamentos/';
+
+            axios.get(url).then((response)=>{
+              this.arrayDep = response.data.dep;
+            }).catch((e)=>{
+              Vue.toasted.error( 'Error inesperado', 
+              {duration:2000, className:['alert', 'alert-danger']});
+            })
           }
         }, 
         mounted() {
           this.listarEmpleado(1, this.busqueda, this.criterio);
+          this.listarDep();
         }
     };
 </script>

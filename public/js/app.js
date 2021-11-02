@@ -4603,6 +4603,7 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
@@ -4622,12 +4623,15 @@ __webpack_require__.r(__webpack_exports__);
         nivel: '0',
         discapacidad: 'Ninguna'
       },
-      arrayDep: ["Secretaria", "Vice rectorado académico", "Vice rectorado Territorial", "Cultura", "Gestión del desarrollo Estratégico productivo", "Despacho", "Desarrollo de Política Estudiantil", "Planificación y presupuesto", "Planta Física", "Oficina de Gestión Administrativa", "Oficina de Gestión Humana", "Registro y Control Académico", "Oficina de Atención Ciudadana", "Grado y Certificación", "Vinculación con la Seguridad y Defensa de la Nación", "Programa Nacional De Formación Avanzada", "Universalizacion de la Educación", "Oficina de gestión Administrativa y Finanza de proyecto", "Gaceta Universitaria y Archivo Central", "Creación Intelectual y Desarrollo Socio Productivo", "Oficina de Tecnología de Información y la Comunicación", "Bienes Público", "Dpt. De Compra", "Dpt. Servicio General", "Dpt. De Contabilidad", "Dpt. De Caja", "Dpt. De Control de Gestión y Estadística", "Dpt. De Almacén."],
+      newDep: null,
+      isNewDep: false,
+      dep_id: null,
+      arrayDep: [],
       fecha_nacimiento: "",
       grado: "Seleccionar",
       nivel: "Seleccionar",
       fecha_ingreso: "",
-      departamento: "Seleccionar",
+      departamento: "",
       grado_instruccion: "Seleccionar",
       estadoEmpleado: "Contratado",
       tipoPersonal: "Administrativo",
@@ -4741,7 +4745,7 @@ __webpack_require__.r(__webpack_exports__);
               grado: _me.grado,
               nivel: _me.nivel,
               fecha_ingreso: _me.fecha_ingreso,
-              departamento: _me.departamento,
+              dep_id: _me.dep_id,
               grado_instruccion: _me.grado_instruccion,
               estado: _me.estadoEmpleado,
               id_salario: _me.id_salario,
@@ -4749,7 +4753,8 @@ __webpack_require__.r(__webpack_exports__);
               descuentos: _me.id_descuentosAgregados,
               tipo: _me.tipoPersonal,
               banco: _me.banco,
-              hijos: _me.arrayHijos
+              hijos: _me.arrayHijos,
+              newDep: _me.newDep
             }).then(function (response) {
               if (response.data.respuesta) {
                 Vue.toasted.error('Empleado existente, verifique los datos ingresados', {
@@ -4794,6 +4799,7 @@ __webpack_require__.r(__webpack_exports__);
         me.nivel = empleado.nivel;
         me.fecha_ingreso = empleado.fechaIngreso;
         me.departamento = empleado.departamento;
+        me.dep_id = empleado.dep_id;
         me.grado_instruccion = empleado.instruccion;
         me.estadoEmpleado = empleado.estado;
         me.id_empleado = empleado.id_empleado;
@@ -4855,7 +4861,9 @@ __webpack_require__.r(__webpack_exports__);
           id_persona: _me2.id_persona,
           id_empleado: _me2.id_empleado,
           banco: _me2.banco,
-          hijos: _me2.arrayHijos
+          dep_id: _me2.dep_id,
+          hijos: _me2.arrayHijos,
+          newDep: _me2.newDep
         }).then(function (response) {
           swal.fire('Actualizado exitosamente', '', 'success');
           _me2.accion = "listar";
@@ -5099,7 +5107,7 @@ __webpack_require__.r(__webpack_exports__);
       me.grado = "Seleccionar";
       me.nivel = "Seleccionar";
       me.fecha_ingreso = "";
-      me.departamento = "Seleccionar";
+      me.departamento = "";
       me.grado_instruccion = "Seleccionar";
       me.sexo = "Seleccionar";
       me.pre_cedula = "V-";
@@ -5116,6 +5124,9 @@ __webpack_require__.r(__webpack_exports__);
       me.descuentosEmpleado = [];
       me.datosSalario = false;
       me.banco = {};
+      me.newDep = null;
+      me.isNewDep = false;
+      me.dep_id = null;
     },
     formatoDivisa: function formatoDivisa(number) {
       var monto = new Intl.NumberFormat('en-US').format(number);
@@ -5203,10 +5214,45 @@ __webpack_require__.r(__webpack_exports__);
       })["catch"](function (error) {
         console.error(error);
       });
+    },
+    verificarNuevo: function verificarNuevo(dep) {
+      var array = this.arrayDep;
+
+      for (var i = 0; i < array.length; i++) {
+        if (array[i].nombre == dep) {
+          this.isNewDep = false; //Busqueda de id, si no es un departamento nuevo
+
+          var id = array.find(function (element) {
+            return element.nombre == dep;
+          });
+          this.dep_id = id.id;
+          this.newDep = null;
+          return;
+        }
+
+        ;
+      }
+
+      this.isNewDep = true;
+      this.newDep = dep;
+    },
+    listarDep: function listarDep() {
+      var _this2 = this;
+
+      var url = '/empleados/departamentos/';
+      axios.get(url).then(function (response) {
+        _this2.arrayDep = response.data.dep;
+      })["catch"](function (e) {
+        Vue.toasted.error('Error inesperado', {
+          duration: 2000,
+          className: ['alert', 'alert-danger']
+        });
+      });
     }
   },
   mounted: function mounted() {
     this.listarEmpleado(1, this.busqueda, this.criterio);
+    this.listarDep();
   }
 });
 
@@ -54878,65 +54924,51 @@ var render = function() {
                       _vm._v(" "),
                       _c("div", { staticClass: "col-md-4 mb-2 form-group" }, [
                         _c("label", { attrs: { for: "departamento" } }, [
-                          _vm._v("Departamento")
+                          _vm._v("Departamento\n                  "),
+                          _vm.isNewDep
+                            ? _c(
+                                "span",
+                                { staticClass: "badge badge-success" },
+                                [_vm._v("Nuevo")]
+                              )
+                            : _vm._e()
                         ]),
                         _vm._v(" "),
-                        _c(
-                          "select",
-                          {
-                            directives: [
-                              {
-                                name: "model",
-                                rawName: "v-model",
-                                value: _vm.departamento,
-                                expression: "departamento"
-                              }
-                            ],
-                            staticClass: "form-control datoEmpleado",
-                            attrs: { id: "departamento", required: "" },
-                            on: {
-                              change: [
-                                function($event) {
-                                  var $$selectedVal = Array.prototype.filter
-                                    .call($event.target.options, function(o) {
-                                      return o.selected
-                                    })
-                                    .map(function(o) {
-                                      var val =
-                                        "_value" in o ? o._value : o.value
-                                      return val
-                                    })
-                                  _vm.departamento = $event.target.multiple
-                                    ? $$selectedVal
-                                    : $$selectedVal[0]
-                                },
-                                function($event) {
-                                  return _vm.validarCampo(
-                                    _vm.departamento,
-                                    "departamento"
-                                  )
-                                }
-                              ]
+                        _c("input", {
+                          directives: [
+                            {
+                              name: "model",
+                              rawName: "v-model",
+                              value: _vm.departamento,
+                              expression: "departamento"
                             }
-                          },
-                          [
-                            _c(
-                              "option",
-                              { attrs: { disabled: "", selected: "" } },
-                              [_vm._v("Seleccionar")]
-                            ),
-                            _vm._v(" "),
-                            _vm._l(_vm.arrayDep, function(depa, index) {
-                              return [
-                                _c(
-                                  "option",
-                                  { key: index, domProps: { value: depa } },
-                                  [_vm._v(_vm._s(depa))]
-                                )
-                              ]
-                            })
                           ],
-                          2
+                          staticClass: "form-control datoEmpleado",
+                          attrs: { list: "departamentos", required: "" },
+                          domProps: { value: _vm.departamento },
+                          on: {
+                            change: function($event) {
+                              return _vm.verificarNuevo(_vm.departamento)
+                            },
+                            input: function($event) {
+                              if ($event.target.composing) {
+                                return
+                              }
+                              _vm.departamento = $event.target.value
+                            }
+                          }
+                        }),
+                        _vm._v(" "),
+                        _c(
+                          "datalist",
+                          { attrs: { id: "departamentos" } },
+                          _vm._l(_vm.arrayDep, function(dep) {
+                            return _c("option", {
+                              key: dep.id,
+                              domProps: { value: dep.nombre }
+                            })
+                          }),
+                          0
                         )
                       ]),
                       _vm._v(" "),
