@@ -322,7 +322,8 @@ export default{
             UT: 0,
             primAntiguedadPorcentaje: Number,
 			primAntiguedadId: Number,
-            primAntiguedadIndice: -1
+            primAntiguedadIndice: -1,
+			primaProfesionalValue:0,
 		}
 	},
 	methods: {
@@ -476,6 +477,13 @@ export default{
 						this.listarBeneficios();
 			 			this.calcularTotalAsig();
 					}
+			}else if(dato.tipo_valor == 'formula'){
+				if(this.primaProfesionalValue && this.primAntiguedadIndice != -1){
+					this.calcularFormula(dato);
+				}else{
+					Vue.toasted.error( 'Faltan parámetros', {duration:2000});
+				}
+				
 			}else{
 
 				if(dato.tipo_valor == 'U.T') {
@@ -574,6 +582,7 @@ export default{
 			axios.get(url).then((response)=>{
 				
 				dato.valor = response.data.toFixed(2);
+				this.primaProfesionalValue = dato.valor;
 				this.beneficiosEmpleado.push(dato);
 			    this.id_beneficiosAgregados.push(dato.id);
 			    this.listarBeneficios();
@@ -582,19 +591,20 @@ export default{
 			 		this.cambiarPrimaAntiguedad();
 			 	};
 
-
 			}).catch((error)=>{
 				console.log(error);
 			})
 		},
 		primaAntiguedad(dato){
-			let primaValor = ((this.salarioNormal*dato.valor)/100)*this.anos;
-			this.primAntiguedadPorcentaje = dato.valor;
-			this.primAntiguedadId = dato.id;
-			dato.valor = primaValor.toFixed(2);
-			this.beneficiosEmpleado.push(dato);
-		 	this.id_beneficiosAgregados.push(dato.id);
-		 	this.primAntiguedadIndice = this.id_beneficiosAgregados.indexOf(dato.id);
+			if(dato.tipo_valor != 'formula'){
+				let primaValor = ((this.salarioNormal*dato.valor)/100)*this.anos;
+				this.primAntiguedadPorcentaje = dato.valor;
+				this.primAntiguedadId = dato.id;
+				dato.valor = primaValor.toFixed(2);
+				this.beneficiosEmpleado.push(dato);
+				this.id_beneficiosAgregados.push(dato.id);
+				this.primAntiguedadIndice = this.id_beneficiosAgregados.indexOf(dato.id);
+			}
 			this.calcularTotalAsig();
 		},
 		cambiarPrimaAntiguedad(){
@@ -716,6 +726,15 @@ export default{
 					return lunes;
 				}
 			}
+		},
+		calcularFormula(dato){
+			dato.valor = (parseFloat(this.salarioTabla) + 
+							parseFloat(this.beneficiosEmpleado[this.primAntiguedadIndice].valor) +
+							parseFloat(this.primaProfesionalValue))*(80/100);
+					this.beneficiosEmpleado.push(dato);
+					this.id_beneficiosAgregados.push(dato.id);
+					this.listarBeneficios();
+					this.calcularTotalAsig();
 		}
 	},
 	mounted() {

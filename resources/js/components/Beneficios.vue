@@ -130,11 +130,11 @@
                 <div class="row mb-4">
                   <div class="col-md-4">
                     <label for="concepto">Concepto</label>
-                    <input v-model="concepto" type="text" class="form-control" disabled id="concepto" required>
+                    <input v-model="concepto" type="text" class="datoBene form-control" disabled id="concepto" required>
                   </div>
                   <div class="col-md-2">
                     <label for="tipo_valor">Tipo de valor</label>
-                    <select id="tipo_valor" name="tipo_valor" class="form-control" required>
+                    <select id="tipo_valor" name="tipo_valor" class="datoBene form-control" required>
                       <option value="%" disabled selected>%</option>
                     </select>
                   </div>
@@ -144,31 +144,31 @@
                     <div class="form-group row">
                       <label for="tsu" class="col-sm-4 col-form-label col-form-label-sm">TSU</label>
                       <div class="col-sm-4">
-                        <input @change="validarPrimaPro(primaProfesional.TSU, 'tsu')" v-model="primaProfesional.TSU" type="number" class="form-control form-control-sm" id="tsu">
+                        <input @change="validarPrimaPro(primaProfesional.TSU, 'tsu')" v-model="primaProfesional.TSU" type="number" class="datoBene form-control datoBene form-control-sm" id="tsu">
                       </div>
                     </div>
                     <div class="form-group row">
                       <label for="profesional" class="col-sm-4 col-form-label col-form-label-sm">Profesional</label>
                       <div class="col-sm-4">
-                        <input @change="validarPrimaPro(primaProfesional.Profesional, 'profesional')" v-model="primaProfesional.Profesional" type="number" class="form-control form-control-sm" id="profesional">
+                        <input @change="validarPrimaPro(primaProfesional.Profesional, 'profesional')" v-model="primaProfesional.Profesional" type="number" class="datoBene form-control datoBene form-control-sm" id="profesional">
                       </div>
                     </div>
                     <div class="form-group row">
                       <label for="especialista" class="col-sm-4 col-form-label col-form-label-sm">Especialista</label>
                       <div class="col-sm-4">
-                        <input @change="validarPrimaPro(primaProfesional.Especialista, 'especialista')" v-model="primaProfesional.Especialista" type="number" class="form-control form-control-sm" id="especialista">
+                        <input @change="validarPrimaPro(primaProfesional.Especialista, 'especialista')" v-model="primaProfesional.Especialista" type="number" class="datoBene form-control datoBene form-control-sm" id="especialista">
                       </div>
                     </div>
                     <div class="form-group row">
                       <label for="maestria" class="col-sm-4 col-form-label col-form-label-sm">Maestria</label>
                       <div class="col-sm-4">
-                        <input @change="validarPrimaPro(primaProfesional.Maestria, 'maestria')" v-model="primaProfesional.Maestria" type="number" class="form-control form-control-sm" id="maestria">
+                        <input @change="validarPrimaPro(primaProfesional.Maestria, 'maestria')" v-model="primaProfesional.Maestria" type="number" class="datoBene form-control datoBene form-control-sm" id="maestria">
                       </div>
                     </div>
                     <div class="form-group row">
                       <label for="doctor" class="col-sm-4 col-form-label col-form-label-sm">Doctor</label>
                       <div class="col-sm-4">
-                        <input @change="validarPrimaPro(primaProfesional.Doctor, 'doctor')" v-model="primaProfesional.Doctor" type="number" class="form-control form-control-sm" id="doctor">
+                        <input @change="validarPrimaPro(primaProfesional.Doctor, 'doctor')" v-model="primaProfesional.Doctor" type="number" class="datoBene form-control datoBene form-control-sm" id="doctor">
                       </div>
                     </div>
                   </form>
@@ -177,26 +177,27 @@
               <div v-else class="row">
                 <div class="col-md-4 mb-2 form-group">
                   <label for="concepto">Concepto</label>
-                  <input v-if="concepto == 'Prima de Antiguedad'" v-model="concepto" type="text" class="form-control" disabled id="concepto" required>
-                  <input v-else v-model="concepto" type="text" class="form-control" id="concepto" required>
+                  <input v-if="concepto == 'Prima de Antiguedad'" v-model="concepto" type="text" class="datoBene form-control" disabled id="concepto" required>
+                  <input v-else v-model="concepto" type="text" class="datoBene form-control" id="concepto" required>
                   <div class="invalid-feedback">
                           *Este campo es requerido
                   </div>
                 </div>
-                <div class="col-md-3 mb-2 form-group">
+                <div v-show="tipo_valor != 'formula'" class="col-md-3 mb-2 form-group">
                   <label for="valor">valor</label>
-                  <input v-model="valor" type="number" class="form-control" id="valor" required>
+                  <input v-model="valor" type="number" :class="[(tipo_valor != 'formula')?'datoBene':'', 'form-control']" id="valor">
                   <div class="invalid-feedback">
                           *Campo inválido
                   </div>
                 </div>
                 <div class="col-md-3 mb-2 form-group">
                   <label for="tipo_valor">Tipo de valor</label>
-                  <select v-model="tipo_valor" id="tipo_valor" name="tipo_valor" class="form-control" required>
+                  <select v-model="tipo_valor" id="tipo_valor" name="tipo_valor" class="datoBene form-control" required>
                     <option disabled selected>Seleccionar</option>
                     <option value="U.T">U.T</option>
                     <option value="%">%</option>
                     <option value="especifico">Específico</option>
+                    <option value="formula">Fórmula</option>
                   </select>
                   <div class="invalid-feedback">
                         *Este campo es requerido
@@ -225,12 +226,21 @@
               </div>
               <div v-if="tipo_valor_por == 'especifico'" class="row">
                 <div class="col-md-3 mb-2 form-group">
-                  <input v-model="tipo_valor_esp" type="number" class="form-control" id="tipo_especifico" value="0" required>
+                  <input v-model="tipo_valor_esp" type="number" class="datoBene form-control" id="tipo_especifico" value="0" required>
                   <div class="invalid-feedback">
                           *Este campo es requerido
                   </div>
                 </div>
               </div>
+              <div v-if="tipo_valor == 'formula'" class="row">
+                <div class="col-auto">
+                  <div class="form-check form-check-inline">
+                    <input class="form-check-input" selected type="radio" name="optionValue" id="formula" value="formula">
+                    <label class="form-check-label" for="formula">PRIMA DE ESTABILIZACIÓN ECONÓMICA</label>
+                  </div>
+                </div>
+              </div>
+              
             </div>
             <!-- /.card-body -->
             <div class="card-footer">
@@ -496,7 +506,7 @@
             });   
           },
           validarForm(){
-            const inputs = document.getElementsByClassName('form-control');
+            const inputs = document.getElementsByClassName('datoBene');
             //Validar todos los campos vacios
 
               for (let i = 0; i < inputs.length; i++) {               

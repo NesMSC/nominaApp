@@ -2458,6 +2458,16 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
@@ -2670,7 +2680,7 @@ __webpack_require__.r(__webpack_exports__);
       });
     },
     validarForm: function validarForm() {
-      var inputs = document.getElementsByClassName('form-control'); //Validar todos los campos vacios
+      var inputs = document.getElementsByClassName('datoBene'); //Validar todos los campos vacios
 
       for (var i = 0; i < inputs.length; i++) {
         var e = inputs[i];
@@ -9627,7 +9637,8 @@ __webpack_require__.r(__webpack_exports__);
       UT: 0,
       primAntiguedadPorcentaje: Number,
       primAntiguedadId: Number,
-      primAntiguedadIndice: -1
+      primAntiguedadIndice: -1,
+      primaProfesionalValue: 0
     };
   },
   methods: {
@@ -9797,6 +9808,14 @@ __webpack_require__.r(__webpack_exports__);
           this.listarBeneficios();
           this.calcularTotalAsig();
         }
+      } else if (dato.tipo_valor == 'formula') {
+        if (this.primaProfesionalValue && this.primAntiguedadIndice != -1) {
+          this.calcularFormula(dato);
+        } else {
+          Vue.toasted.error('Faltan parámetros', {
+            duration: 2000
+          });
+        }
       } else {
         if (dato.tipo_valor == 'U.T') {
           dato.valor = (dato.valor * this.UT).toFixed(2);
@@ -9903,6 +9922,7 @@ __webpack_require__.r(__webpack_exports__);
       var url = this.id == '' ? '/empleados/primaProfesional/' + this.instruccion + '/' + this.salarioTabla : 'pagos/primaProfesional/' + this.id + '/' + this.salarioTabla;
       axios.get(url).then(function (response) {
         dato.valor = response.data.toFixed(2);
+        _this.primaProfesionalValue = dato.valor;
 
         _this.beneficiosEmpleado.push(dato);
 
@@ -9922,13 +9942,16 @@ __webpack_require__.r(__webpack_exports__);
       });
     },
     primaAntiguedad: function primaAntiguedad(dato) {
-      var primaValor = this.salarioNormal * dato.valor / 100 * this.anos;
-      this.primAntiguedadPorcentaje = dato.valor;
-      this.primAntiguedadId = dato.id;
-      dato.valor = primaValor.toFixed(2);
-      this.beneficiosEmpleado.push(dato);
-      this.id_beneficiosAgregados.push(dato.id);
-      this.primAntiguedadIndice = this.id_beneficiosAgregados.indexOf(dato.id);
+      if (dato.tipo_valor != 'formula') {
+        var primaValor = this.salarioNormal * dato.valor / 100 * this.anos;
+        this.primAntiguedadPorcentaje = dato.valor;
+        this.primAntiguedadId = dato.id;
+        dato.valor = primaValor.toFixed(2);
+        this.beneficiosEmpleado.push(dato);
+        this.id_beneficiosAgregados.push(dato.id);
+        this.primAntiguedadIndice = this.id_beneficiosAgregados.indexOf(dato.id);
+      }
+
       this.calcularTotalAsig();
     },
     cambiarPrimaAntiguedad: function cambiarPrimaAntiguedad() {
@@ -10048,6 +10071,13 @@ __webpack_require__.r(__webpack_exports__);
           return lunes;
         }
       }
+    },
+    calcularFormula: function calcularFormula(dato) {
+      dato.valor = (parseFloat(this.salarioTabla) + parseFloat(this.beneficiosEmpleado[this.primAntiguedadIndice].valor) + parseFloat(this.primaProfesionalValue)) * (80 / 100);
+      this.beneficiosEmpleado.push(dato);
+      this.id_beneficiosAgregados.push(dato.id);
+      this.listarBeneficios();
+      this.calcularTotalAsig();
     }
   },
   mounted: function mounted() {
@@ -50495,7 +50525,7 @@ var render = function() {
                                   expression: "concepto"
                                 }
                               ],
-                              staticClass: "form-control",
+                              staticClass: "datoBene form-control",
                               attrs: {
                                 type: "text",
                                 disabled: "",
@@ -50540,7 +50570,8 @@ var render = function() {
                                       expression: "primaProfesional.TSU"
                                     }
                                   ],
-                                  staticClass: "form-control form-control-sm",
+                                  staticClass:
+                                    "datoBene form-control datoBene form-control-sm",
                                   attrs: { type: "number", id: "tsu" },
                                   domProps: { value: _vm.primaProfesional.TSU },
                                   on: {
@@ -50586,7 +50617,8 @@ var render = function() {
                                       expression: "primaProfesional.Profesional"
                                     }
                                   ],
-                                  staticClass: "form-control form-control-sm",
+                                  staticClass:
+                                    "datoBene form-control datoBene form-control-sm",
                                   attrs: { type: "number", id: "profesional" },
                                   domProps: {
                                     value: _vm.primaProfesional.Profesional
@@ -50635,7 +50667,8 @@ var render = function() {
                                         "primaProfesional.Especialista"
                                     }
                                   ],
-                                  staticClass: "form-control form-control-sm",
+                                  staticClass:
+                                    "datoBene form-control datoBene form-control-sm",
                                   attrs: { type: "number", id: "especialista" },
                                   domProps: {
                                     value: _vm.primaProfesional.Especialista
@@ -50683,7 +50716,8 @@ var render = function() {
                                       expression: "primaProfesional.Maestria"
                                     }
                                   ],
-                                  staticClass: "form-control form-control-sm",
+                                  staticClass:
+                                    "datoBene form-control datoBene form-control-sm",
                                   attrs: { type: "number", id: "maestria" },
                                   domProps: {
                                     value: _vm.primaProfesional.Maestria
@@ -50731,7 +50765,8 @@ var render = function() {
                                       expression: "primaProfesional.Doctor"
                                     }
                                   ],
-                                  staticClass: "form-control form-control-sm",
+                                  staticClass:
+                                    "datoBene form-control datoBene form-control-sm",
                                   attrs: { type: "number", id: "doctor" },
                                   domProps: {
                                     value: _vm.primaProfesional.Doctor
@@ -50776,7 +50811,7 @@ var render = function() {
                                     expression: "concepto"
                                   }
                                 ],
-                                staticClass: "form-control",
+                                staticClass: "datoBene form-control",
                                 attrs: {
                                   type: "text",
                                   disabled: "",
@@ -50802,7 +50837,7 @@ var render = function() {
                                     expression: "concepto"
                                   }
                                 ],
-                                staticClass: "form-control",
+                                staticClass: "datoBene form-control",
                                 attrs: {
                                   type: "text",
                                   id: "concepto",
@@ -50826,43 +50861,56 @@ var render = function() {
                           ])
                         ]),
                         _vm._v(" "),
-                        _c("div", { staticClass: "col-md-3 mb-2 form-group" }, [
-                          _c("label", { attrs: { for: "valor" } }, [
-                            _vm._v("valor")
-                          ]),
-                          _vm._v(" "),
-                          _c("input", {
+                        _c(
+                          "div",
+                          {
                             directives: [
                               {
-                                name: "model",
-                                rawName: "v-model",
-                                value: _vm.valor,
-                                expression: "valor"
+                                name: "show",
+                                rawName: "v-show",
+                                value: _vm.tipo_valor != "formula",
+                                expression: "tipo_valor != 'formula'"
                               }
                             ],
-                            staticClass: "form-control",
-                            attrs: {
-                              type: "number",
-                              id: "valor",
-                              required: ""
-                            },
-                            domProps: { value: _vm.valor },
-                            on: {
-                              input: function($event) {
-                                if ($event.target.composing) {
-                                  return
+                            staticClass: "col-md-3 mb-2 form-group"
+                          },
+                          [
+                            _c("label", { attrs: { for: "valor" } }, [
+                              _vm._v("valor")
+                            ]),
+                            _vm._v(" "),
+                            _c("input", {
+                              directives: [
+                                {
+                                  name: "model",
+                                  rawName: "v-model",
+                                  value: _vm.valor,
+                                  expression: "valor"
                                 }
-                                _vm.valor = $event.target.value
+                              ],
+                              class: [
+                                _vm.tipo_valor != "formula" ? "datoBene" : "",
+                                "form-control"
+                              ],
+                              attrs: { type: "number", id: "valor" },
+                              domProps: { value: _vm.valor },
+                              on: {
+                                input: function($event) {
+                                  if ($event.target.composing) {
+                                    return
+                                  }
+                                  _vm.valor = $event.target.value
+                                }
                               }
-                            }
-                          }),
-                          _vm._v(" "),
-                          _c("div", { staticClass: "invalid-feedback" }, [
-                            _vm._v(
-                              "\n                          *Campo inválido\n                  "
-                            )
-                          ])
-                        ]),
+                            }),
+                            _vm._v(" "),
+                            _c("div", { staticClass: "invalid-feedback" }, [
+                              _vm._v(
+                                "\n                          *Campo inválido\n                  "
+                              )
+                            ])
+                          ]
+                        ),
                         _vm._v(" "),
                         _c("div", { staticClass: "col-md-3 mb-2 form-group" }, [
                           _c("label", { attrs: { for: "tipo_valor" } }, [
@@ -50880,7 +50928,7 @@ var render = function() {
                                   expression: "tipo_valor"
                                 }
                               ],
-                              staticClass: "form-control",
+                              staticClass: "datoBene form-control",
                               attrs: {
                                 id: "tipo_valor",
                                 name: "tipo_valor",
@@ -50920,6 +50968,10 @@ var render = function() {
                               _vm._v(" "),
                               _c("option", { attrs: { value: "especifico" } }, [
                                 _vm._v("Específico")
+                              ]),
+                              _vm._v(" "),
+                              _c("option", { attrs: { value: "formula" } }, [
+                                _vm._v("Fórmula")
                               ])
                             ]
                           ),
@@ -51086,7 +51138,7 @@ var render = function() {
                                 expression: "tipo_valor_esp"
                               }
                             ],
-                            staticClass: "form-control",
+                            staticClass: "datoBene form-control",
                             attrs: {
                               type: "number",
                               id: "tipo_especifico",
@@ -51111,6 +51163,10 @@ var render = function() {
                           ])
                         ])
                       ])
+                    : _vm._e(),
+                  _vm._v(" "),
+                  _vm.tipo_valor == "formula"
+                    ? _c("div", { staticClass: "row" }, [_vm._m(5)])
                     : _vm._e()
                 ]),
                 _vm._v(" "),
@@ -51287,7 +51343,7 @@ var staticRenderFns = [
       _c(
         "select",
         {
-          staticClass: "form-control",
+          staticClass: "datoBene form-control",
           attrs: { id: "tipo_valor", name: "tipo_valor", required: "" }
         },
         [
@@ -51296,6 +51352,31 @@ var staticRenderFns = [
           ])
         ]
       )
+    ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("div", { staticClass: "col-auto" }, [
+      _c("div", { staticClass: "form-check form-check-inline" }, [
+        _c("input", {
+          staticClass: "form-check-input",
+          attrs: {
+            selected: "",
+            type: "radio",
+            name: "optionValue",
+            id: "formula",
+            value: "formula"
+          }
+        }),
+        _vm._v(" "),
+        _c(
+          "label",
+          { staticClass: "form-check-label", attrs: { for: "formula" } },
+          [_vm._v("PRIMA DE ESTABILIZACIÓN ECONÓMICA")]
+        )
+      ])
     ])
   }
 ]
