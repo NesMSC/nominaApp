@@ -7,7 +7,7 @@
       <!-- Sidebar user panel -->
       <div class="user-panel mt-3 pb-3 mb-3 d-flex">
         <div class="image">
-          <img src="img/upteb.ico" alt="">
+          <img style="border-radius: 95%" src="img/upteb.ico" alt="UPTEB">
         </div>
         <div class="info">
           <span href="#" class="d-block text-light">{{$persona->nombres.' '.$persona->apellidos}}</span>

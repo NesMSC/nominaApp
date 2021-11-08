@@ -11,6 +11,8 @@ use App\Salario;
 
 class nominaController extends Controller
 {
+	private $pProfesional, $pAntiguedad;
+
     public function index(Request $request)
     {
 		
@@ -297,6 +299,8 @@ class nominaController extends Controller
 
 				$valor = $this->primaAntiguedad($empleado_id, $this->total($empleado_id, $salario));
 
+			}elseif($asignaciones[$i]->tipo_valor == 'formula'){
+				$valor = $this->calcularFormula($this->pAntiguedad, $this->pProfesional, $salario);
 			}elseif ($asignaciones[$i]->tipo_valor == '%' && $asignaciones[$i]->concepto != 'Prima de Profesionalización' && $asignaciones[$i]->concepto != 'Prima de Antiguedad'){
 
 				if($asignaciones[$i]->tipo_valor_por == 'salario_tabla'){
@@ -416,8 +420,9 @@ class nominaController extends Controller
         	return 0;
         }
         $prima = $porcentajes[$empleado->instruccion];
-
-        return ($prima*$sueldo)/100;
+		$valorPrima = ($prima*$sueldo)/100;
+		$this->pProfesional = $valorPrima;
+        return $valorPrima;
     }
 
     public function primaAntiguedad($id, $total)
@@ -435,6 +440,7 @@ class nominaController extends Controller
 				    		->where('concepto', 'Prima de Antiguedad')
 				    		->first();
 			$valor = (($total*$porcentaje->valor)/100)*$this->calcAñoServ($id);
+			$this->pAntiguedad = $valor;
 			return  $valor;
     	}else{
     		return 0;
@@ -564,5 +570,11 @@ class nominaController extends Controller
 		}
 
 		return floor($total);
+	}
+
+	private function calcularFormula($antiguedad, $profesional, $salario)
+	{
+		$valor = ($salario + $antiguedad + $profesional)*0.8;
+		return $valor;
 	}
 }

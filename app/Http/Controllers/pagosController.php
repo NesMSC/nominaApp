@@ -81,8 +81,9 @@ class pagosController extends Controller
         $pago_empleado = Pago::join('nominas', 'pagos.id_nomina', 'nominas.id')
                             ->join('empleados', 'pagos.id_empleado', 'empleados.id')
                             ->join('personas', 'empleados.persona_id', 'personas.id')
+                            ->join('departamentos', 'empleados.departamento_id', 'departamentos.id')
                             ->select('personas.nombres', 'personas.apellidos', 'personas.cedula', 'empleados.grado', 'empleados.nivel', 
-                            'empleados.departamento', 'empleados.tipoPersonal', 'pagos.sueldo', 'pagos.salarioNormal', 
+                            'departamentos.nombre as departamento', 'empleados.tipoPersonal', 'pagos.sueldo', 'pagos.salarioNormal', 
                             'pagos.asignaciones', 'pagos.deducciones', 'pagos.descuentos', 'nominas.fecha')
                             ->where('pagos.id', $id)
                             ->first();

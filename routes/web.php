@@ -46,6 +46,7 @@ Route::group(['middleware'=>['auth']], function(){
 	Route::get('empleado/banco/{id}', 'empleadoController@cuentaBancaria');
 	Route::delete('/empleados/delete/{id}', 'empleadoController@destroy');
 	Route::get('empleados/restore/{id}', 'empleadoController@restore');
+	Route::get('/empleados/departamentos/', 'empleadoController@departamentos');
 
 	Route::get('/docentes', 'docenteController@index');
 	Route::post('/docentes/agregarNuevo', 'docenteController@store');
@@ -112,7 +113,7 @@ Route::group(['middleware'=>['auth']], function(){
 		Route::get('/nominas/{id}', 'nominaController@consultarNomina');
 		Route::get('/nominas/txt/{id}', 'nominaController@generarTxt');
 
-		
+		Route::get('/test/{new}', 'empleadoController@newDepartamento');
 		
 	});
 
