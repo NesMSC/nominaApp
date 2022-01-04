@@ -1989,6 +1989,64 @@ __webpack_require__.r(__webpack_exports__);
       var me = this;
       axios.get('/backup').then(function (response) {
         me.arrayBackup = response.data;
+      })["catch"](function (e) {
+        Vue.toasted.error('Error inesperado', {
+          duration: 2000
+        });
+      });
+    },
+    createNewBackup: function createNewBackup() {
+      var me = this;
+      swal.fire({
+        title: "Crear respaldo del sistema",
+        text: "Se generará un nuevo respaldo del sistema, ¿Desea continuar?",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Continuar',
+        cancelButtonText: 'Cancelar'
+      }).then(function (e) {
+        if (!e.isConfirmed) return;
+        axios.post('/backup/create').then(function (response) {
+          swal.fire('Se generó el respaldo exitosamente', '', 'success');
+          me.getBackups();
+        })["catch"](function (e) {
+          Vue.toasted.error('Error inesperado', {
+            duration: 2000
+          });
+        });
+      });
+    },
+    download: function download(name) {
+      var me = this;
+      var url = '/backup/download/' + name;
+      window.open(url);
+    },
+    deleteBackup: function deleteBackup(name) {
+      var me = this;
+      var url = '/backup/delete/' + name;
+      swal.fire({
+        title: "Eliminar Respaldo ".concat(name),
+        text: " \xBFEst\xE1 seguro que desea eliminar?",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Continuar',
+        cancelButtonText: 'Cancelar'
+      }).then(function (e) {
+        if (!e.isConfirmed) return;
+        axios["delete"](url).then(function () {
+          me.getBackups();
+          Vue.toasted.success('Respaldo eliminado', {
+            duration: 2000
+          });
+        })["catch"](function () {
+          Vue.toasted.error('Error inesperado', {
+            duration: 2000
+          });
+        });
       });
     }
   },
@@ -49851,14 +49909,31 @@ var render = function() {
         _c("div", { staticClass: "row" }, [
           _c("div", { staticClass: "col-12" }, [
             _c("div", { staticClass: "card" }, [
-              _vm._m(1),
+              _c("div", { staticClass: "card-header" }, [
+                _c(
+                  "button",
+                  {
+                    staticClass: "btn btn-light",
+                    attrs: { type: "button" },
+                    on: {
+                      click: function($event) {
+                        return _vm.createNewBackup()
+                      }
+                    }
+                  },
+                  [
+                    _c("i", { staticClass: "fa fa-plus" }),
+                    _vm._v(" Nuevo\n                        ")
+                  ]
+                )
+              ]),
               _vm._v(" "),
               _c("div", { staticClass: "card-body" }, [
                 _c(
                   "table",
                   { staticClass: "table table-bordered table-striped" },
                   [
-                    _vm._m(2),
+                    _vm._m(1),
                     _vm._v(" "),
                     _c(
                       "tbody",
@@ -49935,21 +50010,6 @@ var staticRenderFns = [
           ])
         ])
       ])
-    ])
-  },
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("div", { staticClass: "card-header" }, [
-      _c(
-        "button",
-        { staticClass: "btn btn-light", attrs: { type: "button" } },
-        [
-          _c("i", { staticClass: "fa fa-plus" }),
-          _vm._v(" Nuevo\n                        ")
-        ]
-      )
     ])
   },
   function() {

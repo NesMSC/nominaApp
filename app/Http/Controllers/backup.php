@@ -41,15 +41,15 @@ class backup extends Controller
 
     public function create()
     {
+
         try {
-            Artisan::call('backup:run', ['--only-db' => 'true']);
-            $output = Artisan::output();
+            Artisan::call('backup:run --only-db');
+            //$output = Artisan::output();
             // log the results
-            Log::info("Backpack\BackupManager -- new backup started from admin interface \r\n" . $output);
-            // return the results as a response to the ajax call
-            return redirect()->back()->with('success', 'Respaldo realizado exitosamente');
+            //Log::info("Backpack\BackupManager -- new backup started from admin interface \r\n" . $output);
+            return response('Respaldo realizado exitosamente', 200);
         } catch (Exception $e) {
-            return redirect()->back()->with('error', $e->getMessage());
+            return response("$e", 500);
         }
     }
 
@@ -79,7 +79,6 @@ class backup extends Controller
         $disk = Storage::disk(config('backup.backup.destination.disks')[0]);
         if ($disk->exists(config('backup.backup.name') . '/' . $file_name)) {
             $disk->delete(config('backup.backup.name') . '/' . $file_name);
-            return redirect()->back()->with('success', 'Respaldo eliminado exitosamente');
         } else {
             abort(404);
         }

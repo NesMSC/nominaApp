@@ -17,7 +17,7 @@
                     <div class="col-12">
                         <div class="card">
                         <div class="card-header">
-                            <button type="button" class="btn btn-light">
+                            <button @click="createNewBackup()" type="button" class="btn btn-light">
                             <i class="fa fa-plus"></i>&nbsp;Nuevo
                             </button>
                         </div>
@@ -78,11 +78,67 @@ export default {
     methods: {
         getBackups(){
             let me = this;
-
             axios.get('/backup').then((response)=>{
-
                 me.arrayBackup = response.data;
+            }).catch(e => {
+                Vue.toasted.error( 'Error inesperado', {duration:2000});
             })
+        },
+        createNewBackup(){
+            let me = this;
+
+            swal.fire({
+              title: `Crear respaldo del sistema`,
+              text: "Se generará un nuevo respaldo del sistema, ¿Desea continuar?",
+              icon: 'warning',
+              showCancelButton: true,
+              confirmButtonColor: '#3085d6',
+              cancelButtonColor: '#d33',
+              confirmButtonText: 'Continuar',
+              cancelButtonText: 'Cancelar'
+            }).then((e) => {
+                if(!e.isConfirmed) return;
+                
+                axios.post('/backup/create').then(response => {
+                    swal.fire(
+                      'Se generó el respaldo exitosamente',
+                      '',
+                      'success');
+                    me.getBackups()
+                }).catch(e => {
+                    Vue.toasted.error( 'Error inesperado', {duration:2000});
+                })
+
+            })
+        },
+        download(name){
+            let me = this;
+            const url = '/backup/download/'+name;
+            window.open(url);
+        },
+        deleteBackup(name){
+            let me = this;
+            const url = '/backup/delete/'+name;
+
+            swal.fire({
+              title: `Eliminar Respaldo ${name}`,
+              text: ` ¿Está seguro que desea eliminar?`,
+              icon: 'warning',
+              showCancelButton: true,
+              confirmButtonColor: '#3085d6',
+              cancelButtonColor: '#d33',
+              confirmButtonText: 'Continuar',
+              cancelButtonText: 'Cancelar'
+            }).then((e) => {
+                if(!e.isConfirmed) return;
+                axios.delete(url).then(() => {
+                    me.getBackups();
+                    Vue.toasted.success( 'Respaldo eliminado', {duration:2000});
+                }).catch(() => {
+                    Vue.toasted.error( 'Error inesperado', {duration:2000});
+                })
+            })
+            
         }
     },
     mounted(){

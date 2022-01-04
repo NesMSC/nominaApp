@@ -116,8 +116,8 @@
                 </a>
               </li>
               <li class="nav-item">
-           #" @click.prevent="menu=9" class="nav-link" :class="menu==9?'active':''">
-                       <a href="<i class="far fa-circle nav-icon"></i>
+                <a href="#" @click.prevent="menu=9" class="nav-link" :class="menu==9?'active':''">
+                  <i class="far fa-circle nav-icon"></i>
                   <p>Usuarios</p>
                 </a>
               </li>
