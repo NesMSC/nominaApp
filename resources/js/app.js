@@ -49,6 +49,7 @@ Vue.component('Nominas', require('./components/Nominas.vue').default);
 Vue.component('salarios', require('./components/salarios.vue').default);
 Vue.component('banco', require('./components/Rbanco.vue').default);
 Vue.component('Bancos', require('./components/Banco.vue').default);
+Vue.component('Backup', require('./components/Backup.vue').default);
 
 
 

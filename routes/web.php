@@ -113,7 +113,8 @@ Route::group(['middleware'=>['auth']], function(){
 		Route::get('/nominas/{id}', 'nominaController@consultarNomina');
 		Route::get('/nominas/txt/{id}', 'nominaController@generarTxt');
 
-		Route::get('/test', 'backup@index');
+		//Backups
+		Route::get('/backup', 'backup@index');
 		
 	});
 
