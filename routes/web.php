@@ -1,7 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Log;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -113,8 +114,11 @@ Route::group(['middleware'=>['auth']], function(){
 		Route::get('/nominas/{id}', 'nominaController@consultarNomina');
 		Route::get('/nominas/txt/{id}', 'nominaController@generarTxt');
 
-		Route::get('/test/{new}', 'empleadoController@newDepartamento');
-		
+		//Backups
+		Route::get('/backup', 'backup@index');
+		Route::post('/backup/create', 'backup@create');
+		Route::get('/backup/download/{file_name}', 'backup@download');
+		Route::delete('/backup/delete/{file_name}', 'backup@delete');
 	});
 
 

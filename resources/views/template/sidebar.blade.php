@@ -124,8 +124,8 @@
             </ul>
           </li>
           @endif
-        <!--   <li class="nav-item has-treeview">
-            <a href="#" class="nav-link">
+          <li class="nav-item has-treeview">
+            <a href="#" @click.prevent="menu=10" class="nav-link" :class="menu==10?'active':''">
               <i class="nav-icon fas fa-table"></i>
               <p>
                 Respaldo

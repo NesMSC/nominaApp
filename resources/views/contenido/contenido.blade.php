@@ -32,3 +32,6 @@
 <template v-if="menu==9">
 	<Usuarios></Usuarios>	
 </template>
+<template v-if="menu==10">
+	<Backup></Backup>	
+</template>
