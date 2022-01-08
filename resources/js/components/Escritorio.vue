@@ -20,6 +20,16 @@
     <!-- Main content -->
     <section class="content">
       <div class="container-fluid">
+        <!-- chartComponent -->
+        <div class="row justify-content-center">
+          <div class="col-4">
+            <chartComponent 
+              :width="50" 
+              :height="50"
+              :chartData="dataPoints"
+            ></chartComponent>
+          </div>
+        </div>
         <!-- Small boxes -->
         <div class="row">
           <div class="col-lg-4 col-6">
@@ -165,6 +175,7 @@
             numAdmin: 0,
             numObre: 0,
             numDoc: 0,
+            dataPoints: {},
             indicadores: [],
             salarioMin: 0,
             cestaTicket: 0,
@@ -179,6 +190,20 @@
               this.numAdmin = response.data.admin;
               this.numObre = response.data.obrero;
               this.numDoc = response.data.docente;
+              
+              let total = this.numAdmin + this.numObre + this.numDoc;
+
+              this.dataPoints = {
+                labels: ['Administrativo', 'Docente', 'Obrero'],
+                datasets: [{
+                    backgroundColor: [
+                    '#17a2b8',
+                    '#28a745',
+                    '#ffc107',
+                  ],
+                  data: [this.numAdmin, this.numDoc, this.numObre].map(e => ((e*100)/total).toFixed(2))
+                }]
+              }
             }).catch((error)=>{
               console.log(error);
             });

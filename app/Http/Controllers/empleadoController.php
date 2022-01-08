@@ -153,7 +153,7 @@ class empleadoController extends Controller
             $empleado->estado = $request->estado;
             $empleado->tipoPersonal = $request->tipo;
             if ($request->dep_id == null) {
-              $empleado->departamento_id = $this->newDepartamento($request->newDep);
+              $empleado->departamento_id = ($request->newDep == null)?$this->newDepartamento($request->newDep):null;
             }else{
               $empleado->departamento_id = $request->dep_id;
             }
