@@ -121,9 +121,12 @@ class empleadoController extends Controller
       if (!$request->ajax()) return redirect('/');
 
         $cedula = $request->cedula;
-        $busquedaRegistro = DB::table('personas')->where('cedula', '=', "$cedula")->first();
+        $correo = $request->correo;
 
-        if ($busquedaRegistro) {
+        $busquedaRegistro = DB::table('personas')->where('cedula', "$cedula")->first();
+        $busquedaCorreo = DB::table('personas')->where('correo', "$correo")->first();
+
+        if ($busquedaRegistro || $busquedaCorreo) {
             return ["respuesta"=>true];
         };
         

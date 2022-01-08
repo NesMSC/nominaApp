@@ -104,8 +104,9 @@ class LoginController extends Controller
         if ($validator->fails()) {
             return back()->withErrors($validator)->with('message', 'Se ha producido un error.')->with('typealert', 'danger');
         }else{
-            $user = Persona::where('correo', $request->input('email'))->count();
-            if ($user == '1') {
+            $user = Persona::where('correo', $request->input('email'))->get()->count();
+
+            if ($user) {
                 $user = Persona::where('correo', $request->input('email'))->first();
                 $code = rand(100000, 999999);
                 $data = ["nombres" => $user->nombres, "apellidos" => $user->apellidos, "email" => $user->correo, "code" => $code];
@@ -114,7 +115,7 @@ class LoginController extends Controller
                 $u->password_code = $code;
                 if ($u->save()) {
                     return redirect('/reset?email='.$user->correo)->with('message', 'Ingrese el código de seguridad.')->with('typealert', 'info');
-                }
+                } 
                 
             }else{
                 return back()->with('message', 'El correo ingresado no existe.')->with('typealert', 'danger');
