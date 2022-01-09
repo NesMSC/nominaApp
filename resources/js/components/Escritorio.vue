@@ -19,65 +19,71 @@
 
     <!-- Main content -->
     <section class="content">
-      <div class="container-fluid">
-        <!-- chartComponent -->
-        <div class="row justify-content-center">
-          <div class="col-4">
-            <chartComponent 
-              :width="50" 
-              :height="50"
-              :chartData="dataPoints"
-            ></chartComponent>
-          </div>
-        </div>
-        <!-- Small boxes -->
+      <div class="container">
         <div class="row">
-          <div class="col-lg-4 col-6">
-            <!-- small box -->
-            <div class="small-box bg-info">
-              <div class="inner">
-                <h3 v-text="numAdmin"></h3>
-
-                <p>Administrativos</p>
+          <!-- chartComponent -->
+          <div class="col-6">
+            <div class="row justify-content-center">
+              <div class="col-8">
+                  <chartComponent 
+                  :width="30" 
+                  :height="30"
+                  :chartData="dataPoints"
+                ></chartComponent>
               </div>
-              <div class="icon">
-                <i class="ion ion-person-add"></i>
-              </div>
-              <a href="#" class="small-box-footer">Ver <i class="fas fa-arrow-circle-right"></i></a>
+              
             </div>
+              
           </div>
-          <!-- ./col -->
-          <div class="col-lg-4 col-6">
-            <!-- small box -->
-            <div class="small-box bg-success">
-              <div class="inner">
-                <h3 v-text="numDoc"></h3>
+          <div class="col-6">
+              <!-- Small boxes -->
+            <div class="row justify-content-center">
+              <div class="col-8">
+                <!-- small box -->
+                <div class="small-box bg-info">
+                  <div class="inner">
+                    <h3 v-text="numAdmin"></h3>
 
-                <p>Docentes</p>
+                    <p>Administrativos</p>
+                  </div>
+                  <div class="icon">
+                    <i class="ion ion-person-add"></i>
+                  </div>
+                </div>
               </div>
-              <div class="icon">
-                <i class="ion ion-person-add"></i>
-              </div>
-              <a href="#" class="small-box-footer">Ver <i class="fas fa-arrow-circle-right"></i></a>
-            </div>
-          </div>
-          <!-- ./col -->
-          <div class="col-lg-4 col-6">
-            <!-- small box -->
-            <div class="small-box bg-warning">
-              <div class="inner">
-                <h3 v-text="numObre"></h3>
+              <!-- ./col -->
+              <div class="col-8">
+                <!-- small box -->
+                <div class="small-box bg-success">
+                  <div class="inner">
+                    <h3 v-text="numDoc"></h3>
 
-                <p>Obreros</p>
+                    <p>Docentes</p>
+                  </div>
+                  <div class="icon">
+                    <i class="ion ion-person-add"></i>
+                  </div>
+                </div>
               </div>
-              <div class="icon">
-                <i class="ion ion-person-add"></i>
+              <!-- ./col -->
+              <div class="col-8">
+                <!-- small box -->
+                <div class="small-box bg-warning">
+                  <div class="inner">
+                    <h3 v-text="numObre"></h3>
+
+                    <p>Obreros</p>
+                  </div>
+                  <div class="icon">
+                    <i class="ion ion-person-add"></i>
+                  </div>
+                </div>
               </div>
-              <a href="#" class="small-box-footer">Ver <i class="fas fa-arrow-circle-right"></i></a>
             </div>
+            <!-- /.row -->
           </div>
         </div>
-        <!-- /.row -->
+
         <div class="row">
           <!-- ./col -->
           <div class="col-12">
@@ -164,6 +170,13 @@
       </div><!-- /.container-fluid -->
     </section>
     <!-- /.content -->
+<!--     <section>
+      <div class="row justify-content-center">
+        <div class="col-6">
+          <chartIndicadores></chartIndicadores>
+        </div>
+      </div>
+    </section> -->
   </div>
   
 </template>

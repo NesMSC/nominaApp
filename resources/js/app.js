@@ -60,6 +60,8 @@ Vue.component('Backup', require('./components/Backup.vue').default);
  */
 import chartComponent from './chartComponent';
 Vue.component('chartComponent', chartComponent);
+import chartIndicadores from './chartIndicadores';
+Vue.component('chartIndicadores', chartIndicadores);
 
 const app = new Vue({
     el: '#app',

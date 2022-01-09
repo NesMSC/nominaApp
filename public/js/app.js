@@ -3944,6 +3944,19 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
@@ -66556,60 +66569,64 @@ var render = function() {
     _vm._m(0),
     _vm._v(" "),
     _c("section", { staticClass: "content" }, [
-      _c("div", { staticClass: "container-fluid" }, [
-        _c("div", { staticClass: "row justify-content-center" }, [
-          _c(
-            "div",
-            { staticClass: "col-4" },
-            [
-              _c("chartComponent", {
-                attrs: { width: 50, height: 50, chartData: _vm.dataPoints }
-              })
-            ],
-            1
-          )
-        ]),
-        _vm._v(" "),
+      _c("div", { staticClass: "container" }, [
         _c("div", { staticClass: "row" }, [
-          _c("div", { staticClass: "col-lg-4 col-6" }, [
-            _c("div", { staticClass: "small-box bg-info" }, [
-              _c("div", { staticClass: "inner" }, [
-                _c("h3", { domProps: { textContent: _vm._s(_vm.numAdmin) } }),
-                _vm._v(" "),
-                _c("p", [_vm._v("Administrativos")])
-              ]),
-              _vm._v(" "),
-              _vm._m(1),
-              _vm._v(" "),
-              _vm._m(2)
+          _c("div", { staticClass: "col-6" }, [
+            _c("div", { staticClass: "row justify-content-center" }, [
+              _c(
+                "div",
+                { staticClass: "col-8" },
+                [
+                  _c("chartComponent", {
+                    attrs: { width: 30, height: 30, chartData: _vm.dataPoints }
+                  })
+                ],
+                1
+              )
             ])
           ]),
           _vm._v(" "),
-          _c("div", { staticClass: "col-lg-4 col-6" }, [
-            _c("div", { staticClass: "small-box bg-success" }, [
-              _c("div", { staticClass: "inner" }, [
-                _c("h3", { domProps: { textContent: _vm._s(_vm.numDoc) } }),
-                _vm._v(" "),
-                _c("p", [_vm._v("Docentes")])
+          _c("div", { staticClass: "col-6" }, [
+            _c("div", { staticClass: "row justify-content-center" }, [
+              _c("div", { staticClass: "col-8" }, [
+                _c("div", { staticClass: "small-box bg-info" }, [
+                  _c("div", { staticClass: "inner" }, [
+                    _c("h3", {
+                      domProps: { textContent: _vm._s(_vm.numAdmin) }
+                    }),
+                    _vm._v(" "),
+                    _c("p", [_vm._v("Administrativos")])
+                  ]),
+                  _vm._v(" "),
+                  _vm._m(1)
+                ])
               ]),
               _vm._v(" "),
-              _vm._m(3),
-              _vm._v(" "),
-              _vm._m(4)
-            ])
-          ]),
-          _vm._v(" "),
-          _c("div", { staticClass: "col-lg-4 col-6" }, [
-            _c("div", { staticClass: "small-box bg-warning" }, [
-              _c("div", { staticClass: "inner" }, [
-                _c("h3", { domProps: { textContent: _vm._s(_vm.numObre) } }),
-                _vm._v(" "),
-                _c("p", [_vm._v("Obreros")])
+              _c("div", { staticClass: "col-8" }, [
+                _c("div", { staticClass: "small-box bg-success" }, [
+                  _c("div", { staticClass: "inner" }, [
+                    _c("h3", { domProps: { textContent: _vm._s(_vm.numDoc) } }),
+                    _vm._v(" "),
+                    _c("p", [_vm._v("Docentes")])
+                  ]),
+                  _vm._v(" "),
+                  _vm._m(2)
+                ])
               ]),
               _vm._v(" "),
-              _vm._m(5),
-              _vm._v(" "),
-              _vm._m(6)
+              _c("div", { staticClass: "col-8" }, [
+                _c("div", { staticClass: "small-box bg-warning" }, [
+                  _c("div", { staticClass: "inner" }, [
+                    _c("h3", {
+                      domProps: { textContent: _vm._s(_vm.numObre) }
+                    }),
+                    _vm._v(" "),
+                    _c("p", [_vm._v("Obreros")])
+                  ]),
+                  _vm._v(" "),
+                  _vm._m(3)
+                ])
+              ])
             ])
           ])
         ]),
@@ -66617,14 +66634,14 @@ var render = function() {
         _c("div", { staticClass: "row" }, [
           _c("div", { staticClass: "col-12" }, [
             _c("div", { staticClass: "card card-default" }, [
-              _vm._m(7),
+              _vm._m(4),
               _vm._v(" "),
               _c("div", { staticClass: "card-body" }, [
                 _c(
                   "table",
                   { staticClass: "table table-bordered table-striped" },
                   [
-                    _vm._m(8),
+                    _vm._m(5),
                     _vm._v(" "),
                     _c(
                       "tbody",
@@ -66889,7 +66906,7 @@ var render = function() {
                   ]
                 ),
                 _vm._v(" "),
-                _vm._m(9)
+                _vm._m(6)
               ])
             ])
           ])
@@ -66933,15 +66950,6 @@ var staticRenderFns = [
     var _vm = this
     var _h = _vm.$createElement
     var _c = _vm._self._c || _h
-    return _c("a", { staticClass: "small-box-footer", attrs: { href: "#" } }, [
-      _vm._v("Ver "),
-      _c("i", { staticClass: "fas fa-arrow-circle-right" })
-    ])
-  },
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
     return _c("div", { staticClass: "icon" }, [
       _c("i", { staticClass: "ion ion-person-add" })
     ])
@@ -66950,26 +66958,8 @@ var staticRenderFns = [
     var _vm = this
     var _h = _vm.$createElement
     var _c = _vm._self._c || _h
-    return _c("a", { staticClass: "small-box-footer", attrs: { href: "#" } }, [
-      _vm._v("Ver "),
-      _c("i", { staticClass: "fas fa-arrow-circle-right" })
-    ])
-  },
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
     return _c("div", { staticClass: "icon" }, [
       _c("i", { staticClass: "ion ion-person-add" })
-    ])
-  },
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("a", { staticClass: "small-box-footer", attrs: { href: "#" } }, [
-      _vm._v("Ver "),
-      _c("i", { staticClass: "fas fa-arrow-circle-right" })
     ])
   },
   function() {
@@ -91593,6 +91583,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var vue_spinner_src_ClipLoader_vue__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! vue-spinner/src/ClipLoader.vue */ "./node_modules/vue-spinner/src/ClipLoader.vue");
 /* harmony import */ var vue_fragment__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! vue-fragment */ "./node_modules/vue-fragment/dist/vue-fragment.esm.js");
 /* harmony import */ var _chartComponent__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./chartComponent */ "./resources/js/chartComponent.js");
+/* harmony import */ var _chartIndicadores__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./chartIndicadores */ "./resources/js/chartIndicadores.js");
 /**
  * First we will load all of this project's JavaScript dependencies which
  * includes Vue and other libraries. It is a great starting point when
@@ -91643,6 +91634,8 @@ Vue.component('Backup', __webpack_require__(/*! ./components/Backup.vue */ "./re
 
 
 Vue.component('chartComponent', _chartComponent__WEBPACK_IMPORTED_MODULE_5__["default"]);
+
+Vue.component('chartIndicadores', _chartIndicadores__WEBPACK_IMPORTED_MODULE_6__["default"]);
 var app = new Vue({
   el: '#app',
   data: {
@@ -91730,6 +91723,40 @@ __webpack_require__.r(__webpack_exports__);
   },
   mounted: function mounted() {
     this.renderChart(this.chartData, this.options);
+  }
+});
+
+/***/ }),
+
+/***/ "./resources/js/chartIndicadores.js":
+/*!******************************************!*\
+  !*** ./resources/js/chartIndicadores.js ***!
+  \******************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var vue_chartjs__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! vue-chartjs */ "./node_modules/vue-chartjs/es/index.js");
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+  "extends": vue_chartjs__WEBPACK_IMPORTED_MODULE_0__["Line"],
+  mounted: function mounted() {
+    this.renderChart({
+      labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
+      datasets: [{
+        label: 'Data One',
+        backgroundColor: '#f87979',
+        data: [40, 39, 10, 40, 39, 80, 40]
+      }, {
+        label: 'Data One',
+        backgroundColor: '#797979',
+        data: [40, 39, 10, 40, 39, 80, 40].reverse()
+      }]
+    }, {
+      responsive: true,
+      maintainAspectRatio: false
+    });
   }
 });
 
