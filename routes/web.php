@@ -32,7 +32,8 @@ Route::group(['middleware'=>['auth']], function(){
 	Auth::routes();
 	Route::get('/home', 'HomeController@index')->name('home')->middleware(['checkUserStatus']);
 
-	Route::get('/empleados', 'empleadoController@index');
+	//Route::get('/empleados', 'empleadoController@index');
+	Route::get('/empleados/obreros', 'empleadoController@indexObreros');
 	Route::post('/empleados/agregarNuevo', 'empleadoController@store');
 	Route::post('/empleados/salarioTabla', 'empleadoController@salarioTabla');
 	Route::get('/empleados/beneficios', 'empleadoController@beneficios');

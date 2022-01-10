@@ -624,15 +624,15 @@
         methods: {
           listarEmpleado(page, busqueda, criterio){
             let me=this;
-                var url= '/empleados?page='+page+'&busqueda='+busqueda+'&criterio='+criterio+'&tipo='+me.tipoPersonal;
-                axios.get(url).then(function (response) {
-                    var respuesta= response.data.empleados.data;
-                    me.arrayempleado = respuesta;
-                    me.pagination = response.data.pagination;
-                })
-                .catch(function (error) {
-                    console.log(error);
-                });
+            var url= `/empleados/obreros?page=${page}&busqueda=${busqueda}&criterio=${criterio}&tipo=${me.tipoPersonal}`;
+            axios.get(url).then(function (response) {
+                var respuesta= response.data.empleados.data;
+                me.arrayempleado = respuesta;
+                me.pagination = response.data.pagination;
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
           },
           registrar(){
             let me = this;

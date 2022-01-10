@@ -7902,7 +7902,8 @@ __webpack_require__.r(__webpack_exports__);
   methods: {
     listarEmpleado: function listarEmpleado(page, busqueda, criterio) {
       var me = this;
-      var url = '/empleados?page=' + page + '&busqueda=' + busqueda + '&criterio=' + criterio + '&tipo=' + me.tipoPersonal;
+      var url = "/empleados/obreros?page=".concat(page, "&busqueda=").concat(busqueda, "&criterio=").concat(criterio, "&tipo=").concat(me.tipoPersonal);
+      console.log(url);
       axios.get(url).then(function (response) {
         var respuesta = response.data.empleados.data;
         me.arrayempleado = respuesta;

@@ -109,6 +109,91 @@ class empleadoController extends Controller
         ];
     }
 
+    //Obreros
+    public function indexObreros(Request $request)
+    {
+        //if (!$request->ajax()) return redirect('/');
+
+        if (!$request->busqueda && $request->criterio) {
+          //Busqueda con solo el criterio
+          if($request->criterio == 'trashed'){
+            $empleados = Persona::join('empleados', 'personas.id' ,'=', 'empleados.persona_id')
+                                ->onlyTrashed()
+                                ->where('empleados.tipoPersonal', $request->tipo)
+                                ->paginate(10);
+          }else{
+            $empleados = Persona::join('empleados', 'personas.id' ,'=', 'empleados.persona_id')                               
+                              ->select('personas.id as id', 'nombres', 'apellidos', 'grado', 'nivel', 'departamentos.nombre as departamento')
+                              ->where('empleados.estado', $request->criterio)
+                              ->where('empleados.tipoPersonal', $request->tipo)
+                              ->orderBy('personas.id', 'desc')
+                              ->paginate(10);
+          }
+          
+        }elseif ($request->busqueda && !$request->criterio) {
+          //Busqueda sin criterio
+          $empleados = Persona::join('empleados', 'personas.id' ,'=', 'empleados.persona_id')  
+                              ->select('personas.id as id', 'nombres', 'apellidos', 'grado', 'nivel', 'departamentos.nombre as departamento')
+                              ->where('empleados.tipoPersonal', $request->tipo)
+                              ->where('nombres', 'like', "%$request->busqueda%")
+                              ->orWhere('apellidos', 'like', "%$request->busqueda%")
+                              ->orWhere('departamentos.nombre', 'like', "%$request->busqueda%")
+                              ->orderBy('personas.id', 'desc')
+                              ->paginate(10);
+          
+        }elseif ($request->busqueda && $request->criterio) {
+          //Busqueda con dato buscado y criterio
+          if($request->criterio == 'trashed'){
+            $empleados = Persona::join('empleados', 'personas.id' ,'=', 'empleados.persona_id')
+                                ->onlyTrashed()
+                                ->where('empleados.tipoPersonal', $request->tipo)
+                                ->where(function($query){
+                                  global $request;
+                                  $query->where('nombres', 'like', "%$request->busqueda%")
+                                        ->orWhere('apellidos', 'like', "%$request->busqueda%")
+                                        ->orderBy('personas.id', 'desc');
+                                })
+                                ->paginate(10);
+          }else{
+            $empleados = Persona::join('empleados', 'personas.id' ,'=', 'empleados.persona_id')
+                              ->select('personas.id as id', 'nombres', 'apellidos', 'grado', 'nivel', 'departamentos.nombre as departamento')
+                              ->where('empleados.tipoPersonal', $request->tipo)
+                              ->where('empleados.estado', $request->criterio)
+                              ->where(function($query){
+                                global $request;
+                                $query->where('nombres', 'like', "%$request->busqueda%")
+                                      ->orWhere('apellidos', 'like', "%$request->busqueda%")
+                                      ->orderBy('personas.id', 'desc');
+                              })
+                              ->paginate(10);
+          }
+          
+        }else{
+          //Todos los datos
+          $empleados = Persona::join('empleados', 'personas.id' ,'=', 'empleados.persona_id')
+                              ->select('personas.id as id', 'nombres', 'apellidos', 'grado', 'nivel')
+                              ->where('empleados.tipoPersonal', $request->tipo)
+                              ->orderBy('personas.id', 'desc')
+                              ->paginate(10);
+
+        };
+
+
+
+        
+
+        return [
+          "pagination" => [
+                "total" => $empleados->total(),
+                "current_page" => $empleados->currentPage(),
+                "per_page" => $empleados->perPage(),
+                "last_page" => $empleados->lastPage(),
+                "from" => $empleados->firstItem(),
+                "to" => $empleados->lastPage()
+            ],
+          "empleados" => $empleados
+        ];
+    }
 
     /**
      * Store a newly created resource in storage.
@@ -153,7 +238,7 @@ class empleadoController extends Controller
             $empleado->estado = $request->estado;
             $empleado->tipoPersonal = $request->tipo;
             if ($request->dep_id == null) {
-              $empleado->departamento_id = ($request->newDep == null)?$this->newDepartamento($request->newDep):null;
+              $empleado->departamento_id = ($request->newDep == null)?null:$this->newDepartamento($request->newDep);
             }else{
               $empleado->departamento_id = $request->dep_id;
             }
