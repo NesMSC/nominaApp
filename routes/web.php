@@ -33,6 +33,7 @@ Route::group(['middleware'=>['auth']], function(){
 	Route::get('/home', 'HomeController@index')->name('home')->middleware(['checkUserStatus']);
 
 	Route::get('/empleados', 'empleadoController@index');
+	Route::get('/empleados/obreros', 'empleadoController@indexObreros');
 	Route::post('/empleados/agregarNuevo', 'empleadoController@store');
 	Route::post('/empleados/salarioTabla', 'empleadoController@salarioTabla');
 	Route::get('/empleados/beneficios', 'empleadoController@beneficios');
@@ -40,9 +41,14 @@ Route::group(['middleware'=>['auth']], function(){
 	Route::get('/empleados/primaAntiguedad', 'empleadoController@primaAntiguedad');
 	Route::get('/empleados/deducciones', 'empleadoController@deducciones');
 	Route::get('/empleados/descuentos', 'empleadoController@descuentos');
+
 	Route::get('/empleados/editarEmpleado/{id}', 'empleadoController@edit');
+	Route::get('/empleados/editarObrero/{id}', 'empleadoController@editObreros');
+
 	Route::get('/empleados/editarSalarios/{id}', 'empleadoController@editarSalarios');
+
 	Route::put('/empleados/actualizarEmpleado', 'empleadoController@update');
+
 	Route::get('/empleados/contar', 'empleadoController@contar');
 	Route::get('empleado/banco/{id}', 'empleadoController@cuentaBancaria');
 	Route::delete('/empleados/delete/{id}', 'empleadoController@destroy');

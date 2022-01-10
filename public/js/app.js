@@ -7902,7 +7902,7 @@ __webpack_require__.r(__webpack_exports__);
   methods: {
     listarEmpleado: function listarEmpleado(page, busqueda, criterio) {
       var me = this;
-      var url = '/empleados?page=' + page + '&busqueda=' + busqueda + '&criterio=' + criterio + '&tipo=' + me.tipoPersonal;
+      var url = "/empleados/obreros?page=".concat(page, "&busqueda=").concat(busqueda, "&criterio=").concat(criterio, "&tipo=").concat(me.tipoPersonal);
       axios.get(url).then(function (response) {
         var respuesta = response.data.empleados.data;
         me.arrayempleado = respuesta;
@@ -7974,7 +7974,7 @@ __webpack_require__.r(__webpack_exports__);
     },
     editarEmpleado: function editarEmpleado(id) {
       var me = this;
-      var url = '/empleados/editarEmpleado/' + id;
+      var url = '/empleados/editarObrero/' + id;
       axios.get(url).then(function (response) {
         var empleado = response.data.empleado[0];
         var hijos = response.data.hijos;
@@ -73805,7 +73805,7 @@ var render = function() {
                         },
                         [
                           _c("i", { staticClass: "fa fa-plus" }),
-                          _vm._v(" Nuevo\n                ")
+                          _vm._v(" Nuevo\r\n                ")
                         ]
                       )
                     ]),
@@ -74180,7 +74180,7 @@ var render = function() {
                         _vm._v(" "),
                         _c("div", { staticClass: "invalid-feedback" }, [
                           _vm._v(
-                            "\n                          *Este campo es requerido\n                  "
+                            "\r\n                          *Este campo es requerido\r\n                  "
                           )
                         ])
                       ]),
@@ -74217,7 +74217,7 @@ var render = function() {
                         _vm._v(" "),
                         _c("div", { staticClass: "invalid-feedback" }, [
                           _vm._v(
-                            "\n                          *Este campo es requerido\n                  "
+                            "\r\n                          *Este campo es requerido\r\n                  "
                           )
                         ])
                       ]),
@@ -74365,7 +74365,7 @@ var render = function() {
                         _vm._v(" "),
                         _c("div", { staticClass: "invalid-feedback" }, [
                           _vm._v(
-                            "\n                          *Este campo es requerido\n                  "
+                            "\r\n                          *Este campo es requerido\r\n                  "
                           )
                         ])
                       ]),
@@ -74412,7 +74412,7 @@ var render = function() {
                         _vm._v(" "),
                         _c("div", { staticClass: "invalid-feedback" }, [
                           _vm._v(
-                            "\n                          *Fecha invalida\n                  "
+                            "\r\n                          *Fecha invalida\r\n                  "
                           )
                         ])
                       ])
@@ -74451,7 +74451,7 @@ var render = function() {
                         _vm._v(" "),
                         _c("div", { staticClass: "invalid-feedback" }, [
                           _vm._v(
-                            "\n                          *Este campo es requerido\n                  "
+                            "\r\n                          *Este campo es requerido\r\n                  "
                           )
                         ])
                       ]),
@@ -74558,7 +74558,7 @@ var render = function() {
                         _vm._v(" "),
                         _c("div", { staticClass: "invalid-feedback" }, [
                           _vm._v(
-                            "\n                          *Este campo es requerido\n                  "
+                            "\r\n                          *Este campo es requerido\r\n                  "
                           )
                         ])
                       ])
@@ -75084,7 +75084,7 @@ var render = function() {
                         _vm._v(" "),
                         _c("div", { staticClass: "invalid-feedback" }, [
                           _vm._v(
-                            "\n                          *Fecha invalida\n                  "
+                            "\r\n                          *Fecha invalida\r\n                  "
                           )
                         ])
                       ]),
