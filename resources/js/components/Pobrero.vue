@@ -694,7 +694,7 @@
           },
           editarEmpleado(id){
             let me = this;
-            let url = '/empleados/editarEmpleado/'+id;
+            let url = '/empleados/editarObrero/'+id;
             axios.get(url).then(function(response){
               let empleado = response.data.empleado[0];   
               let hijos = response.data.hijos;
