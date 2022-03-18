@@ -75030,11 +75030,11 @@ var render = function() {
                               _vm._v("5")
                             ]),
                             _vm._v(" "),
-                            _c("option", { attrs: { value: "5" } }, [
+                            _c("option", { attrs: { value: "6" } }, [
                               _vm._v("6")
                             ]),
                             _vm._v(" "),
-                            _c("option", { attrs: { value: "5" } }, [
+                            _c("option", { attrs: { value: "7" } }, [
                               _vm._v("7")
                             ])
                           ]
@@ -91592,6 +91592,7 @@ __webpack_require__.r(__webpack_exports__);
 __webpack_require__(/*! ./bootstrap */ "./resources/js/bootstrap.js");
 
 window.Vue = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.common.js");
+Vue.config.devtools = true;
 
 
 
@@ -92858,7 +92859,7 @@ __webpack_require__.r(__webpack_exports__);
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(/*! C:\xampp\htdocs\CalcSalariales-master\resources\js\app.js */"./resources/js/app.js");
+module.exports = __webpack_require__(/*! C:\xampp\htdocs\CalcSalariales\resources\js\app.js */"./resources/js/app.js");
 
 
 /***/ })

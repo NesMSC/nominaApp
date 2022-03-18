@@ -330,8 +330,8 @@
                     <option value="3">3</option>
                     <option value="4">4</option>
                     <option value="5">5</option>
-                    <option value="5">6</option>
-                    <option value="5">7</option>
+                    <option value="6">6</option>
+                    <option value="7">7</option>
                   </select>
                 </div>
                 <div class="col-md-4 mb-2 form-group">

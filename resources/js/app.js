@@ -8,7 +8,7 @@ require('./bootstrap');
 
 
 window.Vue = require('vue');
-
+Vue.config.devtools = true;
 import Toasted from 'vue-toasted';
 import 'vue-select/dist/vue-select.css';
 import vSelect from 'vue-select';
