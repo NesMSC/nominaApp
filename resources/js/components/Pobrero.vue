@@ -330,8 +330,8 @@
                     <option value="3">3</option>
                     <option value="4">4</option>
                     <option value="5">5</option>
-                    <option value="5">6</option>
-                    <option value="5">7</option>
+                    <option value="6">6</option>
+                    <option value="7">7</option>
                   </select>
                 </div>
                 <div class="col-md-4 mb-2 form-group">
@@ -624,15 +624,15 @@
         methods: {
           listarEmpleado(page, busqueda, criterio){
             let me=this;
-                var url= '/empleados?page='+page+'&busqueda='+busqueda+'&criterio='+criterio+'&tipo='+me.tipoPersonal;
-                axios.get(url).then(function (response) {
-                    var respuesta= response.data.empleados.data;
-                    me.arrayempleado = respuesta;
-                    me.pagination = response.data.pagination;
-                })
-                .catch(function (error) {
-                    console.log(error);
-                });
+            var url= `/empleados/obreros?page=${page}&busqueda=${busqueda}&criterio=${criterio}&tipo=${me.tipoPersonal}`;
+            axios.get(url).then(function (response) {
+                var respuesta= response.data.empleados.data;
+                me.arrayempleado = respuesta;
+                me.pagination = response.data.pagination;
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
           },
           registrar(){
             let me = this;
@@ -694,7 +694,7 @@
           },
           editarEmpleado(id){
             let me = this;
-            let url = '/empleados/editarEmpleado/'+id;
+            let url = '/empleados/editarObrero/'+id;
             axios.get(url).then(function(response){
               let empleado = response.data.empleado[0];   
               let hijos = response.data.hijos;

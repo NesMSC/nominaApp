@@ -8,7 +8,7 @@ require('./bootstrap');
 
 
 window.Vue = require('vue');
-
+Vue.config.devtools = true;
 import Toasted from 'vue-toasted';
 import 'vue-select/dist/vue-select.css';
 import vSelect from 'vue-select';
@@ -58,6 +58,10 @@ Vue.component('Backup', require('./components/Backup.vue').default);
  * the page. Then, you may begin adding components to this application
  * or customize the JavaScript scaffolding to fit your unique needs.
  */
+import chartComponent from './chartComponent';
+Vue.component('chartComponent', chartComponent);
+import chartIndicadores from './chartIndicadores';
+Vue.component('chartIndicadores', chartIndicadores);
 
 const app = new Vue({
     el: '#app',

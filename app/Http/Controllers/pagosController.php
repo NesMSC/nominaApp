@@ -103,10 +103,10 @@ class pagosController extends Controller
         } 
 
          
-        /* $pdf = \PDF::loadView('pdf.reportePago', $datos);
-        return $pdf->stream('Reporte.pdf');  */ 
+        $pdf = \PDF::loadView('pdf.reportePago', $datos);
+        return $pdf->stream('Reporte.pdf');
 
-        return $datos;
+        //return $datos;
     }
 
 }
