@@ -2988,10 +2988,15 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
       concepto: "",
+      incidencia: true,
       valor: 0.0,
       tipo_valor: "Seleccionar",
       tipo_valor_por: "salario_tabla",
@@ -3077,7 +3082,8 @@ __webpack_require__.r(__webpack_exports__);
           concepto: me.concepto,
           valor: me.valor,
           tipo_valor: me.tipo_valor,
-          tipo_valor_por: me.tipo_valor_por == 'especifico' ? me.tipo_valor_esp : me.tipo_valor_por
+          tipo_valor_por: me.tipo_valor_por == 'especifico' ? me.tipo_valor_esp : me.tipo_valor_por,
+          incidencia: me.incidencia
         }).then(function (response) {
           swal.fire('Beneficio agregado exitosamente', '', 'success');
           me.accion = "listar";
@@ -3098,6 +3104,7 @@ __webpack_require__.r(__webpack_exports__);
         me.concepto = beneficio.concepto;
         me.valor = beneficio.valor;
         me.tipo_valor = beneficio.tipo_valor;
+        me.incidencia = beneficio.incidencia;
       })["catch"](function (error) {
         console.log(error);
       });
@@ -3110,6 +3117,7 @@ __webpack_require__.r(__webpack_exports__);
         me.concepto = beneficio.concepto;
         me.valor = beneficio.valor;
         me.tipo_valor = beneficio.tipo_valor;
+        me.incidencia = beneficio.incidencia;
 
         if (beneficio.tipo_valor_por == 'salario_min_mensual' || beneficio.tipo_valor_por == 'salario_tabla' || beneficio.tipo_valor == 'especifico') {
           me.tipo_valor_por = beneficio.tipo_valor_por;
@@ -3133,6 +3141,7 @@ __webpack_require__.r(__webpack_exports__);
           valor: me.valor,
           tipo_valor: me.tipo_valor,
           tipo_valor_por: me.tipo_valor == '%' ? me.tipo_valor_por : null,
+          incidencia: me.incidencia,
           id: me.id_beneficio
         }).then(function (response) {
           swal.fire('Actualizado exitosamente', '', 'success');
@@ -4128,6 +4137,54 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   props: {
     id: Number
@@ -4135,6 +4192,7 @@ __webpack_require__.r(__webpack_exports__);
   data: function data() {
     return {
       arrayPagosNomina: [],
+      encabezados: [],
       pagination: {
         "total": 0,
         "current_page": 0,
@@ -4188,6 +4246,7 @@ __webpack_require__.r(__webpack_exports__);
       var url = '/nominas/' + id;
       axios.get(url).then(function (response) {
         _this.arrayPagosNomina = response.data.pagos;
+        _this.encabezados = response.data.encabezados;
       })["catch"](function (error) {
         alert(error);
       });
@@ -4197,11 +4256,23 @@ __webpack_require__.r(__webpack_exports__);
       this.listarDatos(page, this.busqueda);
     },
     formato: function formato(number) {
-      var monto = new Intl.NumberFormat('en-US').format(number);
+      var monto = new Intl.NumberFormat('de-DE').format(number);
       return monto;
     },
     generarTxt: function generarTxt() {
       window.open('/nominas/txt/' + this.id);
+    },
+    imprimir: function imprimir(dato, buscado) {
+      var _dato$filter$;
+
+      if (!Array.isArray(dato)) {
+        dato = Object.values(dato);
+      }
+
+      var datoFiltrado = (_dato$filter$ = dato.filter(function (e) {
+        return e.concepto == buscado;
+      })[0]) !== null && _dato$filter$ !== void 0 ? _dato$filter$ : 0;
+      return datoFiltrado ? datoFiltrado.valor : 0;
     }
   },
   mounted: function mounted() {
@@ -5217,6 +5288,7 @@ __webpack_require__.r(__webpack_exports__);
       arrayDescuentos: [],
       beneficiosEmpleado: [],
       totalBene: 0,
+      totalRetenciones: 0,
       descuentosEmpleado: [],
       id_beneficiosAgregados: [],
       id_descuentosAgregados: [],
@@ -5228,7 +5300,9 @@ __webpack_require__.r(__webpack_exports__);
       id_empleado: "",
       id_persona: "",
       busqueda: "",
-      criterio: ""
+      criterio: "",
+      pago_start: '',
+      pago_end: ''
     };
   },
   computed: {
@@ -5398,6 +5472,9 @@ __webpack_require__.r(__webpack_exports__);
     },
     pagoPDF: function pagoPDF(id, id_empleado) {
       window.open('/pagos/pdf/' + id_empleado + '/' + id);
+    },
+    pagosIntervaloPDF: function pagosIntervaloPDF(id_empleado) {
+      window.open('/pagos/' + this.pago_start + '/' + this.pago_end + '/' + id_empleado + '/' + this.id_persona);
     },
     actualizarEmpleado: function actualizarEmpleado() {
       var me = this;
@@ -5624,9 +5701,62 @@ __webpack_require__.r(__webpack_exports__);
             }
 
             break;
+
+          case "correo":
+            var regExp = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
+
+            if (regExp.test(input.value)) {
+              input.classList.remove('is-invalid');
+              input.classList.add('is-valid');
+
+              var _indiceElement4 = this.error.indexOf(input.id); //Verifica si existe el indice
+
+
+              if (_indiceElement4 !== -1) {
+                this.error.splice(_indiceElement4, 1);
+              }
+
+              ;
+            } else {
+              input.classList.add('is-invalid');
+
+              if (this.error.indexOf(input.id)) {
+                this.error.push(input.id);
+              }
+
+              ;
+            }
+
+            break;
         }
 
         ;
+
+        if (input.type == 'text' && id != 'numero_cuenta') {
+          var _regExp = /[0-9]/g;
+
+          if (_regExp.test(input.value) || input.value == "") {
+            input.classList.add('is-invalid');
+
+            if (this.error.indexOf(input.id)) {
+              this.error.push(input.id);
+            }
+
+            ;
+          } else {
+            input.classList.remove('is-invalid');
+            input.classList.add('is-valid');
+
+            var _indiceElement5 = this.error.indexOf(input.id); //Verifica si existe el indice
+
+
+            if (_indiceElement5 !== -1) {
+              this.error.splice(_indiceElement5, 1);
+            }
+
+            ;
+          }
+        }
       }
 
       ; //console.log(this.error);
@@ -5693,7 +5823,7 @@ __webpack_require__.r(__webpack_exports__);
       me.dep_id = null;
     },
     formatoDivisa: function formatoDivisa(number) {
-      var monto = new Intl.NumberFormat('en-US').format(number);
+      var monto = new Intl.NumberFormat('de-DE').format(number);
       return monto;
     },
     cambioPagina: function cambioPagina(page) {
@@ -5808,6 +5938,29 @@ __webpack_require__.r(__webpack_exports__);
         _this2.arrayDep = response.data.dep;
       })["catch"](function (e) {
         Vue.toasted.error('Error inesperado', {
+          duration: 2000,
+          className: ['alert', 'alert-danger']
+        });
+      });
+    },
+    buscarPagos: function buscarPagos() {
+      var _this3 = this;
+
+      var page = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
+
+      if (this.pago_start > this.pago_end || !(this.pago_start && this.pago_end)) {
+        Vue.toasted.error("Intervalo de fechas no v\xE1lido", {
+          duration: 2000,
+          className: ['alert', 'alert-danger']
+        });
+        return;
+      }
+
+      var url = "/pagos/buscar/".concat(this.pago_start, "/").concat(this.pago_end, "/").concat(this.id_empleado, "?page=").concat(page);
+      axios.get(url).then(function (response) {
+        _this3.arrayPagos = response.data.pagos.data;
+      })["catch"](function (e) {
+        Vue.toasted.error("Error inesperado ".concat(e), {
           duration: 2000,
           className: ['alert', 'alert-danger']
         });
@@ -6604,7 +6757,9 @@ __webpack_require__.r(__webpack_exports__);
       id_empleado: "",
       id_persona: "",
       busqueda: "",
-      criterio: ""
+      criterio: "",
+      pago_start: '',
+      pago_end: ''
     };
   },
   computed: {
@@ -6839,6 +6994,9 @@ __webpack_require__.r(__webpack_exports__);
     },
     pagoPDF: function pagoPDF(id, id_empleado) {
       window.open('/pagos/pdf/' + id_empleado + '/' + id);
+    },
+    pagosIntervaloPDF: function pagosIntervaloPDF(id_empleado) {
+      window.open('/pagos/' + this.pago_start + '/' + this.pago_end + '/' + id_empleado + '/' + this.id_persona);
     },
     actualizarEmpleado: function actualizarEmpleado() {
       var me = this;
@@ -7257,6 +7415,29 @@ __webpack_require__.r(__webpack_exports__);
         me.resetearInputs();
       })["catch"](function (error) {
         console.error(error);
+      });
+    },
+    buscarPagos: function buscarPagos() {
+      var _this2 = this;
+
+      var page = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
+
+      if (this.pago_start > this.pago_end || !(this.pago_start && this.pago_end)) {
+        Vue.toasted.error("Intervalo de fechas no v\xE1lido", {
+          duration: 2000,
+          className: ['alert', 'alert-danger']
+        });
+        return;
+      }
+
+      var url = "/pagos/buscar/".concat(this.pago_start, "/").concat(this.pago_end, "/").concat(this.id_empleado, "?page=").concat(page);
+      axios.get(url).then(function (response) {
+        _this2.arrayPagos = response.data.pagos.data;
+      })["catch"](function (e) {
+        Vue.toasted.error("Error inesperado ".concat(e), {
+          duration: 2000,
+          className: ['alert', 'alert-danger']
+        });
       });
     }
   },
@@ -7860,7 +8041,9 @@ __webpack_require__.r(__webpack_exports__);
       id_empleado: "",
       id_persona: "",
       busqueda: "",
-      criterio: ""
+      criterio: "",
+      pago_start: '',
+      pago_end: ''
     };
   },
   computed: {
@@ -7978,6 +8161,7 @@ __webpack_require__.r(__webpack_exports__);
       axios.get(url).then(function (response) {
         var empleado = response.data.empleado[0];
         var hijos = response.data.hijos;
+        var banco = response.data.banco;
         me.nombres = empleado.nombres;
         me.apellidos = empleado.apellidos;
         me.sexo = empleado.sexo;
@@ -7996,6 +8180,7 @@ __webpack_require__.r(__webpack_exports__);
         me.id_persona = empleado.id_persona;
         me.arrayHijos = hijos;
         me.calculaAñosServicio();
+        console.log(response.data);
         me.banco = {
           banco: banco.banco,
           tipo_cuenta: banco.tipo_cuenta,
@@ -8004,11 +8189,12 @@ __webpack_require__.r(__webpack_exports__);
 
         if (me.accion == 'ver') {
           me.arrayPagos = me.historialPagos(1, empleado.id_empleado);
+        } else {
+          //Hace referencia a la funcion editarBanco del componente hijo
+          me.$refs.banco.editarBanco(empleado.id_persona);
         }
 
-        ; //Hace referencia a la funcion editarBanco del componente hijo
-
-        me.$refs.banco.editarBanco(empleado.id_persona);
+        ;
       })["catch"](function (error) {
         console.log(error);
       });
@@ -8025,6 +8211,9 @@ __webpack_require__.r(__webpack_exports__);
     },
     pagoPDF: function pagoPDF(id, id_empleado) {
       window.open('/pagos/pdf/' + id_empleado + '/' + id);
+    },
+    pagosIntervaloPDF: function pagosIntervaloPDF(id_empleado) {
+      window.open('/pagos/' + this.pago_start + '/' + this.pago_end + '/' + id_empleado + '/' + this.id_persona);
     },
     actualizarEmpleado: function actualizarEmpleado() {
       var me = this;
@@ -8388,6 +8577,29 @@ __webpack_require__.r(__webpack_exports__);
         me.resetearInputs();
       })["catch"](function (error) {
         console.error(error);
+      });
+    },
+    buscarPagos: function buscarPagos() {
+      var _this2 = this;
+
+      var page = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
+
+      if (this.pago_start > this.pago_end || !(this.pago_start && this.pago_end)) {
+        Vue.toasted.error("Intervalo de fechas no v\xE1lido", {
+          duration: 2000,
+          className: ['alert', 'alert-danger']
+        });
+        return;
+      }
+
+      var url = "/pagos/buscar/".concat(this.pago_start, "/").concat(this.pago_end, "/").concat(this.id_empleado, "?page=").concat(page);
+      axios.get(url).then(function (response) {
+        _this2.arrayPagos = response.data.pagos.data;
+      })["catch"](function (e) {
+        Vue.toasted.error("Error inesperado ".concat(e), {
+          duration: 2000,
+          className: ['alert', 'alert-danger']
+        });
       });
     }
   },
@@ -9722,7 +9934,7 @@ __webpack_require__.r(__webpack_exports__);
 
       ;
     },
-    cambiarEstadoUser: function cambiarEstadoUser(id, estado) {
+    cambiarEstadoUser: function cambiarEstadoUser(id, rol, estado) {
       var me = this;
       var url = '/usuarios/cambiarEstado';
       swal.fire({
@@ -9738,9 +9950,15 @@ __webpack_require__.r(__webpack_exports__);
         if (result.value) {
           axios.put(url, {
             user_id: id,
-            condicion: estado
+            condicion: estado,
+            rol: rol
           }).then(function (response) {
-            swal.fire(estado ? 'Usuario habilitado' : 'Usuario deshabilitado', '', 'success');
+            if (response.data.status) {
+              swal.fire(estado ? 'Usuario habilitado' : 'Usuario deshabilitado', '', 'success');
+            } else {
+              swal.fire(response.data.msg, '', 'error');
+            }
+
             me.accion = "listar";
             me.listarUsuarios(1, me.busqueda, me.criterio);
             me.resetearInputs();
@@ -9869,6 +10087,92 @@ __webpack_require__.r(__webpack_exports__);
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
+function _createForOfIteratorHelper(o, allowArrayLike) { var it; if (typeof Symbol === "undefined" || o[Symbol.iterator] == null) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = o[Symbol.iterator](); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
+
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
+
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+
+function _iterableToArray(iter) { if (typeof Symbol !== "undefined" && Symbol.iterator in Object(iter)) return Array.from(iter); }
+
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) return _arrayLikeToArray(arr); }
+
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 //
 //
 //
@@ -10176,18 +10480,23 @@ __webpack_require__.r(__webpack_exports__);
       arrayBeneficios: [],
       arrayDescuentos: [],
       arrayDeducciones: [],
+      arrayAportes: [],
       salarioTabla: 0,
       salarioMinimoMensual: 0,
       beneficiosEmpleado: [],
       descuentosEmpleado: [],
       deduccionesEmpleado: [],
+      aportesEmpleado: [],
       id_beneficiosAgregados: [],
       id_deduccionesAgregados: [],
       id_descuentosAgregados: [],
       totalAsig: 0,
       salarioNormal: 0,
-      totalDesc: Number,
-      totalDeduc: Number,
+      totalBeneficios: 0,
+      totalExtra: 0,
+      totalDesc: 0,
+      totalDeduc: 0,
+      totalAportes: 0,
       UT: 0,
       primAntiguedadPorcentaje: Number,
       primAntiguedadId: Number,
@@ -10218,14 +10527,19 @@ __webpack_require__.r(__webpack_exports__);
       var me = this;
       var url = 'empleados/deducciones';
       axios.get(url).then(function (response) {
-        me.arrayDeducciones = response.data.deducciones;
+        me.arrayDeducciones = response.data.deducciones.filter(function (e) {
+          return e.tipo == 'Retención';
+        });
+        me.arrayAportes = response.data.deducciones.filter(function (e) {
+          return e.tipo == 'Aporte';
+        });
       })["catch"](function (error) {
         console.log(error);
       });
     },
     formatoDivisa: function formatoDivisa(number) {
-      var monto = new Intl.NumberFormat('en-US').format(number);
-      return monto;
+      var monto = new Intl.NumberFormat('de-DE').format(number);
+      return monto + ' Bs';
     },
     datoSalario: function datoSalario() {
       var me = this;
@@ -10291,7 +10605,8 @@ __webpack_require__.r(__webpack_exports__);
             concepto: beneficios[i].concepto,
             tipo_valor: beneficios[i].tipo_valor,
             valor: beneficios[i].valor,
-            tipo_valor_por: beneficios[i].tipo_valor_por
+            tipo_valor_por: beneficios[i].tipo_valor_por,
+            incidencia: beneficios[i].incidencia
           });
         }
 
@@ -10317,6 +10632,7 @@ __webpack_require__.r(__webpack_exports__);
             tipo: deducciones[i].tipo,
             porcentaje: deducciones[i].porcentaje
           });
+          console.log("for ej ".concat(deducciones[i].tipo));
         }
 
         ;
@@ -10328,7 +10644,10 @@ __webpack_require__.r(__webpack_exports__);
       var checkStatus = document.getElementById('confirm_sal');
 
       if (checkStatus.checked) {
-        var data = [this.id_beneficiosAgregados, this.id_deduccionesAgregados.concat(this.id_descuentosAgregados)];
+        var aportesId = this.aportesEmpleado.map(function (e) {
+          return e.id;
+        });
+        var data = [this.id_beneficiosAgregados, this.id_deduccionesAgregados.concat([].concat(_toConsumableArray(this.id_descuentosAgregados), _toConsumableArray(aportesId)))];
 
         if (data[0].length == 0 || data[1].length == 0) {
           this.avisar(true, false);
@@ -10362,14 +10681,6 @@ __webpack_require__.r(__webpack_exports__);
           this.listarBeneficios();
           this.calcularTotalAsig();
         }
-      } else if (dato.tipo_valor == 'formula') {
-        if (this.primaProfesionalValue && this.primAntiguedadIndice != -1) {
-          this.calcularFormula(dato);
-        } else {
-          Vue.toasted.error('Faltan parámetros', {
-            duration: 2000
-          });
-        }
       } else {
         if (dato.tipo_valor == 'U.T') {
           dato.valor = (dato.valor * this.UT).toFixed(2);
@@ -10388,6 +10699,7 @@ __webpack_require__.r(__webpack_exports__);
         ;
         this.beneficiosEmpleado.push(dato);
         this.id_beneficiosAgregados.push(dato.id);
+        this.calcularFormula();
         this.listarBeneficios();
         this.calcularTotalAsig();
       }
@@ -10396,7 +10708,13 @@ __webpack_require__.r(__webpack_exports__);
         this.cambiarPrimaAntiguedad();
       }
 
+      this.calcularTotalBeneficios();
       this.validarDatosSalario();
+    },
+    calcularTotalBeneficios: function calcularTotalBeneficios() {
+      this.totalBeneficios = this.beneficiosEmpleado.reduce(function (previous, current) {
+        return previous + parseFloat(current.valor);
+      }, 0);
     },
     agregarDescuento: function agregarDescuento(dato) {
       dato.valor = (this.salarioTabla * dato.porcentaje / 100).toFixed(2);
@@ -10416,8 +10734,18 @@ __webpack_require__.r(__webpack_exports__);
         dato.valor = (this.salarioNormal * dato.porcentaje / 100).toFixed(2);
       }
 
-      this.deduccionesEmpleado.push(dato);
-      this.id_deduccionesAgregados.push(dato.id);
+      console.log(dato.tipo);
+
+      if (dato.tipo == 'Retención') {
+        this.deduccionesEmpleado.push(dato);
+        this.id_deduccionesAgregados.push(dato.id);
+      }
+
+      if (dato.tipo == 'Aporte') {
+        this.aportesEmpleado.push(dato);
+        console.log("SE AGREG\xD3 ".concat(dato.concepto));
+      }
+
       this.listarDeducciones();
       this.calcularTotalDeduc();
     },
@@ -10441,53 +10769,46 @@ __webpack_require__.r(__webpack_exports__);
 
       ;
     },
-    retirarDescuento: function retirarDescuento(id) {
-      var descuento_index = this.id_descuentosAgregados.indexOf(id);
-      this.id_descuentosAgregados.splice(descuento_index, 1);
-      this.descuentosEmpleado.splice(descuento_index, 1);
-      this.listarDescuentos();
-      this.calcularTotalDesc();
-    },
-    retirarDeduccion: function retirarDeduccion(id) {
-      var deduccion_index = this.id_deduccionesAgregados.indexOf(id);
-      this.id_deduccionesAgregados.splice(deduccion_index, 1);
-      this.deduccionesEmpleado.splice(deduccion_index, 1);
-      this.listarDeducciones();
-      this.calcularTotalDeduc();
-    },
-    exist: function exist(id, busqueda) {
-      switch (busqueda) {
-        case 'bene':
-          return this.id_beneficiosAgregados.includes(id) ? true : false;
-          break;
+    retirarDeduccion: function retirarDeduccion(arr, id) {
+      var _this = this;
 
-        case 'deduc':
-          return this.id_deduccionesAgregados.includes(id) ? true : false;
-          break;
+      arr.forEach(function (element, index) {
+        if (element.id == id) {
+          arr.splice(index, 1);
 
-        case 'desc':
-          return this.id_descuentosAgregados.includes(id) ? true : false;
-          break;
-      }
+          _this.listarDeducciones();
+
+          _this.calcularTotalDeduc();
+
+          _this.calcularTotalDesc();
+        }
+      });
+    },
+    exist: function exist(id, data) {
+      return data.some(function (e) {
+        return e.id == id;
+      });
     },
     primaProfesional: function primaProfesional(dato) {
-      var _this = this;
+      var _this2 = this;
 
       var url = this.id == '' ? '/empleados/primaProfesional/' + this.instruccion + '/' + this.salarioTabla : 'pagos/primaProfesional/' + this.id + '/' + this.salarioTabla;
       axios.get(url).then(function (response) {
         dato.valor = response.data.toFixed(2);
-        _this.primaProfesionalValue = dato.valor;
+        _this2.primaProfesionalValue = dato.valor;
 
-        _this.beneficiosEmpleado.push(dato);
+        _this2.beneficiosEmpleado.push(dato);
 
-        _this.id_beneficiosAgregados.push(dato.id);
+        _this2.id_beneficiosAgregados.push(dato.id);
 
-        _this.listarBeneficios();
+        _this2.calcularFormula();
 
-        _this.calcularTotalAsig();
+        _this2.listarBeneficios();
 
-        if (_this.primAntiguedadIndice != -1) {
-          _this.cambiarPrimaAntiguedad();
+        _this2.calcularTotalAsig();
+
+        if (_this2.primAntiguedadIndice != -1) {
+          _this2.cambiarPrimaAntiguedad();
         }
 
         ;
@@ -10515,25 +10836,64 @@ __webpack_require__.r(__webpack_exports__);
       var valorActual = (this.salarioNormal - valorAnterior) * porcentaje / 100 * this.anos;
       this.beneficiosEmpleado[indice].valor = valorActual.toFixed(2);
       this.calcularTotalAsig();
+      this.calcularFormula();
+      this.calcularTotalBeneficios();
     },
     calcularTotalAsig: function calcularTotalAsig() {
       var total = parseFloat(this.salarioTabla);
+      this.totalExtra = 0;
 
       for (var i = 0; i < this.beneficiosEmpleado.length; i++) {
-        total += parseFloat(this.beneficiosEmpleado[i].valor);
+        if (this.beneficiosEmpleado[i].incidencia) {
+          total += parseFloat(this.beneficiosEmpleado[i].valor);
+        } else {
+          this.totalExtra += parseFloat(this.beneficiosEmpleado[i].valor);
+        }
       }
 
       ;
-      this.salarioNormal = total;
-      this.totalAsig = this.salarioNormal - this.salarioTabla / 2; //Recalcular deducciones
+      this.salarioNormal = total; //Recalcular deducciones
 
-      var deducciones = this.deduccionesEmpleado;
+      var deducciones = _toConsumableArray(this.deduccionesEmpleado);
+
       this.deduccionesEmpleado = [];
       this.id_deduccionesAgregados = [];
 
-      for (var i = 0; i < deducciones.length; i++) {
-        this.agregarDeduccion(deducciones[i]);
+      var _iterator = _createForOfIteratorHelper(deducciones),
+          _step;
+
+      try {
+        for (_iterator.s(); !(_step = _iterator.n()).done;) {
+          var deduccion = _step.value;
+          this.agregarDeduccion(deduccion);
+        } //Recalcular aportes
+
+      } catch (err) {
+        _iterator.e(err);
+      } finally {
+        _iterator.f();
       }
+
+      var aportes = _toConsumableArray(this.aportesEmpleado);
+
+      this.aportesEmpleado = [];
+
+      var _iterator2 = _createForOfIteratorHelper(aportes),
+          _step2;
+
+      try {
+        for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
+          var aporte = _step2.value;
+          this.agregarDeduccion(aporte);
+        }
+      } catch (err) {
+        _iterator2.e(err);
+      } finally {
+        _iterator2.f();
+      }
+    },
+    calcularTotalNeto: function calcularTotalNeto() {
+      this.totalAsig = (this.salarioNormal + this.totalExtra).toFixed(2) - this.totalDeduc.toFixed(2) - this.totalDesc.toFixed(2);
     },
     calcularTotalDesc: function calcularTotalDesc() {
       var total = 0;
@@ -10544,16 +10904,22 @@ __webpack_require__.r(__webpack_exports__);
 
       ;
       this.totalDesc = total;
+      this.calcularTotalAsig();
     },
     calcularTotalDeduc: function calcularTotalDeduc() {
-      var total = 0;
-
-      for (var i = 0; i < this.deduccionesEmpleado.length; i++) {
-        total += parseFloat(this.deduccionesEmpleado[i].valor);
-      }
-
-      ;
-      this.totalDeduc = total;
+      var totalRetenciones = this.deduccionesEmpleado.filter(function (e) {
+        return e.tipo == 'Retención';
+      }).reduce(function (previous, current) {
+        return previous + parseFloat(current.valor);
+      }, 0);
+      var totalAportes = this.aportesEmpleado.filter(function (e) {
+        return e.tipo == 'Aporte';
+      }).reduce(function (previous, current) {
+        return previous + parseFloat(current.valor);
+      }, 0);
+      this.totalDeduc = totalRetenciones;
+      this.totalAportes = totalAportes;
+      this.calcularTotalNeto();
     },
     sso_rpe: function sso_rpe(dato) {
       var valor = this.salarioNormal * 12 / 52 * dato.porcentaje / 100 * this.contarLunes();
@@ -10614,24 +10980,28 @@ __webpack_require__.r(__webpack_exports__);
           //Imprime las fechas que corresponden a esos lunes del mes
           if (fecha2.getDay() == 1) {
             lunes++;
-            console.log("Fechas = ".concat(fecha2.getDate()));
           } //Suma uno a la fecha de fecha2
 
 
           cont++;
         } else {
           //Si es false, retorna el numero de lunes que se acumularon
-          console.log(fecha2);
           return lunes;
         }
       }
     },
-    calcularFormula: function calcularFormula(dato) {
-      dato.valor = (parseFloat(this.salarioTabla) + parseFloat(this.beneficiosEmpleado[this.primAntiguedadIndice].valor) + parseFloat(this.primaProfesionalValue)) * (80 / 100);
-      this.beneficiosEmpleado.push(dato);
-      this.id_beneficiosAgregados.push(dato.id);
-      this.listarBeneficios();
-      this.calcularTotalAsig();
+    calcularFormula: function calcularFormula() {
+      var _this$primaProfesiona;
+
+      var primaAntiguedad = this.beneficiosEmpleado[this.primAntiguedadIndice] ? this.beneficiosEmpleado[this.primAntiguedadIndice].valor : 0;
+      var primaProfesional = (_this$primaProfesiona = this.primaProfesionalValue) !== null && _this$primaProfesiona !== void 0 ? _this$primaProfesiona : 0;
+      var dato = this.beneficiosEmpleado.find(function (e) {
+        return e.tipo_valor == 'formula';
+      });
+
+      if (dato) {
+        dato.valor = ((parseFloat(this.salarioTabla) + parseFloat(primaAntiguedad) + parseFloat(primaProfesional)) * (80 / 100)).toFixed(2);
+      }
     }
   },
   mounted: function mounted() {
@@ -65386,7 +65756,64 @@ var render = function() {
                               "\r\n                        *Este campo es requerido\r\n                  "
                             )
                           ])
-                        ])
+                        ]),
+                        _vm._v(" "),
+                        _c(
+                          "div",
+                          {
+                            staticClass: "col-md-4 ml-3 form-group form-check"
+                          },
+                          [
+                            _c("input", {
+                              directives: [
+                                {
+                                  name: "model",
+                                  rawName: "v-model",
+                                  value: _vm.incidencia,
+                                  expression: "incidencia"
+                                }
+                              ],
+                              staticClass: "form-check-input",
+                              attrs: { type: "checkbox", id: "incidencia" },
+                              domProps: {
+                                checked: Array.isArray(_vm.incidencia)
+                                  ? _vm._i(_vm.incidencia, null) > -1
+                                  : _vm.incidencia
+                              },
+                              on: {
+                                change: function($event) {
+                                  var $$a = _vm.incidencia,
+                                    $$el = $event.target,
+                                    $$c = $$el.checked ? true : false
+                                  if (Array.isArray($$a)) {
+                                    var $$v = null,
+                                      $$i = _vm._i($$a, $$v)
+                                    if ($$el.checked) {
+                                      $$i < 0 &&
+                                        (_vm.incidencia = $$a.concat([$$v]))
+                                    } else {
+                                      $$i > -1 &&
+                                        (_vm.incidencia = $$a
+                                          .slice(0, $$i)
+                                          .concat($$a.slice($$i + 1)))
+                                    }
+                                  } else {
+                                    _vm.incidencia = $$c
+                                  }
+                                }
+                              }
+                            }),
+                            _vm._v(" "),
+                            _c(
+                              "label",
+                              {
+                                staticClass: "form-check-label",
+                                attrs: { for: "incidencia" }
+                              },
+                              [_vm._v("Incidencia")]
+                            )
+                          ]
+                        )
                       ]),
                   _vm._v(" "),
                   _vm.tipo_valor == "%"
@@ -67064,83 +67491,265 @@ var render = function() {
         _vm._v(" "),
         _c("div", { staticClass: "card-body" }, [
           _c("div", { staticClass: "table-responsive" }, [
-            _c("table", { staticClass: "table" }, [
-              _vm._m(0),
+            _c("table", { staticClass: "table table-bordered" }, [
+              _c("thead", [
+                _c(
+                  "tr",
+                  [
+                    _c("th", { attrs: { scope: "col" } }, [_vm._v("#")]),
+                    _vm._v(" "),
+                    _c("th", { attrs: { scope: "col" } }, [_vm._v("Nombre")]),
+                    _vm._v(" "),
+                    _c("th", { attrs: { scope: "col" } }, [_vm._v("Apellido")]),
+                    _vm._v(" "),
+                    _c("th", { attrs: { scope: "col" } }, [_vm._v("Cédula")]),
+                    _vm._v(" "),
+                    _c("th", { attrs: { scope: "col" } }, [
+                      _vm._v("Salario tabla")
+                    ]),
+                    _vm._v(" "),
+                    _c("th", { attrs: { scope: "col" } }, [
+                      _vm._v("Salario Normal")
+                    ]),
+                    _vm._v(" "),
+                    _vm._l(_vm.encabezados.asignaciones, function(
+                      encabezado,
+                      index
+                    ) {
+                      return [
+                        _c(
+                          "th",
+                          { key: index, attrs: { scope: "col", colspan: "8" } },
+                          [
+                            _vm._v(
+                              "\n                          " +
+                                _vm._s(encabezado) +
+                                "\n                        "
+                            )
+                          ]
+                        )
+                      ]
+                    }),
+                    _vm._v(" "),
+                    _c("th", { attrs: { scope: "col" } }, [
+                      _vm._v("Total Primas")
+                    ]),
+                    _vm._v(" "),
+                    _vm._l(_vm.encabezados.retenciones, function(encabezado) {
+                      return [
+                        _c("th", { key: encabezado, attrs: { scope: "col" } }, [
+                          _vm._v(
+                            "\n                          " +
+                              _vm._s(encabezado) +
+                              "\n                        "
+                          )
+                        ])
+                      ]
+                    }),
+                    _vm._v(" "),
+                    _c("th", { attrs: { scope: "col" } }, [
+                      _vm._v("Total Retención")
+                    ]),
+                    _vm._v(" "),
+                    _vm._l(_vm.encabezados.aportes, function(encabezado) {
+                      return [
+                        _c("th", { key: encabezado, attrs: { scope: "col" } }, [
+                          _vm._v(
+                            "\n                          " +
+                              _vm._s(encabezado) +
+                              "\n                        "
+                          )
+                        ])
+                      ]
+                    }),
+                    _vm._v(" "),
+                    _c("th", { attrs: { scope: "col" } }, [
+                      _vm._v("Total Aportes")
+                    ]),
+                    _vm._v(" "),
+                    _vm._l(_vm.encabezados.descuentos, function(encabezado) {
+                      return [
+                        _c("th", { key: encabezado, attrs: { scope: "col" } }, [
+                          _vm._v(
+                            "\n                          " +
+                              _vm._s(encabezado) +
+                              "\n                        "
+                          )
+                        ])
+                      ]
+                    }),
+                    _vm._v(" "),
+                    _c("th", { attrs: { scope: "col" } }, [
+                      _vm._v("Total Descuentos")
+                    ]),
+                    _vm._v(" "),
+                    _c("th", { attrs: { scope: "col" } }, [
+                      _vm._v("Neto Abonar")
+                    ])
+                  ],
+                  2
+                )
+              ]),
               _vm._v(" "),
               _c(
                 "tbody",
                 _vm._l(_vm.arrayPagosNomina, function(pago, index) {
-                  return _c("tr", { key: pago.id }, [
-                    _c("th", { attrs: { scope: "row" } }, [
-                      _vm._v(_vm._s(index + 1))
-                    ]),
-                    _vm._v(" "),
-                    _c("td", {
-                      domProps: { textContent: _vm._s(pago.nombre) }
-                    }),
-                    _vm._v(" "),
-                    _c("td", {
-                      domProps: { textContent: _vm._s(pago.apellido) }
-                    }),
-                    _vm._v(" "),
-                    _c("td", {
-                      domProps: { textContent: _vm._s(pago.cedula) }
-                    }),
-                    _vm._v(" "),
-                    _c("td", {
-                      domProps: {
-                        textContent: _vm._s(_vm.formato(pago.salario))
-                      }
-                    }),
-                    _vm._v(" "),
-                    _c("td", {
-                      domProps: {
-                        textContent: _vm._s(
-                          _vm.formato(parseFloat(pago.salarioNormal).toFixed(0))
-                        )
-                      }
-                    }),
-                    _vm._v(" "),
-                    _c("td", {
-                      domProps: {
-                        textContent: _vm._s(
-                          _vm.formato(pago.totalPrimas.toFixed(0))
-                        )
-                      }
-                    }),
-                    _vm._v(" "),
-                    _c("td", {
-                      domProps: {
-                        textContent: _vm._s(
-                          _vm.formato(pago.totalRetencion.toFixed(0))
-                        )
-                      }
-                    }),
-                    _vm._v(" "),
-                    _c("td", {
-                      domProps: {
-                        textContent: _vm._s(
-                          _vm.formato(pago.totalAportes.toFixed(0))
-                        )
-                      }
-                    }),
-                    _vm._v(" "),
-                    _c("td", {
-                      domProps: {
-                        textContent: _vm._s(
-                          _vm.formato(pago.totalDescuentos.toFixed(0))
-                        )
-                      }
-                    }),
-                    _vm._v(" "),
-                    _c("td", {
-                      domProps: {
-                        textContent: _vm._s(
-                          _vm.formato(pago.netoAbonar.toFixed(0))
-                        )
-                      }
-                    })
-                  ])
+                  return _c(
+                    "tr",
+                    { key: pago.id },
+                    [
+                      _c("th", { attrs: { scope: "row" } }, [
+                        _vm._v(_vm._s(index + 1))
+                      ]),
+                      _vm._v(" "),
+                      _c("td", {
+                        domProps: { textContent: _vm._s(pago.nombre) }
+                      }),
+                      _vm._v(" "),
+                      _c("td", {
+                        domProps: { textContent: _vm._s(pago.apellido) }
+                      }),
+                      _vm._v(" "),
+                      _c("td", {
+                        domProps: {
+                          textContent: _vm._s(pago.pre_cedula + pago.cedula)
+                        }
+                      }),
+                      _vm._v(" "),
+                      _c("td", {
+                        domProps: {
+                          textContent: _vm._s(_vm.formato(pago.salario))
+                        }
+                      }),
+                      _vm._v(" "),
+                      _c("td", {
+                        domProps: {
+                          textContent: _vm._s(
+                            _vm.formato(parseFloat(pago.salarioNormal))
+                          )
+                        }
+                      }),
+                      _vm._v(" "),
+                      _vm._l(pago.encabezados.asignaciones, function(asign) {
+                        return [
+                          _c(
+                            "td",
+                            {
+                              key: asign,
+                              attrs: { scope: "col", colspan: "8" }
+                            },
+                            [
+                              _vm._v(
+                                "\n                          " +
+                                  _vm._s(_vm.imprimir(pago.primas, asign)) +
+                                  "\n                        "
+                              )
+                            ]
+                          )
+                        ]
+                      }),
+                      _vm._v(" "),
+                      _c("td", [
+                        _c("strong", {
+                          domProps: {
+                            textContent: _vm._s(_vm.formato(pago.totalPrimas))
+                          }
+                        })
+                      ]),
+                      _vm._v(" "),
+                      _vm._l(pago.encabezados.retenciones, function(
+                        reten,
+                        indexReten
+                      ) {
+                        return [
+                          _c(
+                            "td",
+                            { key: indexReten, attrs: { scope: "col" } },
+                            [
+                              _vm._v(
+                                "\n                          " +
+                                  _vm._s(
+                                    _vm.imprimir(pago.retenciones, reten)
+                                  ) +
+                                  "\n                        "
+                              )
+                            ]
+                          )
+                        ]
+                      }),
+                      _vm._v(" "),
+                      _c("td", [
+                        _c("strong", {
+                          domProps: {
+                            textContent: _vm._s(
+                              _vm.formato(pago.totalRetencion)
+                            )
+                          }
+                        })
+                      ]),
+                      _vm._v(" "),
+                      _vm._l(pago.encabezados.aportes, function(
+                        dato,
+                        indexAporte
+                      ) {
+                        return [
+                          _c(
+                            "td",
+                            { key: indexAporte, attrs: { scope: "col" } },
+                            [
+                              _vm._v(
+                                "\n                          " +
+                                  _vm._s(
+                                    _vm.imprimir(
+                                      Object.values(pago.aportes),
+                                      dato
+                                    )
+                                  ) +
+                                  "\n                        "
+                              )
+                            ]
+                          )
+                        ]
+                      }),
+                      _vm._v(" "),
+                      _c("td", [
+                        _c("strong", {
+                          domProps: {
+                            textContent: _vm._s(_vm.formato(pago.totalAportes))
+                          }
+                        })
+                      ]),
+                      _vm._v(" "),
+                      _vm._l(pago.encabezados.descuentos, function(dato) {
+                        return [
+                          _c("td", { key: dato, attrs: { scope: "col" } }, [
+                            _vm._v(
+                              "\n                          " +
+                                _vm._s(_vm.imprimir(pago.descuentos, dato)) +
+                                "\n                        "
+                            )
+                          ])
+                        ]
+                      }),
+                      _vm._v(" "),
+                      _c("td", [
+                        _c("strong", {
+                          domProps: {
+                            textContent: _vm._s(
+                              _vm.formato(pago.totalDescuentos)
+                            )
+                          }
+                        })
+                      ]),
+                      _vm._v(" "),
+                      _c("td", {
+                        domProps: {
+                          textContent: _vm._s(_vm.formato(pago.netoAbonar))
+                        }
+                      })
+                    ],
+                    2
+                  )
                 }),
                 0
               )
@@ -67226,38 +67835,7 @@ var render = function() {
     ])
   ])
 }
-var staticRenderFns = [
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("thead", [
-      _c("tr", [
-        _c("th", { attrs: { scope: "col" } }, [_vm._v("#")]),
-        _vm._v(" "),
-        _c("th", { attrs: { scope: "col" } }, [_vm._v("Nombre")]),
-        _vm._v(" "),
-        _c("th", { attrs: { scope: "col" } }, [_vm._v("Apellido")]),
-        _vm._v(" "),
-        _c("th", { attrs: { scope: "col" } }, [_vm._v("Cédula")]),
-        _vm._v(" "),
-        _c("th", { attrs: { scope: "col" } }, [_vm._v("Salario tabla")]),
-        _vm._v(" "),
-        _c("th", { attrs: { scope: "col" } }, [_vm._v("Salario Normal")]),
-        _vm._v(" "),
-        _c("th", { attrs: { scope: "col" } }, [_vm._v("Total Primas")]),
-        _vm._v(" "),
-        _c("th", { attrs: { scope: "col" } }, [_vm._v("Total Retención")]),
-        _vm._v(" "),
-        _c("th", { attrs: { scope: "col" } }, [_vm._v("Total Aportes")]),
-        _vm._v(" "),
-        _c("th", { attrs: { scope: "col" } }, [_vm._v("Total Descuentos")]),
-        _vm._v(" "),
-        _c("th", { attrs: { scope: "col" } }, [_vm._v("Neto Abonar")])
-      ])
-    ])
-  }
-]
+var staticRenderFns = []
 render._withStripped = true
 
 
@@ -68742,7 +69320,7 @@ var render = function() {
                         _vm._v(" "),
                         _c("div", { staticClass: "invalid-feedback" }, [
                           _vm._v(
-                            "\n                        *Este campo es requerido\n                "
+                            "\n                        *Correo inválido\n                "
                           )
                         ])
                       ]),
@@ -69850,10 +70428,7 @@ var render = function() {
                             _c("td", {
                               domProps: {
                                 textContent: _vm._s(
-                                  "Banco: " +
-                                    (_vm.banco.banco == "0102-"
-                                      ? "Banco de Venezuela"
-                                      : "")
+                                  "Número de cuenta: " + _vm.banco.numero_cuenta
                                 )
                               }
                             }),
@@ -69868,18 +70443,6 @@ var render = function() {
                                 )
                               }
                             })
-                          ]),
-                          _vm._v(" "),
-                          _c("tr", [
-                            _c("td", {
-                              domProps: {
-                                textContent: _vm._s(
-                                  "Número de cuenta: " + _vm.banco.numero_cuenta
-                                )
-                              }
-                            }),
-                            _vm._v(" "),
-                            _c("td")
                           ])
                         ])
                       ])
@@ -69891,7 +70454,123 @@ var render = function() {
                       _vm._m(10),
                       _vm._v(" "),
                       _c("div", { staticClass: "card-body" }, [
-                        _vm._m(11),
+                        _c("div", { staticClass: "form-group row" }, [
+                          _c(
+                            "label",
+                            {
+                              staticClass: "text-justify",
+                              attrs: { for: "fecha_ini" }
+                            },
+                            [_vm._v("Desde")]
+                          ),
+                          _vm._v(" "),
+                          _c("div", { staticClass: "col-md-3" }, [
+                            _c("input", {
+                              directives: [
+                                {
+                                  name: "model",
+                                  rawName: "v-model",
+                                  value: _vm.pago_start,
+                                  expression: "pago_start"
+                                }
+                              ],
+                              staticClass: "form-control datoEmpleado",
+                              attrs: {
+                                type: "date",
+                                min: "2002-01-01",
+                                max: "2022-01-01",
+                                id: "fecha_ini",
+                                name: "fecha_ini",
+                                required: ""
+                              },
+                              domProps: { value: _vm.pago_start },
+                              on: {
+                                input: function($event) {
+                                  if ($event.target.composing) {
+                                    return
+                                  }
+                                  _vm.pago_start = $event.target.value
+                                }
+                              }
+                            })
+                          ]),
+                          _vm._v(" "),
+                          _c(
+                            "label",
+                            {
+                              staticClass: "text-justify",
+                              attrs: { for: "fecha_end" }
+                            },
+                            [_vm._v("Hasta")]
+                          ),
+                          _vm._v(" "),
+                          _c("div", { staticClass: "col-md-3" }, [
+                            _c("input", {
+                              directives: [
+                                {
+                                  name: "model",
+                                  rawName: "v-model",
+                                  value: _vm.pago_end,
+                                  expression: "pago_end"
+                                }
+                              ],
+                              staticClass: "form-control datoEmpleado",
+                              attrs: {
+                                type: "date",
+                                min: "2002-01-01",
+                                max: "2022-01-01",
+                                id: "fecha_end",
+                                name: "fecha_end",
+                                required: ""
+                              },
+                              domProps: { value: _vm.pago_end },
+                              on: {
+                                input: function($event) {
+                                  if ($event.target.composing) {
+                                    return
+                                  }
+                                  _vm.pago_end = $event.target.value
+                                }
+                              }
+                            })
+                          ]),
+                          _vm._v(" "),
+                          _c("div", { staticClass: "col-md-3" }, [
+                            _c(
+                              "button",
+                              {
+                                staticClass: "btn btn-primary align-middle",
+                                attrs: { type: "button" },
+                                on: {
+                                  click: function($event) {
+                                    $event.preventDefault()
+                                    return _vm.buscarPagos()
+                                  }
+                                }
+                              },
+                              [_vm._v("Buscar")]
+                            ),
+                            _vm._v(" "),
+                            _vm.pago_start && _vm.pago_end
+                              ? _c(
+                                  "button",
+                                  {
+                                    staticClass: "btn btn-danger align-middle",
+                                    attrs: { type: "button" },
+                                    on: {
+                                      click: function($event) {
+                                        $event.preventDefault()
+                                        return _vm.pagosIntervaloPDF(
+                                          _vm.id_empleado
+                                        )
+                                      }
+                                    }
+                                  },
+                                  [_vm._v("PDF")]
+                                )
+                              : _vm._e()
+                          ])
+                        ]),
                         _vm._v(" "),
                         _c(
                           "table",
@@ -69900,7 +70579,7 @@ var render = function() {
                             attrs: { id: "example1" }
                           },
                           [
-                            _vm._m(12),
+                            _vm._m(11),
                             _vm._v(" "),
                             _c(
                               "tbody",
@@ -69923,7 +70602,17 @@ var render = function() {
                                   _c("td", {
                                     domProps: {
                                       textContent: _vm._s(
-                                        _vm.formatoDivisa(pago.pago)
+                                        _vm.formatoDivisa(
+                                          pago.pago.salarioNormal
+                                        )
+                                      )
+                                    }
+                                  }),
+                                  _vm._v(" "),
+                                  _c("td", {
+                                    domProps: {
+                                      textContent: _vm._s(
+                                        _vm.formatoDivisa(pago.pago.totalNeto)
                                       )
                                     }
                                   }),
@@ -70219,39 +70908,15 @@ var staticRenderFns = [
     var _vm = this
     var _h = _vm.$createElement
     var _c = _vm._self._c || _h
-    return _c("div", { staticClass: "form-group row" }, [
-      _c("div", { staticClass: "col-md-4" }, [
-        _c("div", { staticClass: "input-group" }, [
-          _c("div", { staticClass: "input-group-prepend" }, [
-            _c("div", { staticClass: "input-group-text" }, [
-              _c("a", { attrs: { href: "#" } }, [
-                _c("i", {
-                  staticClass: "fa fa-search",
-                  attrs: { "aria-hidden": "true" }
-                })
-              ])
-            ])
-          ]),
-          _vm._v(" "),
-          _c("input", {
-            staticClass: "form-control",
-            attrs: { id: "searchPago", type: "text", placeholder: "Busqueda" }
-          })
-        ])
-      ])
-    ])
-  },
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
     return _c("thead", [
       _c("tr", [
         _c("th", [_vm._v("Código")]),
         _vm._v(" "),
         _c("th", [_vm._v("Sueldo")]),
         _vm._v(" "),
-        _c("th", [_vm._v("Pago")]),
+        _c("th", [_vm._v("Salario Normal")]),
+        _vm._v(" "),
+        _c("th", [_vm._v("Total Neto")]),
         _vm._v(" "),
         _c("th", [_vm._v("Fecha")]),
         _vm._v(" "),
@@ -73163,10 +73828,7 @@ var render = function() {
                             _c("td", {
                               domProps: {
                                 textContent: _vm._s(
-                                  "Banco: " +
-                                    (_vm.banco.banco == "0102-"
-                                      ? "Banco de Venezuela"
-                                      : "")
+                                  "Número de cuenta: " + _vm.banco.numero_cuenta
                                 )
                               }
                             }),
@@ -73181,18 +73843,6 @@ var render = function() {
                                 )
                               }
                             })
-                          ]),
-                          _vm._v(" "),
-                          _c("tr", [
-                            _c("td", {
-                              domProps: {
-                                textContent: _vm._s(
-                                  "Número de cuenta: " + _vm.banco.numero_cuenta
-                                )
-                              }
-                            }),
-                            _vm._v(" "),
-                            _c("td")
                           ])
                         ])
                       ])
@@ -73203,7 +73853,124 @@ var render = function() {
                         _vm._m(11),
                         _vm._v(" "),
                         _c("div", { staticClass: "card-body" }, [
-                          _vm._m(12),
+                          _c("div", { staticClass: "form-group row" }, [
+                            _c(
+                              "label",
+                              {
+                                staticClass: "text-justify",
+                                attrs: { for: "fecha_ini" }
+                              },
+                              [_vm._v("Desde")]
+                            ),
+                            _vm._v(" "),
+                            _c("div", { staticClass: "col-md-3" }, [
+                              _c("input", {
+                                directives: [
+                                  {
+                                    name: "model",
+                                    rawName: "v-model",
+                                    value: _vm.pago_start,
+                                    expression: "pago_start"
+                                  }
+                                ],
+                                staticClass: "form-control datoEmpleado",
+                                attrs: {
+                                  type: "date",
+                                  min: "2002-01-01",
+                                  max: "2022-01-01",
+                                  id: "fecha_ini",
+                                  name: "fecha_ini",
+                                  required: ""
+                                },
+                                domProps: { value: _vm.pago_start },
+                                on: {
+                                  input: function($event) {
+                                    if ($event.target.composing) {
+                                      return
+                                    }
+                                    _vm.pago_start = $event.target.value
+                                  }
+                                }
+                              })
+                            ]),
+                            _vm._v(" "),
+                            _c(
+                              "label",
+                              {
+                                staticClass: "text-justify",
+                                attrs: { for: "fecha_end" }
+                              },
+                              [_vm._v("Hasta")]
+                            ),
+                            _vm._v(" "),
+                            _c("div", { staticClass: "col-md-3" }, [
+                              _c("input", {
+                                directives: [
+                                  {
+                                    name: "model",
+                                    rawName: "v-model",
+                                    value: _vm.pago_end,
+                                    expression: "pago_end"
+                                  }
+                                ],
+                                staticClass: "form-control datoEmpleado",
+                                attrs: {
+                                  type: "date",
+                                  min: "2002-01-01",
+                                  max: "2022-01-01",
+                                  id: "fecha_end",
+                                  name: "fecha_end",
+                                  required: ""
+                                },
+                                domProps: { value: _vm.pago_end },
+                                on: {
+                                  input: function($event) {
+                                    if ($event.target.composing) {
+                                      return
+                                    }
+                                    _vm.pago_end = $event.target.value
+                                  }
+                                }
+                              })
+                            ]),
+                            _vm._v(" "),
+                            _c("div", { staticClass: "col-md-3" }, [
+                              _c(
+                                "button",
+                                {
+                                  staticClass: "btn btn-primary align-middle",
+                                  attrs: { type: "button" },
+                                  on: {
+                                    click: function($event) {
+                                      $event.preventDefault()
+                                      return _vm.buscarPagos()
+                                    }
+                                  }
+                                },
+                                [_vm._v("Buscar")]
+                              ),
+                              _vm._v(" "),
+                              _vm.pago_start && _vm.pago_end
+                                ? _c(
+                                    "button",
+                                    {
+                                      staticClass:
+                                        "btn btn-danger align-middle",
+                                      attrs: { type: "button" },
+                                      on: {
+                                        click: function($event) {
+                                          $event.preventDefault()
+                                          return _vm.pagosIntervaloPDF(
+                                            _vm.id_empleado
+                                          )
+                                        }
+                                      }
+                                    },
+                                    [_vm._v("PDF")]
+                                  )
+                                : _vm._e()
+                            ])
+                          ]),
                           _vm._v(" "),
                           _c(
                             "table",
@@ -73212,7 +73979,7 @@ var render = function() {
                               attrs: { id: "example1" }
                             },
                             [
-                              _vm._m(13),
+                              _vm._m(12),
                               _vm._v(" "),
                               _c(
                                 "tbody",
@@ -73235,7 +74002,17 @@ var render = function() {
                                     _c("td", {
                                       domProps: {
                                         textContent: _vm._s(
-                                          _vm.formatoDivisa(pago.pago)
+                                          _vm.formatoDivisa(
+                                            pago.pago.salarioNormal
+                                          )
+                                        )
+                                      }
+                                    }),
+                                    _vm._v(" "),
+                                    _c("td", {
+                                      domProps: {
+                                        textContent: _vm._s(
+                                          _vm.formatoDivisa(pago.pago.totalNeto)
                                         )
                                       }
                                     }),
@@ -73551,39 +74328,15 @@ var staticRenderFns = [
     var _vm = this
     var _h = _vm.$createElement
     var _c = _vm._self._c || _h
-    return _c("div", { staticClass: "form-group row" }, [
-      _c("div", { staticClass: "col-md-4" }, [
-        _c("div", { staticClass: "input-group" }, [
-          _c("div", { staticClass: "input-group-prepend" }, [
-            _c("div", { staticClass: "input-group-text" }, [
-              _c("a", { attrs: { href: "#" } }, [
-                _c("i", {
-                  staticClass: "fa fa-search",
-                  attrs: { "aria-hidden": "true" }
-                })
-              ])
-            ])
-          ]),
-          _vm._v(" "),
-          _c("input", {
-            staticClass: "form-control",
-            attrs: { id: "searchPago", type: "text", placeholder: "Busqueda" }
-          })
-        ])
-      ])
-    ])
-  },
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
     return _c("thead", [
       _c("tr", [
         _c("th", [_vm._v("Código")]),
         _vm._v(" "),
         _c("th", [_vm._v("Sueldo")]),
         _vm._v(" "),
-        _c("th", [_vm._v("Pago")]),
+        _c("th", [_vm._v("Salario Normal")]),
+        _vm._v(" "),
+        _c("th", [_vm._v("Total Neto")]),
         _vm._v(" "),
         _c("th", [_vm._v("Fecha")]),
         _vm._v(" "),
@@ -75372,10 +76125,7 @@ var render = function() {
                             _c("td", {
                               domProps: {
                                 textContent: _vm._s(
-                                  "Banco: " +
-                                    (_vm.banco.banco == "0102-"
-                                      ? "Banco de Venezuela"
-                                      : "")
+                                  "Número de cuenta: " + _vm.banco.numero_cuenta
                                 )
                               }
                             }),
@@ -75390,18 +76140,6 @@ var render = function() {
                                 )
                               }
                             })
-                          ]),
-                          _vm._v(" "),
-                          _c("tr", [
-                            _c("td", {
-                              domProps: {
-                                textContent: _vm._s(
-                                  "Número de cuenta: " + _vm.banco.numero_cuenta
-                                )
-                              }
-                            }),
-                            _vm._v(" "),
-                            _c("td")
                           ])
                         ])
                       ])
@@ -75412,7 +76150,124 @@ var render = function() {
                         _vm._m(10),
                         _vm._v(" "),
                         _c("div", { staticClass: "card-body" }, [
-                          _vm._m(11),
+                          _c("div", { staticClass: "form-group row" }, [
+                            _c(
+                              "label",
+                              {
+                                staticClass: "text-justify",
+                                attrs: { for: "fecha_ini" }
+                              },
+                              [_vm._v("Desde")]
+                            ),
+                            _vm._v(" "),
+                            _c("div", { staticClass: "col-md-3" }, [
+                              _c("input", {
+                                directives: [
+                                  {
+                                    name: "model",
+                                    rawName: "v-model",
+                                    value: _vm.pago_start,
+                                    expression: "pago_start"
+                                  }
+                                ],
+                                staticClass: "form-control datoEmpleado",
+                                attrs: {
+                                  type: "date",
+                                  min: "2002-01-01",
+                                  max: "2022-01-01",
+                                  id: "fecha_ini",
+                                  name: "fecha_ini",
+                                  required: ""
+                                },
+                                domProps: { value: _vm.pago_start },
+                                on: {
+                                  input: function($event) {
+                                    if ($event.target.composing) {
+                                      return
+                                    }
+                                    _vm.pago_start = $event.target.value
+                                  }
+                                }
+                              })
+                            ]),
+                            _vm._v(" "),
+                            _c(
+                              "label",
+                              {
+                                staticClass: "text-justify",
+                                attrs: { for: "fecha_end" }
+                              },
+                              [_vm._v("Hasta")]
+                            ),
+                            _vm._v(" "),
+                            _c("div", { staticClass: "col-md-3" }, [
+                              _c("input", {
+                                directives: [
+                                  {
+                                    name: "model",
+                                    rawName: "v-model",
+                                    value: _vm.pago_end,
+                                    expression: "pago_end"
+                                  }
+                                ],
+                                staticClass: "form-control datoEmpleado",
+                                attrs: {
+                                  type: "date",
+                                  min: "2002-01-01",
+                                  max: "2022-01-01",
+                                  id: "fecha_end",
+                                  name: "fecha_end",
+                                  required: ""
+                                },
+                                domProps: { value: _vm.pago_end },
+                                on: {
+                                  input: function($event) {
+                                    if ($event.target.composing) {
+                                      return
+                                    }
+                                    _vm.pago_end = $event.target.value
+                                  }
+                                }
+                              })
+                            ]),
+                            _vm._v(" "),
+                            _c("div", { staticClass: "col-md-3" }, [
+                              _c(
+                                "button",
+                                {
+                                  staticClass: "btn btn-primary align-middle",
+                                  attrs: { type: "button" },
+                                  on: {
+                                    click: function($event) {
+                                      $event.preventDefault()
+                                      return _vm.buscarPagos()
+                                    }
+                                  }
+                                },
+                                [_vm._v("Buscar")]
+                              ),
+                              _vm._v(" "),
+                              _vm.pago_start && _vm.pago_end
+                                ? _c(
+                                    "button",
+                                    {
+                                      staticClass:
+                                        "btn btn-danger align-middle",
+                                      attrs: { type: "button" },
+                                      on: {
+                                        click: function($event) {
+                                          $event.preventDefault()
+                                          return _vm.pagosIntervaloPDF(
+                                            _vm.id_empleado
+                                          )
+                                        }
+                                      }
+                                    },
+                                    [_vm._v("PDF")]
+                                  )
+                                : _vm._e()
+                            ])
+                          ]),
                           _vm._v(" "),
                           _c(
                             "table",
@@ -75421,7 +76276,7 @@ var render = function() {
                               attrs: { id: "example1" }
                             },
                             [
-                              _vm._m(12),
+                              _vm._m(11),
                               _vm._v(" "),
                               _c(
                                 "tbody",
@@ -75444,7 +76299,17 @@ var render = function() {
                                     _c("td", {
                                       domProps: {
                                         textContent: _vm._s(
-                                          _vm.formatoDivisa(pago.pago)
+                                          _vm.formatoDivisa(
+                                            pago.pago.salarioNormal
+                                          )
+                                        )
+                                      }
+                                    }),
+                                    _vm._v(" "),
+                                    _c("td", {
+                                      domProps: {
+                                        textContent: _vm._s(
+                                          _vm.formatoDivisa(pago.pago.totalNeto)
                                         )
                                       }
                                     }),
@@ -75737,39 +76602,15 @@ var staticRenderFns = [
     var _vm = this
     var _h = _vm.$createElement
     var _c = _vm._self._c || _h
-    return _c("div", { staticClass: "form-group row" }, [
-      _c("div", { staticClass: "col-md-4" }, [
-        _c("div", { staticClass: "input-group" }, [
-          _c("div", { staticClass: "input-group-prepend" }, [
-            _c("div", { staticClass: "input-group-text" }, [
-              _c("a", { attrs: { href: "#" } }, [
-                _c("i", {
-                  staticClass: "fa fa-search",
-                  attrs: { "aria-hidden": "true" }
-                })
-              ])
-            ])
-          ]),
-          _vm._v(" "),
-          _c("input", {
-            staticClass: "form-control",
-            attrs: { id: "searchPago", type: "text", placeholder: "Busqueda" }
-          })
-        ])
-      ])
-    ])
-  },
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
     return _c("thead", [
       _c("tr", [
         _c("th", [_vm._v("Código")]),
         _vm._v(" "),
         _c("th", [_vm._v("Sueldo")]),
         _vm._v(" "),
-        _c("th", [_vm._v("Pago")]),
+        _c("th", [_vm._v("Salario Normal")]),
+        _vm._v(" "),
+        _c("th", [_vm._v("Total Neto")]),
         _vm._v(" "),
         _c("th", [_vm._v("Fecha")]),
         _vm._v(" "),
@@ -77804,6 +78645,7 @@ var render = function() {
                                                 $event.preventDefault()
                                                 return _vm.cambiarEstadoUser(
                                                   usuario.id,
+                                                  usuario.rol,
                                                   0
                                                 )
                                               }
@@ -77828,6 +78670,7 @@ var render = function() {
                                                 $event.preventDefault()
                                                 return _vm.cambiarEstadoUser(
                                                   usuario.id,
+                                                  usuario.rol,
                                                   1
                                                 )
                                               }
@@ -78545,9 +79388,7 @@ var render = function() {
                             attrs: { colspan: "2" },
                             domProps: {
                               textContent: _vm._s(
-                                _vm.formatoDivisa(
-                                  _vm.salarioNormal - _vm.salarioTabla
-                                )
+                                _vm.formatoDivisa(_vm.totalBeneficios)
                               )
                             }
                           })
@@ -78592,7 +79433,7 @@ var render = function() {
                         staticClass: "text-light",
                         attrs: { colspan: "6", align: "center" }
                       },
-                      [_vm._v("DEDUCCIONES")]
+                      [_vm._v("RETENCIONES")]
                     )
                   ]),
                   _vm._v(" "),
@@ -78642,6 +79483,82 @@ var render = function() {
                           attrs: {
                             "data-toggle": "modal",
                             "data-target": "#ModalDeducciones"
+                          },
+                          on: {
+                            click: function($event) {
+                              return _vm.listarDeducciones()
+                            }
+                          }
+                        },
+                        [
+                          _c("i", { staticClass: "fa fa-plus" }),
+                          _vm._v(" Agregar/Quitar")
+                        ]
+                      )
+                    ])
+                  ])
+                ],
+                2
+              ),
+              _vm._v(" "),
+              _c(
+                "tbody",
+                [
+                  _c("tr", { staticStyle: { "background-color": "#343a40" } }, [
+                    _c(
+                      "td",
+                      {
+                        staticClass: "text-light",
+                        attrs: { colspan: "6", align: "center" }
+                      },
+                      [_vm._v("APORTES")]
+                    )
+                  ]),
+                  _vm._v(" "),
+                  _vm._l(_vm.aportesEmpleado, function(aporte) {
+                    return _c("tr", { key: aporte.id }, [
+                      _c("td", {
+                        attrs: { colspan: "4" },
+                        domProps: { textContent: _vm._s(aporte.concepto) }
+                      }),
+                      _vm._v(" "),
+                      _c("td", {
+                        attrs: { colspan: "2" },
+                        domProps: {
+                          textContent: _vm._s(_vm.formatoDivisa(aporte.valor))
+                        }
+                      })
+                    ])
+                  }),
+                  _vm._v(" "),
+                  _vm.aportesEmpleado.length != 0
+                    ? _c("tr", [
+                        _c("td", { attrs: { colspan: "4" } }, [
+                          _c("strong", [_vm._v("Total de Aportes:")])
+                        ]),
+                        _vm._v(" "),
+                        _c("strong", [
+                          _c("td", {
+                            attrs: { colspan: "2" },
+                            domProps: {
+                              textContent: _vm._s(
+                                _vm.formatoDivisa(_vm.totalAportes)
+                              )
+                            }
+                          })
+                        ])
+                      ])
+                    : _vm._e(),
+                  _vm._v(" "),
+                  _c("tr", [
+                    _c("td", { attrs: { colspan: "6", align: "center" } }, [
+                      _c(
+                        "button",
+                        {
+                          staticClass: "btn btn-light",
+                          attrs: {
+                            "data-toggle": "modal",
+                            "data-target": "#ModalAportes"
                           },
                           on: {
                             click: function($event) {
@@ -78756,6 +79673,21 @@ var render = function() {
                   })
                 ]),
                 _vm._v(" "),
+                _c("tr", { staticStyle: { "background-color": "#CEEFCF5" } }, [
+                  _c("td", { attrs: { colspan: "4" } }, [
+                    _c("strong", [_vm._v("Total Mensual:")])
+                  ]),
+                  _vm._v(" "),
+                  _c("td", {
+                    attrs: { colspan: "2" },
+                    domProps: {
+                      textContent: _vm._s(
+                        _vm.formatoDivisa(parseFloat(_vm.totalAsig))
+                      )
+                    }
+                  })
+                ]),
+                _vm._v(" "),
                 _c(
                   "tr",
                   { staticStyle: { "background-color": "#FFF !important" } },
@@ -78856,7 +79788,10 @@ var render = function() {
                                 _c(
                                   "td",
                                   [
-                                    _vm.exist(beneficio.id, "bene")
+                                    _vm.exist(
+                                      beneficio.id,
+                                      _vm.beneficiosEmpleado
+                                    )
                                       ? [
                                           _c(
                                             "a",
@@ -78923,7 +79858,9 @@ var render = function() {
                                                           valor:
                                                             beneficio.valor,
                                                           tipo_valor_por:
-                                                            beneficio.tipo_valor_por
+                                                            beneficio.tipo_valor_por,
+                                                          incidencia:
+                                                            beneficio.incidencia
                                                         }
                                                       )
                                                     }
@@ -79030,7 +79967,10 @@ var render = function() {
                                 _c(
                                   "td",
                                   [
-                                    _vm.exist(deduccion.id, "deduc")
+                                    _vm.exist(
+                                      deduccion.id,
+                                      _vm.deduccionesEmpleado
+                                    )
                                       ? [
                                           _c(
                                             "a",
@@ -79040,6 +79980,7 @@ var render = function() {
                                                 click: function($event) {
                                                   $event.preventDefault()
                                                   return _vm.retirarDeduccion(
+                                                    _vm.deduccionesEmpleado,
                                                     deduccion.id
                                                   )
                                                 }
@@ -79069,6 +80010,146 @@ var render = function() {
                                                     tipo: deduccion.tipo,
                                                     porcentaje:
                                                       deduccion.porcentaje
+                                                  })
+                                                }
+                                              }
+                                            },
+                                            [
+                                              _c("i", {
+                                                staticClass:
+                                                  "fa fa-plus text-dark"
+                                              })
+                                            ]
+                                          )
+                                        ]
+                                  ],
+                                  2
+                                )
+                              ])
+                            }),
+                            0
+                          )
+                        ])
+                      ])
+                    ])
+                  ])
+                ])
+              ]),
+              _vm._v(" "),
+              _c("div", { staticClass: "modal-footer" }, [
+                _c(
+                  "button",
+                  {
+                    staticClass: "btn btn-secondary",
+                    attrs: { type: "button", "data-dismiss": "modal" }
+                  },
+                  [_vm._v("Cerrar")]
+                )
+              ])
+            ])
+          ]
+        )
+      ]
+    ),
+    _vm._v(" "),
+    _c(
+      "div",
+      {
+        staticClass: "modal fade",
+        attrs: {
+          id: "ModalAportes",
+          tabindex: "-1",
+          role: "dialog",
+          "aria-labelledby": "exampleModalLabel",
+          "aria-hidden": "true"
+        }
+      },
+      [
+        _c(
+          "div",
+          { staticClass: "modal-dialog", attrs: { role: "document" } },
+          [
+            _c("div", { staticClass: "modal-content" }, [
+              _c("div", { staticClass: "modal-body" }, [
+                _c("div", { staticClass: "modal-body" }, [
+                  _c("div", { staticClass: "container-fluid" }, [
+                    _c("div", { staticClass: "row" }, [
+                      _c("div", { staticClass: "col-md-12" }, [
+                        _c("table", { staticClass: "table table-hover" }, [
+                          _c("thead", [
+                            _c("tr", [
+                              _c("th", [_vm._v("Concepto")]),
+                              _vm._v(" "),
+                              _c("th", [_vm._v("Tipo")]),
+                              _vm._v(" "),
+                              _c("th", [_vm._v("Valor")]),
+                              _vm._v(" "),
+                              _c("th", [_vm._v("Estado")])
+                            ])
+                          ]),
+                          _vm._v(" "),
+                          _c(
+                            "tbody",
+                            _vm._l(_vm.arrayAportes, function(aporte) {
+                              return _c("tr", { key: aporte.id }, [
+                                _c("td", {
+                                  domProps: {
+                                    textContent: _vm._s(aporte.concepto)
+                                  }
+                                }),
+                                _vm._v(" "),
+                                _c("td", {
+                                  domProps: { textContent: _vm._s(aporte.tipo) }
+                                }),
+                                _vm._v(" "),
+                                _c("td", {
+                                  domProps: {
+                                    textContent: _vm._s(aporte.porcentaje + "%")
+                                  }
+                                }),
+                                _vm._v(" "),
+                                _c(
+                                  "td",
+                                  [
+                                    _vm.exist(aporte.id, _vm.aportesEmpleado)
+                                      ? [
+                                          _c(
+                                            "a",
+                                            {
+                                              attrs: { href: "#" },
+                                              on: {
+                                                click: function($event) {
+                                                  $event.preventDefault()
+                                                  return _vm.retirarDeduccion(
+                                                    _vm.aportesEmpleado,
+                                                    aporte.id
+                                                  )
+                                                }
+                                              }
+                                            },
+                                            [
+                                              _c("i", {
+                                                staticClass:
+                                                  "fa fa-check text-success"
+                                              })
+                                            ]
+                                          )
+                                        ]
+                                      : [
+                                          _c(
+                                            "a",
+                                            {
+                                              attrs: { href: "#" },
+                                              on: {
+                                                click: function($event) {
+                                                  $event.preventDefault()
+                                                  return _vm.agregarDeduccion({
+                                                    id: aporte.id,
+                                                    concepto: aporte.concepto,
+                                                    valor: 0,
+                                                    tipo: aporte.tipo,
+                                                    porcentaje:
+                                                      aporte.porcentaje
                                                   })
                                                 }
                                               }
@@ -79174,7 +80255,10 @@ var render = function() {
                                 _c(
                                   "td",
                                   [
-                                    _vm.exist(descuento.id, "desc")
+                                    _vm.exist(
+                                      descuento.id,
+                                      _vm.descuentosEmpleado
+                                    )
                                       ? [
                                           _c(
                                             "a",
@@ -79183,7 +80267,8 @@ var render = function() {
                                               on: {
                                                 click: function($event) {
                                                   $event.preventDefault()
-                                                  return _vm.retirarDescuento(
+                                                  return _vm.retirarDeduccion(
+                                                    _vm.descuentosEmpleado,
                                                     descuento.id
                                                   )
                                                 }

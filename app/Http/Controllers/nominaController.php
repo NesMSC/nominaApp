@@ -8,6 +8,8 @@ use App\Nomina;
 use App\Empleado;
 use App\Pago;
 use App\Salario;
+use App\Beneficio;
+use App\Descuento;
 
 class nominaController extends Controller
 {
@@ -88,6 +90,7 @@ class nominaController extends Controller
 		$array = [];
 		$fecha = Nomina::find($id)->fecha;
 		$nomina = Nomina::find($id)->pagos;
+		$encabezados = $this->encabezados();
 
 	 	 for ($i=0; $i < count($nomina); $i++) {
 			$empleado = $this->datosPersona($nomina[$i]->id_empleado)->persona;
@@ -96,6 +99,17 @@ class nominaController extends Controller
 			$apellido = substr($empleado->apellidos, 0, strpos($empleado->apellidos, ' '));
 			$cedula = substr($empleado->cedula, 2);
 			$pre_cedula = substr($empleado->cedula, 0, 1);
+
+			$asignaciones = json_decode($nomina[$i]->asignaciones);
+
+			
+			$retenciones = array_filter(json_decode($nomina[$i]->deducciones, true), function($val){
+				return $val["tipo"] == "Retención";
+			});
+			$aportes = array_filter(json_decode($nomina[$i]->deducciones, true), function($val){
+				return $val["tipo"] == "Aporte";
+			});
+
 			$data = [
 				"nombre" => ($nombre)?$nombre : $empleado->nombres,
 				"apellido" => ($apellido)?$apellido : $empleado->apellidos,
@@ -104,37 +118,44 @@ class nominaController extends Controller
 				"banco" => $empleado->cuentaBancaria,
 				"salario" => $nomina[$i]->sueldo,
 				"salarioNormal" => $nomina[$i]->salarioNormal,
+				"primas" => $asignaciones,
 				"totalPrimas" => $this->totalPrimas($nomina[$i]->asignaciones),
+				"retenciones" => $retenciones,
 				"totalRetencion" => $this->totalRetencion($nomina[$i]->deducciones),
+				"aportes" => $aportes,
 				"totalAportes" => $this->totalAporte($nomina[$i]->deducciones),
+				"descuentos" => json_decode($nomina[$i]->descuentos),
 				"totalDescuentos" => $this->totalDescuentos($nomina[$i]->descuentos),
 				"netoAbonar" => 0,
+				"encabezados" => $encabezados
 			];
 
 			$data["netoAbonar"] = ($data['salario'] + $data['totalPrimas']) - $data['totalRetencion'] - $data['totalDescuentos'];
 			array_push($array, $data);
 		};
 
-		return ["fecha" => $fecha, "pagos" => $array];
+		return ["fecha" => $fecha, "pagos" => $array, "encabezados" => $encabezados];
 	}
 
-	private function datosPersona($id){
+	private function datosPersona($id)
+	{
 		return Empleado::find($id);
 	}
 
-	private function totalPrimas($primas){
-		$total = 0;
+	private function totalPrimas($primas)
+	{
+		$data = json_decode($primas, true);
 
-		$data = json_decode($primas);
-
-		for ($i=0; $i < count($data); $i++) { 
-			$total += $data[$i]->valor;
-		}
+		$total = array_reduce($data, function($carry, $item){
+            $carry += $item['valor'];
+            return round($carry, 2);
+        });
 
 		return $total;
 	}
 
-	private function totalRetencion($retenciones){
+	private function totalRetencion($retenciones)
+	{
 		$total = 0;
 
 		$data = json_decode($retenciones);
@@ -148,7 +169,8 @@ class nominaController extends Controller
 		return $total;
 	}
 
-	private function totalAporte($aportes){
+	private function totalAporte($aportes)
+	{
 		$total = 0;
 
 		$data = json_decode($aportes);
@@ -162,7 +184,8 @@ class nominaController extends Controller
 		return $total;
 	}
 
-	private function totalDescuentos($descuentos){
+	private function totalDescuentos($descuentos)
+	{
 		$total = 0;
 
 		$data = json_decode($descuentos);
@@ -219,7 +242,9 @@ class nominaController extends Controller
     	$totalAsig = 0;
 
      	//Suma total de asignaciones
-    	for ($i=0; $i < count($asig); $i++) { 
+    	for ($i=0; $i < count($asig); $i++) {
+
+			if(!$asig[$i]->incidencia) continue;
 
     		if ($asig[$i]->concepto == 'Prima de Profesionalización') {
 
@@ -236,11 +261,21 @@ class nominaController extends Controller
     		}elseif ($asig[$i]->tipo_valor == '%' && $asig[$i]->concepto != 'Prima de Profesionalización' && $asig[$i]->concepto != 'Prima de Antiguedad') {
     			
 				if($asig[$i]->tipo_valor_por == 'salario_tabla'){
+
 					$totalAsig += ($sueldo*$asig[$i]->valor)/100;
+
+				}elseif($asig[$i]->concepto == 'Prima por hijos e hijas'){
+
+					$validos = $this->hijosValidosPrima($id);
+
+					$totalAsig += ($asig[$i]->valor * $this->salarioMinimoMensual() / 100) * $validos;
+
 				}elseif($asig[$i]->tipo_valor_por == 'salario_min_mensual'){
+
 					$salarioMinMensual = $this->salarioMinimoMensual();
 
 					$totalAsig += ($salarioMinMensual*$asig[$i]->valor)/100;
+
 				}else{
 					$totalAsig += ($asig[$i]->tipo_valor_por*$asig[$i]->valor)/100;
 				}
@@ -250,9 +285,9 @@ class nominaController extends Controller
 		if($rtotal){return $totalAsig+$sueldo;}
 
     	$antiguedad = $this->primaAntiguedad($id, $totalAsig+$sueldo);
-
+		
     	$salarioNormal = $totalAsig+$sueldo+$antiguedad;
-    	return (string) $salarioNormal;
+    	return round($salarioNormal, 2);
 
     }
 
@@ -305,6 +340,12 @@ class nominaController extends Controller
 
 				if($asignaciones[$i]->tipo_valor_por == 'salario_tabla'){
 					$valor = ($salario*$asignaciones[$i]->valor)/100;
+				}elseif($asignaciones[$i]->concepto == 'Prima por hijos e hijas'){
+
+					$validos = $this->hijosValidosPrima($empleado_id);
+
+					$valor = ($asignaciones[$i]->valor * $this->salarioMinimoMensual() / 100) * $validos;
+
 				}elseif($asignaciones[$i]->tipo_valor_por == 'salario_min_mensual'){
 					$salarioMinMensual = $this->salarioMinimoMensual();
 
@@ -317,7 +358,7 @@ class nominaController extends Controller
 
 			$data = [
 				'concepto' => $asignaciones[$i]->concepto,
-				'valor' => $valor
+				'valor' => round($valor, 2)
 			];
 
 			
@@ -338,7 +379,8 @@ class nominaController extends Controller
 
     }
 
-	private function calcDescuentos($desc, $salarioT){
+	private function calcDescuentos($desc, $salarioT)
+	{
 		$arrayDesc = []; //Array filtrado
 		$valores = []; //Valores ya calculados
         $total = 0;
@@ -354,7 +396,7 @@ class nominaController extends Controller
 
             $calc = ($salarioT*$arrayDesc[$i]->porcentaje)/100;
 
-            array_push($valores, ["concepto" => $arrayDesc[$i]->concepto, "valor" => $calc]);
+            array_push($valores, ["concepto" => $arrayDesc[$i]->concepto, "valor" => round($calc, 2)]);
 
             $total += $calc; 
         }
@@ -386,17 +428,19 @@ class nominaController extends Controller
 		}
 
 		//Calcular el array de deducciones
-		for ($i=0; $i < count($arrayDeducciones); $i++) {
+		foreach ($arrayDeducciones as $key => $value) {
 
-            if ($arrayDeducciones[$i]->concepto =='S.S.O' || $arrayDeducciones[$i]->concepto == 'R.P.E') {
-                $calc = $this->sso_rpe($arrayDeducciones[$i]->porcentaje, $totalAsig);
-            }else if($arrayDeducciones[$i]->concepto == 'V.H' || $arrayDeducciones[$i]->concepto == 'F.J'){
-                $calc = (($totalAsig*$arrayDeducciones[$i]->porcentaje)/100); //
-            }else{
-                $calc = (($salario*$arrayDeducciones[$i]->porcentaje)/100); //
+            if ($value->concepto =='S.S.O' || $value->concepto == 'R.P.E') {
+                $calc = $this->sso_rpe($value->porcentaje, $totalAsig);
+            }else if($value->concepto == 'V.H' || $value->concepto == 'F.J'){
+                $calc = (($totalAsig*$value->porcentaje)/100); //
+            }elseif($value->concepto == 'FAOV'){
+				$calc = (($totalAsig*$value->porcentaje)/100);
+			}else{
+                $calc = (($salario*$value->porcentaje)/100); //
             };
 
-            array_push($valores, ["concepto" => $arrayDeducciones[$i]->concepto, "valor" => $calc, "tipo" => $arrayDeducciones[$i]->tipo]);
+            array_push($valores, ["concepto" => $value->concepto, "valor" => round($calc, 2), "tipo" => $value->tipo]);
              
             $total += $calc;
         }
@@ -434,14 +478,14 @@ class nominaController extends Controller
     							->where('beneficios.concepto', 'Prima de Antiguedad')
     							->first();
 
-    	if ($empleado_bene) {
+     	if ($empleado_bene) {
     		$porcentaje = DB::table('beneficios')
 				    		->select('valor')
 				    		->where('concepto', 'Prima de Antiguedad')
 				    		->first();
 			$valor = (($total*$porcentaje->valor)/100)*$this->calcAñoServ($id);
 			$this->pAntiguedad = $valor;
-			return  $valor;
+			return  round($valor, 2);
     	}else{
     		return 0;
     	}
@@ -456,7 +500,8 @@ class nominaController extends Controller
 		return $unidad->UnTributaria*$cantidad;
     }
 
-	private function salarioMinimoMensual(){
+	private function salarioMinimoMensual()
+	{
 		$salarioMinMensual = DB::table('ind_economicos')
 					->select('salarioMin', 'cestaTicket')
 					->first();
@@ -471,15 +516,21 @@ class nominaController extends Controller
     						->first();
 
     	$año = substr($empleado->fechaIngreso, 0, 4);
+		$mes = substr($empleado->fechaIngreso, 5, 2);
 
+		// yyyy-mm-dd
     	$actual = getdate()["year"];
+		$mesActual = getdate()["mon"];
 
     	$añosServ = $actual-$año;
-
+		if($mes >= $mesActual && $añosServ != 0){
+			$añosServ--;
+		}
     	return $añosServ;
     }
 
-	private function total($id, $salario){
+	private function total($id, $salario)
+	{
 		$total = $this->salarioNormal($salario, $id, true);
 		return $total;
 	}
@@ -509,7 +560,8 @@ class nominaController extends Controller
         DB::table('nominas')->delete($id);
 	}
 
-	public function generarTxt($id){
+	public function generarTxt($id)
+	{
 		
 		$query = $this->consultarNomina($id);
 		$data = $query['pagos'];
@@ -553,7 +605,8 @@ class nominaController extends Controller
 		}
 	}
 
-	private function ceros($cadena, $longitud){
+	private function ceros($cadena, $longitud)
+	{
 		$ceros = '';
 		for ($i = strlen($cadena); $i < $longitud; $i++) { 
 			$ceros .= '0';
@@ -562,7 +615,8 @@ class nominaController extends Controller
 		return $ceros.$cadena;
 	}
 
-	private function totalPagos($arr){
+	private function totalPagos($arr)
+	{
 		$total = 0;
 
 		for ($i=0; $i < count($arr); $i++) { 
@@ -576,5 +630,50 @@ class nominaController extends Controller
 	{
 		$valor = ($salario + $antiguedad + $profesional)*0.8;
 		return $valor;
+	}
+
+	private function hijosValidosPrima($id)
+	{
+		$empleado = Empleado::find($id);
+
+		return count($empleado->hijo);
+	}
+
+	public function encabezados()
+	{	
+
+		$asignaciones = Beneficio::all();
+		$descuentos = Descuento::where('tipo', "Descuento")->get();
+		$retenciones = Descuento::where('tipo', "Retención")->get();
+		$aportes = Descuento::where('tipo', "Aporte")->get();
+
+		$encabezadoAsignaciones = [];
+		$encabezadoRetenciones = [];
+		$encabezadoAportes = [];
+		$encabezadoDescuentos = [];
+
+		foreach ($asignaciones as $key => $value) {
+			array_push($encabezadoAsignaciones, $asignaciones[$key]['concepto']);
+		}
+
+		foreach ($retenciones as $key => $value) {
+			array_push($encabezadoRetenciones, $retenciones[$key]['concepto']);
+		}
+
+		foreach ($aportes as $key => $value) {
+			array_push($encabezadoAportes, $aportes[$key]['concepto']);
+		}
+
+		foreach ($descuentos as $key => $value) {
+			array_push($encabezadoDescuentos, $descuentos[$key]['concepto']);
+		}
+
+
+ 		return [
+			"asignaciones" => $encabezadoAsignaciones,
+			"retenciones" => $encabezadoRetenciones,
+			"aportes" => $encabezadoAportes,
+			"descuentos" => $encabezadoDescuentos
+		];
 	}
 }

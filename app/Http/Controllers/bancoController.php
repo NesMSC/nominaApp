@@ -42,8 +42,8 @@ class bancoController extends Controller
 
         DB::table('bancos')->where('id', $request->id)
                             ->update([
-                                        "nombre" => $request->nombre, 
-                                        "codigo" => $request->codigo
+                                "nombre" => $request->nombre, 
+                                "codigo" => $request->codigo
                             ]);
     }
 

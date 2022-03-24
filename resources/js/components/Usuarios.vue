@@ -98,10 +98,10 @@
                       <td>
                         <a href="#" @click.prevent="accion='editar'; mostrarUsuario(usuario.id)"><i class="fas fa-edit"></i></a>
                         <template v-if="usuario.condicion">
-                          <a href="#" @click.prevent="cambiarEstadoUser(usuario.id, 0)"><i style="color:red;" class="fa fa-ban" aria-hidden="true"></i></a>
+                          <a href="#" @click.prevent="cambiarEstadoUser(usuario.id, usuario.rol, 0)"><i style="color:red;" class="fa fa-ban" aria-hidden="true"></i></a>
                         </template>
                         <template v-else>
-                          <a href="#" @click.prevent="cambiarEstadoUser(usuario.id, 1)"><i style="color:green;" class="fa fa-check-circle" aria-hidden="true"></i></a>
+                          <a href="#" @click.prevent="cambiarEstadoUser(usuario.id, usuario.rol, 1)"><i style="color:green;" class="fa fa-check-circle" aria-hidden="true"></i></a>
                         </template>
                       </td>
                     </tr>
@@ -395,7 +395,7 @@
               });
             };            
           },
-          cambiarEstadoUser(id, estado){
+          cambiarEstadoUser(id, rol, estado){
             let me = this;
             let url = '/usuarios/cambiarEstado';
             swal.fire({
@@ -409,11 +409,20 @@
               cancelButtonText: 'Cancelar'
             }).then((result)=>{
               if (result.value) {
-                axios.put(url,{user_id:id, condicion:estado}).then(function(response){
-                  swal.fire(
+                axios.put(url,{user_id:id, condicion:estado, rol:rol})
+                .then(function(response){
+                  if(response.data.status){
+                    swal.fire(
                         estado?'Usuario habilitado':'Usuario deshabilitado',
                         '',
                         'success');
+                  }else{
+                    swal.fire(
+                        response.data.msg,
+                        '',
+                        'error');
+                  }
+                  
                   me.accion = "listar";
                   me.listarUsuarios(1, me.busqueda, me.criterio);
                   me.resetearInputs();

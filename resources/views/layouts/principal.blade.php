@@ -61,7 +61,7 @@
   </div>
 </div>
 <!-- ./wrapper -->
-  <script src="{{asset('js/app.js')}}"></script>      
+  <script src="{{ mix('/js/app.js') }}"></script>     
   <script src="{{asset('plugins/jquery-ui/jquery-ui.min.js')}}"></script>
   <script>
     $.widget.bridge('uibutton', $.ui.button)

@@ -20,7 +20,7 @@
                         </div>
                     </div> -->
                     <div class="table-responsive">
-                    <table class="table">
+                    <table class="table table-bordered">
                       <thead>
                         <tr>
                           <th scope="col">#</th>
@@ -29,9 +29,29 @@
                           <th scope="col">Cédula</th>
                           <th scope="col">Salario tabla</th>
                           <th scope="col">Salario Normal</th>
+                          <template v-for="(encabezado, index) in encabezados.asignaciones">
+                            <th scope="col" colspan="8" :key="index">
+                              {{encabezado}}
+                            </th>
+                          </template>
                           <th scope="col">Total Primas</th>
+                          <template v-for="encabezado in encabezados.retenciones">
+                            <th scope="col" :key="encabezado">
+                              {{encabezado}}
+                            </th>
+                          </template>
                           <th scope="col">Total Retención</th>
+                          <template v-for="encabezado in encabezados.aportes">
+                            <th scope="col" :key="encabezado">
+                              {{encabezado}}
+                            </th>
+                          </template>
                           <th scope="col">Total Aportes</th>
+                          <template v-for="encabezado in encabezados.descuentos">
+                            <th scope="col" :key="encabezado">
+                              {{encabezado}}
+                            </th>
+                          </template>
                           <th scope="col">Total Descuentos</th>
                           <th scope="col">Neto Abonar</th>
                           <!-- <th scope="col">Acción</th> -->
@@ -42,14 +62,42 @@
                           <th scope="row">{{index+1}}</th>
                           <td v-text="pago.nombre"></td>
                           <td v-text="pago.apellido"></td>
-                          <td v-text="pago.cedula"></td>
+                          <td v-text="pago.pre_cedula + pago.cedula"></td>
                           <td v-text="formato(pago.salario)"></td>
-                          <td v-text="formato(parseFloat(pago.salarioNormal).toFixed(0))"></td>
-                          <td v-text="formato(pago.totalPrimas.toFixed(0))"></td>
-                          <td v-text="formato(pago.totalRetencion.toFixed(0))"></td>
-                          <td v-text="formato(pago.totalAportes.toFixed(0))"></td>
-                          <td v-text="formato(pago.totalDescuentos.toFixed(0))"></td>
-                          <td v-text="formato(pago.netoAbonar.toFixed(0))"></td>
+                          <td v-text="formato(parseFloat(pago.salarioNormal))"></td>
+                          <template v-for="asign in pago.encabezados.asignaciones">
+                            <td scope="col" colspan="8" :key="asign">
+                              {{imprimir(pago.primas, asign)}}
+                            </td>
+                          </template>
+                          <td>
+                            <strong v-text="formato(pago.totalPrimas)"></strong>
+                          </td>
+                          <template v-for="(reten, indexReten) in pago.encabezados.retenciones">
+                            <td scope="col" :key="indexReten">
+                              {{imprimir(pago.retenciones, reten)}}
+                            </td>
+                          </template>
+                          <td>
+                            <strong v-text="formato(pago.totalRetencion)"></strong>
+                          </td>
+                          <template v-for="(dato, indexAporte) in pago.encabezados.aportes">
+                            <td scope="col" :key="indexAporte">
+                              {{imprimir(Object.values(pago.aportes), dato)}}
+                            </td>
+                          </template>
+                          <td>
+                            <strong v-text="formato(pago.totalAportes)"></strong>
+                          </td>
+                          <template v-for="dato in pago.encabezados.descuentos">
+                            <td scope="col" :key="dato">
+                              {{imprimir(pago.descuentos, dato)}}
+                            </td>
+                          </template>
+                          <td>
+                            <strong v-text="formato(pago.totalDescuentos)"></strong>
+                          </td>
+                          <td v-text="formato(pago.netoAbonar)"></td>
                           <!-- <td>
                             <button class="btn btn-success btn-sm"><i class="fas fa-edit"></i></button>
                           </td> -->
@@ -81,6 +129,7 @@ export default {
     data(){
         return {
             arrayPagosNomina: [],
+            encabezados: [],
             pagination: {
                 "total": 0,
                 "current_page": 0,
@@ -131,6 +180,7 @@ export default {
 
             axios.get(url).then((response)=>{
               this.arrayPagosNomina = response.data.pagos;
+              this.encabezados = response.data.encabezados;
             }).catch((error)=>{
               alert(error);
             })
@@ -140,11 +190,22 @@ export default {
             this.listarDatos(page, this.busqueda);
         },
         formato(number){
-           let monto = new Intl.NumberFormat('en-US').format(number);
+           let monto = new Intl.NumberFormat('de-DE').format(number);
            return monto;
         },
         generarTxt(){
           window.open('/nominas/txt/'+this.id);
+        },
+        imprimir(dato, buscado){
+          
+          if(!Array.isArray(dato)){
+            dato = Object.values(dato)
+          }
+
+          const datoFiltrado = dato.filter(e => e.concepto == buscado)[0] ?? 0;
+
+          return (datoFiltrado)? datoFiltrado.valor : 0;
+          
         }
     },
     mounted(){

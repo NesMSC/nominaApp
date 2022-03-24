@@ -54,7 +54,7 @@
 	                  	</tr>
 	                  	<tr v-if="beneficiosEmpleado.length != 0">
 	                    	<td colspan="4"><strong>Total de Beneficios:</strong></td>
-	                    	<strong><td colspan="2" v-text="formatoDivisa(salarioNormal-salarioTabla)"></td></strong>
+	                    	<strong><td colspan="2" v-text="formatoDivisa(totalBeneficios)"></td></strong>
 	                  	</tr> 
 	                  	<tr>
 	                    	<td colspan="6" align="center">
@@ -64,7 +64,7 @@
                   	</tbody>                  
                   	<tbody>
 	                    <tr style="background-color: #343a40">
-	                      <td colspan="6" align="center" class="text-light">DEDUCCIONES</td>
+	                      <td colspan="6" align="center" class="text-light">RETENCIONES</td>
 	                    </tr>
 	                    <tr v-for="deduccion in deduccionesEmpleado" :key="deduccion.id">
 	                      <td colspan="4" v-text="deduccion.concepto"></td>
@@ -77,6 +77,24 @@
 	                    <tr >
 	                      <td colspan="6" align="center">
 	                        <button @click="listarDeducciones()" class="btn btn-light" data-toggle="modal" data-target="#ModalDeducciones"><i class="fa fa-plus"></i>&nbsp;Agregar/Quitar</button>
+	                      </td>
+	                    </tr>
+                  	</tbody>
+					<tbody>
+	                    <tr style="background-color: #343a40">
+	                      <td colspan="6" align="center" class="text-light">APORTES</td>
+	                    </tr>
+ 	                    <tr v-for="aporte in aportesEmpleado" :key="aporte.id">
+	                      <td colspan="4" v-text="aporte.concepto"></td>
+	                      <td colspan="2" v-text="formatoDivisa(aporte.valor)"></td>
+	                    </tr>
+	                    <tr v-if="aportesEmpleado.length != 0">
+	                      <td colspan="4"><strong>Total de Aportes:</strong></td>
+	                      <strong><td colspan="2" v-text="formatoDivisa(totalAportes)"></td></strong>
+	                    </tr>
+	                    <tr >
+	                      <td colspan="6" align="center">
+	                        <button @click="listarDeducciones()" class="btn btn-light" data-toggle="modal" data-target="#ModalAportes"><i class="fa fa-plus"></i>&nbsp;Agregar/Quitar</button>
 	                      </td>
 	                    </tr>
                   	</tbody>
@@ -102,6 +120,10 @@
 	                    <tr style="background-color: #CEEFCF5">
 	                      <td colspan="4"><strong>Salario normal mensual</strong></td>
 	                      <td colspan="2" v-text="formatoDivisa(parseFloat(salarioNormal).toFixed(2))"></td>
+	                    </tr>
+						<tr style="background-color: #CEEFCF5">
+	                      <td colspan="4"><strong>Total Mensual:</strong></td>
+	                      <td colspan="2" v-text="formatoDivisa(parseFloat(totalAsig))"></td>
 	                    </tr>
 	                    <tr style="background-color: #FFF !important">
 	                      <td colspan="6">
@@ -143,7 +165,7 @@
 								<td v-if="beneficio.tipo_valor == 'especifico'">{{beneficio.valor}}</td>
 								<td v-else v-text="beneficio.valor+' '+ beneficio.tipo_valor"></td>
 								<td>
-									<template v-if="exist(beneficio.id, 'bene')">
+									<template v-if="exist(beneficio.id, beneficiosEmpleado)">
 									<a href="#" @click.prevent="retirarBeneficio(beneficio.id)">
 										<i class="fa fa-check text-success"></i>
 									</a>
@@ -159,10 +181,11 @@
 										</span>
 										<a v-else href="#" 
 										@click.prevent="agregarBeneficio({
-																			id:beneficio.id,concepto:beneficio.concepto, 
-																			tipo_valor:beneficio.tipo_valor, valor:beneficio.valor, 
-																			tipo_valor_por:beneficio.tipo_valor_por
-																		})">
+															id:beneficio.id,concepto:beneficio.concepto, 
+															tipo_valor:beneficio.tipo_valor, valor:beneficio.valor, 
+															tipo_valor_por:beneficio.tipo_valor_por, 
+															incidencia:beneficio.incidencia
+														})">
 											<i class="fa fa-plus text-dark"></i>
 										</a>
 									</template>
@@ -206,13 +229,62 @@
 	                          <td v-text="deduccion.tipo"></td>
 	                          <td v-text="deduccion.porcentaje+'%'"></td>
 	                          <td>
-	                            <template v-if="exist(deduccion.id, 'deduc')">
-	                              <a href="#" @click.prevent="retirarDeduccion(deduccion.id)">
+	                            <template v-if="exist(deduccion.id, deduccionesEmpleado)">
+	                              <a href="#" @click.prevent="retirarDeduccion(deduccionesEmpleado, deduccion.id)">
 	                                <i class="fa fa-check text-success"></i>
 	                              </a>
 	                            </template>
 	                            <template v-else>
 	                              <a href="#" @click.prevent="agregarDeduccion({id:deduccion.id, concepto:deduccion.concepto, valor:0, tipo:deduccion.tipo, porcentaje:deduccion.porcentaje})">
+	                                <i class="fa fa-plus text-dark"></i>
+	                              </a>
+	                            </template>
+	                          </td>
+	                        </tr>
+	                      </tbody>
+	                    </table> 
+	                  </div>
+	                </div>
+	              </div>
+	            </div>
+	          </div>
+	          <div class="modal-footer">
+	            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+	          </div>
+	        </div>
+	      </div>
+	    </div>
+		<!-- Modal Aportes-->
+		<div class="modal fade" id="ModalAportes" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+	      <div class="modal-dialog" role="document">
+	        <div class="modal-content">
+	          <div class="modal-body">
+	            <div class="modal-body">
+	              <div class="container-fluid">
+	                <div class="row">
+	                  <div class="col-md-12">
+	                    <table class="table table-hover">
+	                      <thead>
+	                        <tr>
+	                          <th>Concepto</th>
+	                          <th>Tipo</th>
+	                          <th>Valor</th>
+	                          <th>Estado</th>
+	                        </tr>
+	                      </thead>
+	                      <tbody>
+	                        <tr v-for="aporte in arrayAportes" :key="aporte.id">
+	                          <td v-text="aporte.concepto"></td>
+	                          <td v-text="aporte.tipo"></td>
+	                          <td v-text="aporte.porcentaje+'%'"></td>
+	                          <td>
+	                            <template v-if="exist(aporte.id, aportesEmpleado)">
+	                              <a href="#" @click.prevent="retirarDeduccion(aportesEmpleado, aporte.id)">
+	                                <i class="fa fa-check text-success"></i>
+	                              </a>
+	                            </template>
+	                            <template v-else>
+	                              <a href="#" @click.prevent="agregarDeduccion({id:aporte.id, concepto:aporte.concepto, valor:0, tipo:aporte.tipo, porcentaje:aporte.porcentaje})">
 	                                <i class="fa fa-plus text-dark"></i>
 	                              </a>
 	                            </template>
@@ -256,8 +328,8 @@
 	                          <td v-text="descuento.tipo"></td>
 	                          <td v-text="descuento.porcentaje+'%'"></td>
 	                          <td>
-	                            <template v-if="exist(descuento.id, 'desc')">
-	                              <a href="#" @click.prevent="retirarDescuento(descuento.id)">
+	                            <template v-if="exist(descuento.id, descuentosEmpleado)">
+	                              <a href="#" @click.prevent="retirarDeduccion(descuentosEmpleado, descuento.id)">
 	                                <i class="fa fa-check text-success"></i>
 	                              </a>
 	                            </template>
@@ -307,18 +379,23 @@ export default{
             arrayBeneficios: [],
             arrayDescuentos: [],
             arrayDeducciones: [],
+			arrayAportes: [],
             salarioTabla: 0,
 			salarioMinimoMensual: 0,
             beneficiosEmpleado: [],
             descuentosEmpleado: [],
             deduccionesEmpleado: [],
+			aportesEmpleado: [],
             id_beneficiosAgregados: [],
             id_deduccionesAgregados: [],
             id_descuentosAgregados: [],
             totalAsig: 0,
             salarioNormal: 0,
-            totalDesc: Number,
-            totalDeduc: Number,
+			totalBeneficios: 0,
+			totalExtra: 0,
+            totalDesc: 0,
+            totalDeduc: 0,
+			totalAportes: 0,
             UT: 0,
             primAntiguedadPorcentaje: Number,
 			primAntiguedadId: Number,
@@ -327,7 +404,6 @@ export default{
 		}
 	},
 	methods: {
-
       	listarBeneficios(){
 		    let me = this;
 		    let url = 'empleados/beneficios';
@@ -350,18 +426,18 @@ export default{
             let me = this;
             let url = 'empleados/deducciones';
             axios.get(url).then(function(response){
-              me.arrayDeducciones = response.data.deducciones;
+              me.arrayDeducciones = response.data.deducciones.filter(e => e.tipo == 'Retención');
+			  me.arrayAportes = response.data.deducciones.filter(e => e.tipo == 'Aporte');
             }).catch(function(error){
               console.log(error);
             })
         },
         formatoDivisa(number){
-           let monto = new Intl.NumberFormat('en-US').format(number);
-           return monto;
+           let monto = new Intl.NumberFormat('de-DE').format(number);
+           return monto + ' Bs';
         },
 		datoSalario(){
 			let me = this;
-			
 
 			if (me.grado!='Seleccionar' && me.nivel!='Seleccionar') {
 	      		let url = 'empleados/salarioTabla';
@@ -419,7 +495,9 @@ export default{
 						  concepto:beneficios[i].concepto, 
 						  tipo_valor:beneficios[i].tipo_valor, 
 						  valor:beneficios[i].valor, 
-						  tipo_valor_por:beneficios[i].tipo_valor_por})
+						  tipo_valor_por:beneficios[i].tipo_valor_por,
+						  incidencia: beneficios[i].incidencia
+						})
                 };
 
               	for (var i = 0; i < descuentos.length; i++) {
@@ -436,6 +514,8 @@ export default{
 						concepto:deducciones[i].concepto, 
 						valor:0, tipo:deducciones[i].tipo, 
 						porcentaje:deducciones[i].porcentaje})
+
+						console.log(`for ej ${deducciones[i].tipo}`)
                 };
               
 
@@ -446,7 +526,8 @@ export default{
         validarDatosSalario(){
 			let checkStatus = document.getElementById('confirm_sal');
 			if (checkStatus.checked) {
-				let data = [this.id_beneficiosAgregados, this.id_deduccionesAgregados.concat(this.id_descuentosAgregados)]
+				const aportesId = this.aportesEmpleado.map(e => e.id);
+				let data = [this.id_beneficiosAgregados, this.id_deduccionesAgregados.concat([...this.id_descuentosAgregados, ...aportesId])]
 				if(data[0].length==0 || data[1].length==0){
 					this.avisar(true, false);
 					checkStatus.checked=false;
@@ -477,19 +558,11 @@ export default{
 						this.listarBeneficios();
 			 			this.calcularTotalAsig();
 					}
-			}else if(dato.tipo_valor == 'formula'){
-				if(this.primaProfesionalValue && this.primAntiguedadIndice != -1){
-					this.calcularFormula(dato);
-				}else{
-					Vue.toasted.error( 'Faltan parámetros', {duration:2000});
-				}
-				
 			}else{
 
 				if(dato.tipo_valor == 'U.T') {
                     dato.valor = (dato.valor*this.UT).toFixed(2);
                 }else if(dato.tipo_valor == '%'){
-
 					if(dato.tipo_valor_por == 'salario_tabla'){
 						dato.valor = ((dato.valor*this.salarioTabla)/100).toFixed(2);
 					}else if(dato.tipo_valor_por == 'salario_min_mensual'){
@@ -499,16 +572,27 @@ export default{
 					};
                     
                 };
-
+				
                 this.beneficiosEmpleado.push(dato);
 			 	this.id_beneficiosAgregados.push(dato.id);
+				this.calcularFormula();
 			 	this.listarBeneficios();
 			 	this.calcularTotalAsig();
 			}
+
+			
+
 			if (this.primAntiguedadIndice != -1) {
 			 		this.cambiarPrimaAntiguedad();
 			}
+
+			this.calcularTotalBeneficios();
 			this.validarDatosSalario();
+		},
+		calcularTotalBeneficios(){
+			this.totalBeneficios = this.beneficiosEmpleado.reduce((previous, current) => {
+				return previous + parseFloat(current.valor);
+			}, 0)
 		},
 		agregarDescuento(dato){
 			dato.valor = ((this.salarioTabla*dato.porcentaje)/100).toFixed(2);
@@ -528,8 +612,15 @@ export default{
 				dato.valor = ((this.salarioNormal*dato.porcentaje)/100).toFixed(2);
 			}
 			
-			this.deduccionesEmpleado.push(dato);
-			this.id_deduccionesAgregados.push(dato.id);
+			console.log(dato.tipo)
+			if(dato.tipo == 'Retención'){
+				this.deduccionesEmpleado.push(dato);
+				this.id_deduccionesAgregados.push(dato.id);
+			}
+			if(dato.tipo == 'Aporte'){
+				this.aportesEmpleado.push(dato);
+				console.log(`SE AGREGÓ ${dato.concepto}`)
+			}
 			this.listarDeducciones();
 			this.calcularTotalDeduc();
 		},
@@ -548,32 +639,18 @@ export default{
 			 		this.cambiarPrimaAntiguedad();
 			};
 		},
-		retirarDescuento(id){
-			let descuento_index = this.id_descuentosAgregados.indexOf(id);
-            this.id_descuentosAgregados.splice(descuento_index, 1);
-            this.descuentosEmpleado.splice(descuento_index, 1);
-            this.listarDescuentos();
-			this.calcularTotalDesc();
+		retirarDeduccion(arr, id){
+			arr.forEach((element, index) => {
+				if(element.id == id){
+					arr.splice(index, 1);
+					this.listarDeducciones();
+					this.calcularTotalDeduc();
+					this.calcularTotalDesc();
+				}
+			});
 		},
-		retirarDeduccion(id){
-			let deduccion_index = this.id_deduccionesAgregados.indexOf(id);
-            this.id_deduccionesAgregados.splice(deduccion_index, 1);
-            this.deduccionesEmpleado.splice(deduccion_index, 1);
-            this.listarDeducciones();
-			this.calcularTotalDeduc();
-		},
-		exist(id, busqueda){
-			switch(busqueda){
-				case 'bene':
-					return (this.id_beneficiosAgregados.includes(id))? true : false;
-				break;
-				case 'deduc':
-					return (this.id_deduccionesAgregados.includes(id))? true : false;
-				break;
-				case 'desc':
-					return (this.id_descuentosAgregados.includes(id))? true : false;
-				break;
-			}
+		exist(id, data){
+			return data.some(e => e.id == id);
 		},
 		primaProfesional(dato){
 
@@ -585,6 +662,7 @@ export default{
 				this.primaProfesionalValue = dato.valor;
 				this.beneficiosEmpleado.push(dato);
 			    this.id_beneficiosAgregados.push(dato.id);
+				this.calcularFormula();
 			    this.listarBeneficios();
 			    this.calcularTotalAsig();
 			    if (this.primAntiguedadIndice != -1) {
@@ -614,26 +692,41 @@ export default{
 			let valorActual = (((this.salarioNormal-valorAnterior)*porcentaje)/100)*this.anos;
 			this.beneficiosEmpleado[indice].valor = valorActual.toFixed(2);
 			this.calcularTotalAsig();
+			this.calcularFormula();
+			this.calcularTotalBeneficios();
 			
 		},
 		calcularTotalAsig(){
 			let total = parseFloat(this.salarioTabla);
-			
+			this.totalExtra = 0;
 			for (var i = 0; i < this.beneficiosEmpleado.length; i++) {
-				total += parseFloat(this.beneficiosEmpleado[i].valor);
+				if(this.beneficiosEmpleado[i].incidencia){
+					total += parseFloat(this.beneficiosEmpleado[i].valor);
+				}else{
+					this.totalExtra += parseFloat(this.beneficiosEmpleado[i].valor);
+				}
+				
 			};
 
 			this.salarioNormal = total;
-			this.totalAsig = this.salarioNormal - (this.salarioTabla/2);
-			
+
 			//Recalcular deducciones
-			let deducciones = this.deduccionesEmpleado;
+	 		let deducciones = [...this.deduccionesEmpleado];
 			this.deduccionesEmpleado = [];
 			this.id_deduccionesAgregados = [];
-
-			for(var i = 0; i < deducciones.length; i++){
-				this.agregarDeduccion(deducciones[i]);
+			for(let deduccion of deducciones){
+				this.agregarDeduccion(deduccion);
 			}
+
+			//Recalcular aportes
+	 		let aportes = [...this.aportesEmpleado];
+			this.aportesEmpleado = [];
+			for(let aporte of aportes){
+				this.agregarDeduccion(aporte);
+			}
+		},
+		calcularTotalNeto(){
+			this.totalAsig = (this.salarioNormal + this.totalExtra).toFixed(2) - (this.totalDeduc).toFixed(2) - (this.totalDesc).toFixed(2);
 		},
 		calcularTotalDesc(){
 			let total = 0;
@@ -644,15 +737,25 @@ export default{
 			};
 
 			this.totalDesc = total;
+			this.calcularTotalAsig();
 		},
 		calcularTotalDeduc(){
-			let total = 0;
-			
-			for (var i = 0; i < this.deduccionesEmpleado.length; i++) {
-				total += parseFloat(this.deduccionesEmpleado[i].valor);
-			};
+			const totalRetenciones = this.deduccionesEmpleado
+									.filter(e => e.tipo == 'Retención')
+									.reduce((previous, current) =>
+										previous + parseFloat(current.valor)
+									, 0);
 
-			this.totalDeduc = total;
+			const totalAportes = this.aportesEmpleado
+									.filter(e => e.tipo == 'Aporte')
+									.reduce((previous, current) =>
+										previous + parseFloat(current.valor)
+									, 0);
+
+			this.totalDeduc = totalRetenciones;
+			this.totalAportes = totalAportes;
+			this.calcularTotalNeto();
+			
 		},
 		sso_rpe(dato){
 
@@ -717,24 +820,29 @@ export default{
 					//Verifica si el dia de la semana de fecha2 coincide con lunes (1)
 					//Si es true, acumula +1 a la variable contadora lunes
 					//Imprime las fechas que corresponden a esos lunes del mes
-					if(fecha2.getDay() == 1){ lunes++; console.log(`Fechas = ${fecha2.getDate()}`)}
+					if(fecha2.getDay() == 1){ lunes++;}
 					//Suma uno a la fecha de fecha2
 					cont++;
 				}else{
 					//Si es false, retorna el numero de lunes que se acumularon
-					console.log(fecha2);
 					return lunes;
 				}
 			}
 		},
-		calcularFormula(dato){
-			dato.valor = (parseFloat(this.salarioTabla) + 
-							parseFloat(this.beneficiosEmpleado[this.primAntiguedadIndice].valor) +
-							parseFloat(this.primaProfesionalValue))*(80/100);
-					this.beneficiosEmpleado.push(dato);
-					this.id_beneficiosAgregados.push(dato.id);
-					this.listarBeneficios();
-					this.calcularTotalAsig();
+		calcularFormula(){
+
+			const primaAntiguedad = (this.beneficiosEmpleado[this.primAntiguedadIndice])? 
+				this.beneficiosEmpleado[this.primAntiguedadIndice].valor
+				: 0;
+			const primaProfesional = this.primaProfesionalValue ?? 0;
+			const dato = this.beneficiosEmpleado.find(e => e.tipo_valor == 'formula');
+
+			if(dato){
+				dato.valor = ((parseFloat(this.salarioTabla) + 
+							parseFloat(primaAntiguedad) +
+							parseFloat(primaProfesional))*(80/100)).toFixed(2);
+			}
+			
 		}
 	},
 	mounted() {

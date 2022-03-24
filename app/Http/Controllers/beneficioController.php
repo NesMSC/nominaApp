@@ -18,14 +18,14 @@ class beneficioController extends Controller
         if (!$request->ajax()) return redirect('/');
 
         if ($request->busqueda) {
-            $beneficios = Beneficio::select('id','concepto', 'tipo_valor', 'valor')
+            $beneficios = Beneficio::select('id','concepto', 'tipo_valor', 'valor', 'incidencia')
                                     ->where('concepto', 'like', "%$request->busqueda%")
                                     ->orWhere('valor', 'like', "%$request->busqueda%")
                                     ->orderBy('id', 'desc')
                                     ->paginate(10);
         }else{
             //Todos los datos
-            $beneficios = Beneficio::select('id', 'concepto', 'tipo_valor', 'valor')
+            $beneficios = Beneficio::select('id', 'concepto', 'tipo_valor', 'valor', 'incidencia')
                                     ->orderBy('id', 'desc')
                                     ->paginate(10);
         };
@@ -59,6 +59,7 @@ class beneficioController extends Controller
         $beneficio->concepto = $request->concepto;
         $beneficio->valor = $request->valor;
         $beneficio->tipo_valor = $request->tipo_valor;
+        $beneficio->incidencia = $request->incidencia;
         if($request->tipo_valor == '%'){
             $beneficio->tipo_valor_por = $request->tipo_valor_por;
         }
@@ -111,6 +112,7 @@ class beneficioController extends Controller
             "valor"=>$request->valor, 
             "tipo_valor"=>$request->tipo_valor,
             "tipo_valor_por"=>$request->tipo_valor_por,
+            "incidencia" => $request->incidencia,
         ]);
 
         return $request;

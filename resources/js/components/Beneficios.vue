@@ -203,6 +203,10 @@
                         *Este campo es requerido
                   </div>
                 </div>
+                <div class="col-md-4 ml-3 form-group form-check">
+                  <input v-model="incidencia" type="checkbox" class="form-check-input" id="incidencia">
+                  <label class="form-check-label" for="incidencia">Incidencia</label>
+                </div>
               </div>
               <div v-if="tipo_valor == '%'" class="row">
                 <div class="col-auto">
@@ -292,6 +296,7 @@
         data() {
           return {
             concepto: "",
+            incidencia: true,
             valor: 0.0,
             tipo_valor: "Seleccionar",
             tipo_valor_por: "salario_tabla",
@@ -376,6 +381,7 @@
                 valor: me.valor,
                 tipo_valor: me.tipo_valor,
                 tipo_valor_por:(me.tipo_valor_por == 'especifico')? me.tipo_valor_esp: me.tipo_valor_por,
+                incidencia: me.incidencia
               }).then(function (response){
                 swal.fire(
                         'Beneficio agregado exitosamente',
@@ -398,6 +404,7 @@
               me.concepto = beneficio.concepto;
               me.valor = beneficio.valor;
               me.tipo_valor = beneficio.tipo_valor;
+              me.incidencia = beneficio.incidencia;
             }).catch(function (error){
               console.log(error);
             });
@@ -412,6 +419,7 @@
               me.concepto = beneficio.concepto;
               me.valor = beneficio.valor;
               me.tipo_valor = beneficio.tipo_valor;
+              me.incidencia = beneficio.incidencia;
               if(beneficio.tipo_valor_por == 'salario_min_mensual' || beneficio.tipo_valor_por == 'salario_tabla' || beneficio.tipo_valor == 'especifico'){
                 me.tipo_valor_por = beneficio.tipo_valor_por;
               }else{
@@ -433,6 +441,7 @@
                 valor:me.valor,
                 tipo_valor:me.tipo_valor,
                 tipo_valor_por:(me.tipo_valor == '%')?me.tipo_valor_por:null,
+                incidencia: me.incidencia,
                 id:me.id_beneficio,
               }).then(function(response){
                 swal.fire(

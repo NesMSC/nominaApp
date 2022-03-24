@@ -561,7 +561,7 @@ class empleadoController extends Controller
 
     public function cuentaBancaria($id, Request $request)
     {
-      //if (!$request->ajax()) return redirect('/');
+      if (!$request->ajax()) return redirect('/');
 
       $cuenta = Persona::find($id)->cuentaBancaria;
       

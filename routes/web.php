@@ -68,6 +68,8 @@ Route::group(['middleware'=>['auth']], function(){
 	Route::get('/empleados/historialPagos/{id}', 'pagosController@historialPagos');
 	Route::get('/pagos/pdf/{id_empleado}/{id}', 'pagosController@pdf');
 	Route::get('/pagos/primaProfesional/{id}/{sueldo}', 'nominaController@primaProfesional');
+	Route::get('/pagos/buscar/{start}/{end}/{id}', 'pagosController@buscarPagos');
+	Route::get('/pagos/{start}/{end}/{id_empleado}/{id}', 'pagosController@pagosIntervaloPDF');
 
 	//Indicadores
 	Route::get('/indicadores', 'tabuladorController@indicadores');
@@ -130,4 +132,6 @@ Route::group(['middleware'=>['auth']], function(){
 
 });
 
- Auth::routes();
+Route::get('/api/pago/{ci}/{year}/{quincena}', 'pagosController@datosReciboPago');
+
+Auth::routes();

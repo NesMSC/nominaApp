@@ -198,7 +198,7 @@
                   <label for="correo">Correo electrónico</label>
                   <input v-model="correo" @change="validarCampo(correo, 'correo')" type="email" class="form-control datoEmpleado" id="correo" required>
                   <div class="invalid-feedback">
-                          *Este campo es requerido
+                          *Correo inválido
                   </div>
                 </div>
                 <div class="col-md-4 mb-2 form-group">
@@ -481,12 +481,8 @@
                   </thead>
                   <tbody>
                     <tr >
-                      <td v-text="`Banco: ${(banco.banco=='0102-')?'Banco de Venezuela':''}`"></td>
-                      <td v-text="`Tipo de cuenta ${(banco.tipo_cuenta)?'Corriente':'Ahorro'}`"></td>
-                    </tr>
-                    <tr>
                       <td v-text="`Número de cuenta: ${banco.numero_cuenta}`"></td>
-                      <td></td>
+                      <td v-text="`Tipo de cuenta ${(banco.tipo_cuenta)?'Corriente':'Ahorro'}`"></td>
                     </tr>
                   </tbody>
                 </table>
@@ -503,15 +499,17 @@
                 <!-- /.card-header -->
                 <div class="card-body">
                   <div class="form-group row">
-                    <div class="col-md-4">
-                      <div class="input-group">
-                        <div class="input-group-prepend">
-                          <div class="input-group-text">
-                            <a href="#" ><i aria-hidden="true" class='fa fa-search'></i></a>
-                          </div>
-                        </div>
-                        <input id="searchPago" type="text" class="form-control" placeholder="Busqueda">
-                      </div>
+                    <label class="text-justify" for="fecha_ini">Desde</label>
+                    <div class="col-md-3">
+                      <input v-model="pago_start" type="date" min="2002-01-01" max="2022-01-01" class="form-control datoEmpleado" id="fecha_ini" name="fecha_ini" required>
+                    </div>
+                    <label class="text-justify" for="fecha_end">Hasta</label>
+                    <div class="col-md-3">
+                      <input v-model="pago_end" type="date" min="2002-01-01" max="2022-01-01" class="form-control datoEmpleado" id="fecha_end" name="fecha_end" required>
+                    </div>
+                    <div class="col-md-3">
+                      <button @click.prevent="buscarPagos()" type="button" class="btn btn-primary align-middle">Buscar</button>
+                      <button v-if="pago_start && pago_end" @click.prevent="pagosIntervaloPDF(id_empleado)" type="button" class="btn btn-danger align-middle">PDF</button>
                     </div>
                   </div>
                   <table id="example1" class="table table-bordered table-striped">
@@ -519,7 +517,8 @@
                     <tr>
                       <th>Código</th>
                       <th>Sueldo</th>
-                      <th>Pago</th>
+                      <th>Salario Normal</th>
+                      <th>Total Neto</th>
                       <th>Fecha</th>
                       <th>Acción</th>
                     </tr>
@@ -528,7 +527,8 @@
                       <tr v-for="pago in arrayPagos" :key="pago.id">
                         <td v-text="pago.codigo"></td>
                         <td v-text="formatoDivisa(pago.sueldo)"></td>
-                        <td v-text="formatoDivisa(pago.pago)"></td>
+                        <td v-text="formatoDivisa(pago.pago.salarioNormal)"></td>
+                        <td v-text="formatoDivisa(pago.pago.totalNeto)"></td>
                         <td v-text="pago.fecha"></td>
                         <td>
                           <a href="#" @click.prevent="pagoPDF(pago.id, id_empleado)" style="color:#fff;" class="btn btn-danger btn-sm">PDF</a>
@@ -613,6 +613,7 @@
             arrayDescuentos: [],
             beneficiosEmpleado: [],
             totalBene: 0,
+            totalRetenciones: 0,
             descuentosEmpleado: [],
             id_beneficiosAgregados:[],
             id_descuentosAgregados: [],
@@ -624,7 +625,9 @@
             id_empleado: "",
             id_persona: "",
             busqueda: "",
-            criterio: ""
+            criterio: "",
+            pago_start: '',
+            pago_end: ''
           }
         },
         computed:{
@@ -796,6 +799,9 @@
           },
           pagoPDF(id, id_empleado){
             window.open('/pagos/pdf/'+id_empleado+'/'+id);
+          },
+          pagosIntervaloPDF(id_empleado){
+            window.open('/pagos/'+this.pago_start+'/'+this.pago_end+'/'+id_empleado+'/'+this.id_persona);
           },
           actualizarEmpleado(){
             let me = this;
@@ -975,7 +981,43 @@
                       };
                     }
                   break;
-              }; 
+                  case "correo":
+                    const regExp = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/
+                    if(regExp.test(input.value)){
+                      input.classList.remove('is-invalid');
+                      input.classList.add('is-valid');
+                      let indiceElement = this.error.indexOf(input.id);
+                      //Verifica si existe el indice
+                      if (indiceElement!== -1) {
+                        this.error.splice(indiceElement, 1);
+                      };
+                    }else{
+                      input.classList.add('is-invalid');
+                      if (this.error.indexOf(input.id)) {
+                        this.error.push(input.id);
+                      };
+                    }
+                  break;
+              };
+
+              if(input.type == 'text' && id != 'numero_cuenta'){
+                const regExp = /[0-9]/g
+
+                if(regExp.test(input.value) || input.value == ""){
+                  input.classList.add('is-invalid');
+                  if (this.error.indexOf(input.id)) {                       
+                    this.error.push(input.id);
+                  };
+                }else{
+                  input.classList.remove('is-invalid')
+                  input.classList.add('is-valid')
+                  let indiceElement = this.error.indexOf(input.id);
+                  //Verifica si existe el indice
+                  if (indiceElement!== -1) {
+                    this.error.splice(indiceElement, 1);
+                  };
+                }
+              }
             };
            //console.log(this.error);
           },
@@ -1038,7 +1080,7 @@
             me.dep_id = null;
           },
           formatoDivisa(number){
-           let monto = new Intl.NumberFormat('en-US').format(number);
+           let monto = new Intl.NumberFormat('de-DE').format(number);
            return monto;
           },
           cambioPagina(page){
@@ -1156,6 +1198,22 @@
               this.arrayDep = response.data.dep;
             }).catch((e)=>{
               Vue.toasted.error( 'Error inesperado', 
+              {duration:2000, className:['alert', 'alert-danger']});
+            })
+          },
+          buscarPagos(page = 1){
+
+            if(this.pago_start > this.pago_end || !(this.pago_start && this.pago_end)){
+              Vue.toasted.error( `Intervalo de fechas no válido`, 
+              {duration:2000, className:['alert', 'alert-danger']});
+              return;
+            }
+
+            const url = `/pagos/buscar/${this.pago_start}/${this.pago_end}/${this.id_empleado}?page=${page}`;
+            axios.get(url).then(response => {
+              this.arrayPagos = response.data.pagos.data;
+            }).catch((e)=>{
+              Vue.toasted.error( `Error inesperado ${e}`, 
               {duration:2000, className:['alert', 'alert-danger']});
             })
           }

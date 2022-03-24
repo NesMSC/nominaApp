@@ -133,9 +133,14 @@ class userController extends Controller
     {
         if (!$request->ajax()) return redirect('/');
 
+        if($request->rol == 'Administrador'){
+            return ["status"=>false, "msg" => 'No puedes inhabilitar este usuario.'];
+        }
+
+
         DB::table('users')->where('id', $request->user_id)
         	->update(["condicion"=>$request->condicion]);
-
+        return ["status"=>true, "msg" => 'Usuario inhabilitado exitosamente.'];
     }
-
+ 
 }
