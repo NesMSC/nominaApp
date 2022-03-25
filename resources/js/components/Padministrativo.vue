@@ -1007,7 +1007,7 @@
                   input.classList.add('is-invalid');
                   if (this.error.indexOf(input.id)) {                       
                     this.error.push(input.id);
-                  };
+                  }; 
                 }else{
                   input.classList.remove('is-invalid')
                   input.classList.add('is-valid')

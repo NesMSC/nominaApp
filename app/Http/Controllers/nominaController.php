@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 use App\Nomina;
 use App\Empleado;
 use App\Pago;
@@ -20,6 +21,10 @@ class nominaController extends Controller
 		
 		$nominas = Nomina::orderBy('id', 'desc')
     					->paginate(10);
+		
+		foreach ($nominas as $nomina) {
+			$nomina->fecha = Carbon::parse($nomina->fecha )->isoFormat('DD-MM-YYYY');
+		}
 		
     	return [
           "pagination" => [

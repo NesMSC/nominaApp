@@ -7272,6 +7272,32 @@ __webpack_require__.r(__webpack_exports__);
         }
 
         ;
+
+        if (input.type == 'text' && id != 'numero_cuenta') {
+          var regExp = /[0-9]/g;
+
+          if (regExp.test(input.value) || input.value == "") {
+            input.classList.add('is-invalid');
+
+            if (this.error.indexOf(input.id)) {
+              this.error.push(input.id);
+            }
+
+            ;
+          } else {
+            input.classList.remove('is-invalid');
+            input.classList.add('is-valid');
+
+            var _indiceElement4 = this.error.indexOf(input.id); //Verifica si existe el indice
+
+
+            if (_indiceElement4 !== -1) {
+              this.error.splice(_indiceElement4, 1);
+            }
+
+            ;
+          }
+        }
       }
 
       ; //console.log(this.error);
@@ -8443,6 +8469,32 @@ __webpack_require__.r(__webpack_exports__);
         }
 
         ;
+
+        if (input.type == 'text' && id != 'numero_cuenta') {
+          var regExp = /[0-9]/g;
+
+          if (regExp.test(input.value) || input.value == "") {
+            input.classList.add('is-invalid');
+
+            if (this.error.indexOf(input.id)) {
+              this.error.push(input.id);
+            }
+
+            ;
+          } else {
+            input.classList.remove('is-invalid');
+            input.classList.add('is-valid');
+
+            var _indiceElement4 = this.error.indexOf(input.id); //Verifica si existe el indice
+
+
+            if (_indiceElement4 !== -1) {
+              this.error.splice(_indiceElement4, 1);
+            }
+
+            ;
+          }
+        }
       }
 
       ; //console.log(this.error);

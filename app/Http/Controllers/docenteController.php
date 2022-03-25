@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 use App\Persona;
 use App\Empleado;
 use App\Salario;
@@ -198,6 +199,9 @@ class docenteController extends Controller
                             ->select('personas.id as id_persona', 'empleados.id as id_empleado', 'nombres', 'apellidos', 'cedula', 'correo', 'telefono', 'nacimiento', 'categoria', 'dedicacion', 'fechaIngreso', 'pnf', 'instruccion', 'estado', 'sexo')
                             ->where('personas.id', '=', $id)
                             ->get();
+
+        $empleado[0]->fechaIngreso = Carbon::parse($empleado[0]->fechaIngreso)->isoFormat('DD-MM-YYYY');
+        $empleado[0]->nacimiento = Carbon::parse($empleado[0]->fechaIngreso)->isoFormat('DD-MM-YYYY');
         
         $empleado_id = Persona::find($id)->empleado->id;
         $banco = Persona::find($id)->cuentaBancaria;

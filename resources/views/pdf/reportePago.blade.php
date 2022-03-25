@@ -14,13 +14,31 @@
     		font-family: 'Source Sans Pro', sans-serif;
     		font-size: 14px;
     	}
+
+		img{
+			width: 70px;
+		}
+		
+		.title{
+			display:block;
+			width: 100%;
+		}
+
+		.logo{
+			width: 100%;
+			display: block;
+		}
+		
     </style>
     <body>
     	<header>
-    			<div align="center">
-    				<h2><b>REPORTE DE PAGO</b></h2>
-    			</div>
-    		</header>
+		<div class="logo">
+				<img src="img/logo-upteb.png" alt="LogoUPT">
+			</div>
+			<div align="center" class="title">
+				<h2><b>REPORTE DE PAGO</b></h2>
+			</div>
+		</header>
     	<section>
     		<table width="100%" border="0">
     			<tbody>

@@ -17,7 +17,8 @@
 <body class="hold-transition login-page">
 <div class="wrapper">
   <div class="login-box">
-    <div class="login-logo">
+    <div class="login-logo mt-5">
+        <img width="70" src="img/logo-upteb.png" alt="LogoUPT">
         <a href="/login">
           UPTEB <br>
           <b>Calculos Salariales </b>

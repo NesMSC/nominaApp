@@ -131,7 +131,15 @@
                 Respaldo
               </p>
             </a>
-          </li> -->
+          </li>
+          <li class="nav-item">
+            <a href="/Manual.pdf" class="nav-link" target="_blanck">
+              <i class="nav-icon fas fa-copy"></i>
+              <p>
+                Manual de usuario
+              </p>
+            </a>
+          </li>
         </ul>
       </nav>
       <!-- /.sidebar-menu -->
