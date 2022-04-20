@@ -93,12 +93,27 @@
             </ul>
           </li>
           <li class="nav-item has-treeview">
-            <a href="#" @click.prevent="menu=7" class="nav-link" :class="menu==7?'active':''">
+            <a href="#" class="nav-link" :class="(menu==7 || menu == 72)?'active':''">
               <i class="nav-icon fas fa-tree"></i>
               <p>
-                Nominas
+                Nóminas
+                <i class="fas fa-angle-left right"></i>
               </p>
             </a>
+            <ul class="nav nav-treeview">
+              <li class="nav-item">
+                <a href="#" @click.prevent="menu=7" class="nav-link" :class="menu==7?'active':''">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>Nóminas</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="#" @click.prevent="menu=72" class="nav-link" :class="menu==72?'active':''">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>Gestionar pagos</p>
+                </a>
+              </li>
+            </ul>
           </li>
           <li class="nav-item has-treeview">
             <a href="#" class="nav-link" :class="(menu==8 || menu==9)?'active':''">

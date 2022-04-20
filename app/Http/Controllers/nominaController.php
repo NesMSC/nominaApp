@@ -11,6 +11,7 @@ use App\Pago;
 use App\Salario;
 use App\Beneficio;
 use App\Descuento;
+use App\Tipo;
 
 class nominaController extends Controller
 {
@@ -64,7 +65,8 @@ class nominaController extends Controller
 	    		$empleados = Empleado::select('id', 'salario_id')
 	    							->where('tipoPersonal', $request->personal)
 	    							->get();
-
+				
+				
 	    		//Agregar pagos
 	    		for ($b=0; $b < count($empleados); $b++) {
 	    			$pago = new Pago;
@@ -72,23 +74,42 @@ class nominaController extends Controller
 	    			$pago->id_nomina = $nomina->id;
 	    			$pago->sueldo = $this->salarioTabla($empleados[$b]->id, $empleados[$b]->salario_id);
 	    			$pago->salarioNormal = $this->salarioNormal($pago->sueldo, $empleados[$b]->id);
-	    			$pago->asignaciones = $this->asignaciones($empleados[$b]->id);
+	    			$pago->asignaciones = $this->asignaciones($empleados[$b]->id, true, $nomina->tipo);
 	    			$pago->deducciones = $this->deducciones($empleados[$b]->id);
 	    			$pago->descuentos = $this->descuentos($empleados[$b]->id);
 	    			$pago->save();
 	    		};
     		
     		DB::commit();
+
+			return response([
+				'status' => 'success',
+				'msg' => 'Nómina generada'
+			], 200);
+
     	}catch(Exception $e){
             DB::rollBack();
             return $e;
         }
-
-		return response([
-			'status' => 'success',
-			'msg' => 'Nómina generada'
-		], 200);
     }
+
+	/**
+	* Retorna todos los beneficios que pertenencen a ese tipo de nomina
+	*
+	* @param String $tipo
+	* @return Array
+	*/
+	public function getBeneficiosTipo($tipo)
+	{
+		$beneficios = Tipo::join('beneficio_tipo', 'tipos.id', 'beneficio_tipo.tipo_id')
+			->join('beneficios', 'beneficio_tipo.beneficio_id', 'beneficios.id')
+			->select('beneficios.concepto', 'beneficios.valor', 'beneficios.tipo_valor',
+			'beneficios.tipo_valor_por', 'beneficios.id')
+			->where('tipos.name', $tipo)
+			->get();
+
+		return $beneficios;	
+	}
 
 	public function consultarNomina($id)
 	{
@@ -296,13 +317,13 @@ class nominaController extends Controller
 
     }
 
-    public function asignaciones($id, $calc = true)
+    public function asignaciones($id, $calc = true, $tipo_nomina = '')
     {
     	$empleado = Empleado::find($id);
 
 		//Si es true, retorna las asignaciones calculadas
 		if($calc){
-			$asignaciones = $this->calcAsignacion($empleado);
+			$asignaciones = $this->calcAsignacion($empleado, $tipo_nomina);
 		}else{
 			//Si no, se devuelve el json de las asignaciones sin calcular
 			$asignaciones = $empleado->beneficio;
@@ -312,15 +333,21 @@ class nominaController extends Controller
 		
     }
 
-	private function calcAsignacion($empleado)
+	private function calcAsignacion($empleado, $tipo_nomina)
 	{
 		$valores = [];
-
 		$asignaciones = $empleado->beneficio;
 		$empleado_id = $empleado->id;
 		$salario = $this->salarioTabla($empleado->id, $empleado->salario_id);
  		//Recorrer el array de asignaciones
-		for ($i=0; $i < count($asignaciones); $i++) { 
+
+		$beneficios_nomina = $this->getBeneficiosTipo($tipo_nomina);
+		$array_beneficios_nomina = [];
+		foreach ($beneficios_nomina as $key => $value) {
+			$array_beneficios_nomina[$value->concepto] = $value->valor;
+		}
+
+ 		for ($i=0; $i < count($asignaciones); $i++) { 
 			//Calcular la asignacion
 			$valor = 0;
 			if ($asignaciones[$i]->concepto == 'Prima de Profesionalización') {
@@ -361,14 +388,19 @@ class nominaController extends Controller
 				
 			};
 
+			// Comprobar que el empleado cuente con el beneficio
+			
 			$data = [
 				'concepto' => $asignaciones[$i]->concepto,
 				'valor' => round($valor, 2)
 			];
 
+			if(isset($array_beneficios_nomina[$asignaciones[$i]->concepto])){
+				//Insertar en el array valores
+				array_push($valores, $data);
+			}
 			
-			//Insertar en el array valores
-			array_push($valores, $data);
+			
 		}
 
 		//Retornar
@@ -680,5 +712,13 @@ class nominaController extends Controller
 			"aportes" => $encabezadoAportes,
 			"descuentos" => $encabezadoDescuentos
 		];
+	}
+
+	public function conceptos(Request $request)
+	{
+		$beneficios = Beneficio::get();
+		$descuentos = Descuento::get();
+
+		return ["beneficios" => $beneficios, "descuentos" => $descuentos];
 	}
 }

@@ -122,6 +122,15 @@ Route::group(['middleware'=>['auth']], function(){
 		Route::get('/nominas/{id}', 'nominaController@consultarNomina');
 		Route::get('/nominas/txt/{id}', 'nominaController@generarTxt');
 
+		Route::get('/conceptos', 'nominaController@conceptos');
+
+		//Tipos de Nominas
+		Route::get('/tipos', 'tiposController@index');
+		Route::get('/tipos/all', 'tiposController@getAll');
+		Route::post('/tipos', 'tiposController@store');
+		Route::delete('tipos/{id}', 'tiposController@destroy');
+
+
 		//Backups
 		Route::get('/backup', 'backup@index');
 		Route::post('/backup/create', 'backup@create');
@@ -135,3 +144,5 @@ Route::group(['middleware'=>['auth']], function(){
 Route::get('/api/pago/{ci}/{year}/{quincena}', 'pagosController@datosReciboPago');
 
 Auth::routes();
+
+//Route::get('/test/{id}/{calc}/{tipo}', 'nominaController@asignaciones');

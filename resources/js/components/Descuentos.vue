@@ -440,7 +440,7 @@
           },
           cambioPagina(page){
             this.pagination.current_page = page;
-            this.listarDescuentos(page, this.busqueda);
+            this.listarDescuentos(page, this.busqueda, this.criterio);
           }   
         }, 
         mounted() {

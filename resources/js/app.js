@@ -46,6 +46,8 @@ Vue.component('Roles', require('./components/Roles.vue').default);
 Vue.component('Usuarios', require('./components/Usuarios.vue').default);
 Vue.component('Nominas', require('./components/Nominas.vue').default);
     Vue.component('InfoNomina', require('./components/InfoNomina.vue').default);
+Vue.component('Tipos', require('./components/TipoNomina.vue').default);
+    Vue.component('FormTipo', require('./components/FormTipo.vue'));
 Vue.component('salarios', require('./components/salarios.vue').default);
 Vue.component('banco', require('./components/Rbanco.vue').default);
 Vue.component('Bancos', require('./components/Banco.vue').default);

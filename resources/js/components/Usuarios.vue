@@ -501,7 +501,7 @@
           },
           cambioPagina(page){
             this.pagination.current_page = page;
-            this.listarDescuentos(page, this.busqueda);
+            this.listarUsuarios(page, this.busqueda);
           }   
         }, 
         mounted() {

@@ -25,7 +25,7 @@
           <div class="col-12">
             <div class="card">
               <div class="card-header">
-                <button data-toggle="modal" data-target="#Modal" type="button" class="btn btn-light">
+                <button @click="getTipos()" data-toggle="modal" data-target="#Modal" type="button" class="btn btn-light">
                   <i class="fa fa-plus"></i>&nbsp;Nuevo
                 </button>
               </div>
@@ -120,7 +120,9 @@
                 <label for="tipo" class="col-form-label">Tipo de nómina</label>
                 <select @change="validarinput('tipo_nomina', tipo_nomina)" v-model="tipo_nomina" id="tipo_nomina" name="tipo_nomina" :class="['form-control', validType]" required>
                   <option disabled selected>Seleccionar</option>
-                  <option value="Sueldo y salario">Sueldo y salario</option>
+                  <template v-for="tipo in tiposNomina">
+                    <option :key="tipo.id" :value="tipo.name" v-text="tipo.name"></option>
+                  </template>
                 </select>
               </div>
               <div class="form-group">
@@ -140,8 +142,6 @@
     <!-- /.Modal nueva nomina -->
   </div>
 <!-- /.content-wrapper -->
-
-
 </template>
 <script>
     export default {
@@ -151,6 +151,7 @@
             id_nomina: 1,
             arrayNominas: [],
             nominas: [],
+            tiposNomina: [],
             tipo_nomina: 'Seleccionar',
             personal: 'Seleccionar',
             descripcion: '',
@@ -357,6 +358,13 @@
                 });
               }
             });   
+          },
+          getTipos(){
+            const url = '/tipos/all';
+
+            axios.get(url).then(response => {
+              this.tiposNomina = response.data;
+            }).catch(e => console.log(e))
           }
         }, 
         mounted() {

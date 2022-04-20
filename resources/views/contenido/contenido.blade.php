@@ -24,6 +24,9 @@
 	<Bancos></Bancos>	
 </template>
 <template v-if="menu==7">
+	<Tipos></Tipos>	
+</template>
+<template v-if="menu==72">
 	<Nominas></Nominas>	
 </template>
 <template v-if="menu==8">

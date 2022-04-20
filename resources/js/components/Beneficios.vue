@@ -509,7 +509,10 @@
                   me.listarBeneficios(1, me.busqueda, me.criterio);
                   me.resetearInputs();
                 }).catch(function(error){
-                  console.log(error);
+                  swal.fire(
+                        'No se puede eliminar este beneficio',
+                        '',
+                        'error');
                 });
               }else return;
             });   
