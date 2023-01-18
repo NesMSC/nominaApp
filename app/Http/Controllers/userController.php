@@ -80,7 +80,7 @@ class userController extends Controller
 	                        ->orWhere('cedula', 'like', "%$request->filtro%");
 	                    })->get();
 
-      return ["personas"=>$personas]; 
+      return ["personas"=>$personas];
     }
 
     public function store(Request $request)
@@ -102,7 +102,7 @@ class userController extends Controller
     	} catch(Exception $e){
             DB::rollBack();
             return $e;
-        }	
+        }
     }
 
     public function edit(Request $request, $id)
@@ -142,5 +142,5 @@ class userController extends Controller
         	->update(["condicion"=>$request->condicion]);
         return ["status"=>true, "msg" => 'Usuario inhabilitado exitosamente.'];
     }
- 
+
 }
